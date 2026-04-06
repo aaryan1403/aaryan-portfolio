@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /tmp/*.jpg /tmp/*.png /tmp/*.jpeg)",
+      "Bash(find ~/Library/Caches/ -name *.jpg -o -name *.png -o -name *.jpeg)",
+      "WebFetch(domain:www.behance.net)",
+      "Bash(curl -sL \"https://www.behance.net/gallery/206497141/UTS-Reimagined\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\" -H \"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8\")",
+      "Bash(curl -sL \"https://www.behance.net/gallery/206497141/UTS-Reimagined\" -H \"User-Agent: Mozilla/5.0 \\(Macintosh; Intel Mac OS X 10_15_7\\) AppleWebKit/537.36 \\(KHTML, like Gecko\\) Chrome/120.0.0.0 Safari/537.36\")",
+      "Bash(mv \"/Users/aaryanshrivastava/Desktop/Codex Projects/Portfolio-3/src/assets/projects/Dashboard XARISS.png\" \"/Users/aaryanshrivastava/Desktop/Codex Projects/Portfolio-3/src/assets/projects/xariss-dashboard-preview.png\")",
+      "Bash(mv \"/Users/aaryanshrivastava/Desktop/Codex Projects/Portfolio-3/src/assets/projects/Experiences XARISS.png\" \"/Users/aaryanshrivastava/Desktop/Codex Projects/Portfolio-3/src/assets/projects/xariss-experiences.png\")",
+      "Bash(mv \"/Users/aaryanshrivastava/Desktop/Codex Projects/Portfolio-3/src/assets/projects/Inbox XARISS.png\" \"/Users/aaryanshrivastava/Desktop/Codex Projects/Portfolio-3/src/assets/projects/xariss-inbox.png\")"
+    ]
+  }
+}
