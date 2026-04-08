@@ -20,6 +20,7 @@ import utsDesignProcess from "@/assets/projects/uts-design-process.png";
 import utsResearch from "@/assets/projects/uts-research.png";
 import utsIdeation from "@/assets/projects/uts-ideation.png";
 import { AboutView } from "@/components/portfolio/about-view";
+import { CaseStudyView } from "@/components/portfolio/case-study-view";
 import { CursorTrail } from "@/components/portfolio/cursor-trail";
 import { GridBackground } from "@/components/portfolio/grid-background";
 import { NavigationBar } from "@/components/portfolio/navigation-bar";
@@ -30,7 +31,7 @@ import {
 import { StarField } from "@/components/portfolio/star-field";
 
 type LayoutMode = "spread" | "grid";
-type ViewMode = "home" | "about";
+type ViewMode = "home" | "about" | "casestudy";
 
 const projects: ProjectCardData[] = [
   {
@@ -38,6 +39,7 @@ const projects: ProjectCardData[] = [
     image: xarissDashboard,
     rotation: -8,
     delay: 0,
+    hasCaseStudy: true,
     link: "https://www.behance.net/gallery/245926805/Luxury-Enterprise-SaaS-Panel",
     description:
       "A partner dashboard direction built around calmer data density, quick scanning, and a more structured interface for ongoing collaboration and reporting.",
@@ -103,11 +105,6 @@ const scatterLayouts: Record<string, string>[][] = [
   ],
 ];
 
-const projectLayouts: Record<LayoutMode, Record<string, string>[]> = {
-  spread: scatterLayouts[0],
-  grid:   [{}, {}, {}, {}],
-};
-
 const introDescription =
   "I design and ship across eCommerce, SaaS, and data-heavy platforms, turning ambiguity into clear, usable products while leveraging AI to move faster and relying on creativity and instinct to make experiences feel genuinely human.";
 const contactEmail = "aaryan.shri1403@gmail.com";
@@ -149,6 +146,7 @@ export function ElishaPortfolio() {
   const [isDark, setIsDark] = useState(true);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("home");
+  const [activeCaseStudySlug, setActiveCaseStudySlug] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -160,7 +158,17 @@ export function ElishaPortfolio() {
     [activeProjectTitle, viewMode],
   );
 
-  const mobileCards = useMemo(() => projects.slice(0, 3), []);
+  function openCaseStudy(slug: string) {
+    setActiveCaseStudySlug(slug);
+    setViewMode("casestudy");
+  }
+
+  function closeCaseStudy() {
+    setViewMode("home");
+    setActiveCaseStudySlug(null);
+  }
+
+  const mobileCards = useMemo(() => projects, []);
   const positionedProjects = useMemo(
     () =>
       projects.map((project, index) => ({
@@ -273,7 +281,7 @@ export function ElishaPortfolio() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
         className={cn(
-          "fixed top-6 right-6 z-10 text-right font-mono text-xs",
+          "fixed top-6 right-6 z-10 text-right font-mono text-[9px] sm:text-[10px]",
           isDark ? "text-gray-400" : "text-slate-500",
         )}
       >
@@ -293,21 +301,21 @@ export function ElishaPortfolio() {
         (⁰▿⁰)◜✧˖°
       </motion.div>
 
-      <div className="relative z-10 flex min-h-screen flex-col lg:flex-row">
-        <section className="w-full px-6 pb-10 pt-6 sm:px-10 lg:w-[30%] lg:pl-12 lg:pr-6 lg:pt-6">
+      <div className={cn("relative z-10 flex min-h-screen flex-col lg:flex-row", (viewMode === "about" || viewMode === "casestudy") && "invisible lg:visible")}>
+        <section className="w-full px-6 pt-6 pb-2 sm:px-10 lg:w-[30%] lg:pl-12 lg:pr-6 lg:pt-6 lg:pb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.8 }}
             className={cn(
-              "h-[2.98rem]",
-              activeProject && viewMode === "home" && "h-[3.7rem]",
+              "",
+              activeProject && viewMode === "home" && "",
             )}
           >
             {viewMode === "about" ? (
               <h1
                 className={cn(
-                  "max-w-none whitespace-nowrap font-['Caveat'] text-[2.15rem] leading-[0.92]",
+                  "max-w-none whitespace-nowrap font-['Caveat'] text-[1.7rem] sm:text-[2.15rem] leading-[0.92]",
                   isDark ? "text-white/92" : "text-slate-900/92",
                 )}
               >
@@ -335,7 +343,7 @@ export function ElishaPortfolio() {
             ) : (
               <h1
                 className={cn(
-                  "max-w-none whitespace-nowrap font-['Caveat'] text-[1.72rem] leading-[0.92]",
+                  "max-w-none whitespace-nowrap font-['Caveat'] text-[1.45rem] sm:text-[1.72rem] leading-[0.92] lg:relative lg:-top-[2px]",
                   isDark ? "text-white/92" : "text-slate-900/92",
                 )}
               >
@@ -349,13 +357,14 @@ export function ElishaPortfolio() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
             className={cn(
+              "mt-1",
               activeProject && viewMode === "home" && "pt-1.5",
             )}
           >
             <p
               className={cn(
-                "max-w-[20.5rem] text-[0.72rem] leading-[1.45]",
-                activeProject && viewMode === "home" && "max-w-[23rem] text-[0.765rem] leading-[1.44]",
+                "max-w-full lg:max-w-[20.5rem] text-[0.75rem] leading-[1.45]",
+                activeProject && viewMode === "home" && "max-w-full lg:max-w-[23rem] text-[0.765rem] leading-[1.44]",
                 isDark ? "text-white/80" : "text-slate-700",
               )}
             >
@@ -520,14 +529,15 @@ export function ElishaPortfolio() {
 
         <section
           className={cn(
-            "relative flex flex-1 items-center justify-center px-6 pb-44 lg:px-0 lg:pb-0",
+            "relative flex flex-1 items-center justify-center px-6 pb-24 lg:pb-44 lg:px-0 lg:pb-0",
             layoutMode === "grid" && "pt-0",
           )}
         >
-          <div className="grid w-full max-w-2xl gap-6 lg:hidden">
+          <div className="grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3 px-4 sm:px-8 lg:hidden">
             {mobileCards.map((project) => (
+              project.hasCaseStudy ? (
+              <button key={project.title} type="button" onClick={() => openCaseStudy("xariss")} className="text-left w-full">
               <motion.article
-                key={project.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: project.delay + 0.2 }}
@@ -541,7 +551,7 @@ export function ElishaPortfolio() {
                 <img
                   src={project.image}
                   alt={project.title}
-                  className="h-64 w-full object-cover"
+                  className="h-48 sm:h-64 w-full object-cover"
                 />
                 <div className="flex items-center justify-between gap-4 p-5">
                   <div>
@@ -572,6 +582,56 @@ export function ElishaPortfolio() {
                   </span>
                 </div>
               </motion.article>
+              </button>
+              ) : (
+              <a key={project.title} href={project.link} target="_blank" rel="noopener noreferrer">
+              <motion.article
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: project.delay + 0.2 }}
+                className={cn(
+                  "overflow-hidden rounded-2xl shadow-2xl backdrop-blur-sm",
+                  isDark
+                    ? "border border-white/10 bg-white/5"
+                    : "border border-slate-900/10 bg-white/55",
+                )}
+              >
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="h-48 sm:h-64 w-full object-cover"
+                />
+                <div className="flex items-center justify-between gap-4 p-5">
+                  <div>
+                    <p
+                      className={cn(
+                        "text-lg font-medium",
+                        isDark ? "text-white" : "text-slate-900",
+                      )}
+                    >
+                      {project.title}
+                    </p>
+                    <p
+                      className={cn(
+                        "mt-1 text-sm",
+                        isDark ? "text-white/55" : "text-slate-600",
+                      )}
+                    >
+                      {project.description}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      "font-mono text-xs",
+                      isDark ? "text-white/45" : "text-slate-500",
+                    )}
+                  >
+                    OPEN
+                  </span>
+                </div>
+              </motion.article>
+              </a>
+              )
             ))}
           </div>
 
@@ -597,6 +657,7 @@ export function ElishaPortfolio() {
                       onHoverChange={(isHovering) => {
                         setActiveProjectTitle(isHovering ? project.title : null);
                       }}
+                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy("xariss") : undefined}
                     />
                   ))}
                 </motion.div>
@@ -620,6 +681,7 @@ export function ElishaPortfolio() {
                       onHoverChange={(isHovering) => {
                         setActiveProjectTitle(isHovering ? project.title : null);
                       }}
+                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy("xariss") : undefined}
                     />
                   ))}
                 </motion.div>
@@ -674,6 +736,14 @@ export function ElishaPortfolio() {
         {viewMode === "about" && (
           <AboutView key="about-view" isDark={isDark} />
         )}
+        {viewMode === "casestudy" && activeCaseStudySlug && (
+          <CaseStudyView
+            key={`case-study-${activeCaseStudySlug}`}
+            slug={activeCaseStudySlug}
+            isDark={isDark}
+            onClose={closeCaseStudy}
+          />
+        )}
       </AnimatePresence>
 
       <motion.div
@@ -726,7 +796,7 @@ export function ElishaPortfolio() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8 }}
-        className="fixed bottom-6 left-12 z-40 hidden sm:block"
+        className="fixed bottom-6 left-4 sm:left-12 z-40 hidden sm:block"
       >
         <audio ref={audioRef} src={cosmicMusic} preload="metadata" />
         <button
