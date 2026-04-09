@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Palette, Gamepad2, UtensilsCrossed, BookOpen, Database, FileDown, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import aaryanPhoto from "@/assets/aaryan-photo.jpg";
+import aaryanMobilePhoto from "@/assets/projects/Aaryan_mobile_Image.jpeg";
 import { GridBackground } from "@/components/portfolio/grid-background";
 import { StarField } from "@/components/portfolio/star-field";
 import { LiquidGlassCard } from "@/components/ui/liquid-weather-glass";
@@ -113,10 +114,10 @@ type SocialLink = {
 };
 
 const socialLinks: SocialLink[] = [
-  { label: "LinkedIn",  href: "#", accent: "#0A66C2", icon: LinkedinIcon  },
-  { label: "Resume",    href: "#", accent: "#8B5CF6", icon: FileDown     },
-  { label: "Behance",   href: "#", accent: "#1769FF", icon: BehanceIcon  },
-  { label: "Calendly",  href: "#", accent: "#006BFF", icon: CalendarDays },
+  { label: "LinkedIn",  href: "https://www.linkedin.com/in/aaryan-shrivastava1403", accent: "#0A66C2", icon: LinkedinIcon  },
+  { label: "Resume",    href: "https://drive.google.com/file/d/1PV7l0OW4BCMYg53OSxyESpAf0Z66Tpu2/view?usp=sharing", accent: "#8B5CF6", icon: FileDown     },
+  { label: "Behance",   href: "https://www.behance.net/aaryanshrivas1", accent: "#1769FF", icon: BehanceIcon  },
+  { label: "Calendly",  href: "https://calendly.com/aaryan-shri1403", accent: "#006BFF", icon: CalendarDays },
 ];
 
 const whoIAmTexts = ["A Product Designer", "A Gamer", "A Tiramisu Expert"];
@@ -181,7 +182,7 @@ const expContainerVariants = {
 };
 const expEntryVariants = {
   hidden:  { opacity: 0, y: -14 },
-  visible: { opacity: 1, y: 0,   transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] } },
+  visible: { opacity: 1, y: 0,   transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
 };
 
 // ── GlassCard helper ──────────────────────────────────────────────────────────
@@ -214,7 +215,7 @@ function GlassCard({
     >
       <div
         className={cn(
-          "h-full rounded-[12px]",
+          "rounded-[12px] min-h-full",
           isDark ? "border border-white/10 bg-black/20" : "border border-white/75",
           innerClassName ?? "p-5",
         )}
@@ -255,7 +256,7 @@ function ExpEntry({
           isDark ? "border-white/25 bg-[#252541]" : "border-slate-300 bg-white",
         )} />
       )}
-      <p className={cn("font-['Caveat'] text-[1.4rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
+      <p className={cn("font-['Caveat'] text-[1.1rem] sm:text-[1.4rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
         {role}
       </p>
       <p className={cn("mt-0.5 font-mono text-[11px]", isDark ? "text-white/55" : "text-slate-500")}>
@@ -370,7 +371,7 @@ function CurrentlyCard({
 
 function BlinkingKaomoji({ isDark }: { isDark: boolean }) {
   const [blink, setBlink] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     function scheduleBlink() {
@@ -422,7 +423,12 @@ export function AboutView({ isDark }: AboutViewProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-20 flex flex-col overflow-hidden"
+      className={cn(
+        "fixed inset-0 z-20 flex flex-col overflow-y-auto",
+        isDark
+          ? "bg-gradient-to-b from-[#1a1a2e] via-[#252541] to-[#2d2d4a]"
+          : "bg-gradient-to-b from-[#edf4ff] via-[#e4ebff] to-[#f6f1ff]",
+      )}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -459,7 +465,7 @@ export function AboutView({ isDark }: AboutViewProps) {
       </div>
 
       {/* ── Layout ── */}
-      <div className="relative z-10 flex h-full flex-col px-6 pb-20 pt-5 sm:px-8 lg:pl-12 lg:pr-8">
+      <div className="relative z-10 flex flex-col px-6 pb-24 lg:pb-20 pt-5 sm:px-8 lg:pl-12 lg:pr-8 lg:h-full">
 
         {/* Header */}
         <motion.div
@@ -471,23 +477,30 @@ export function AboutView({ isDark }: AboutViewProps) {
           <p className={cn("mb-0.5 font-mono text-[9px] uppercase tracking-[0.28em]", isDark ? "text-white/38" : "text-slate-500")}>
             About
           </p>
-          <h1 className={cn("font-['Caveat'] text-[2rem] leading-[0.92]", isDark ? "text-white/92" : "text-slate-900")}>
+          <h1 className={cn("font-['Caveat'] text-[1.6rem] sm:text-[2rem] leading-[0.92]", isDark ? "text-white/92" : "text-slate-900")}>
             Aaryan Shrivastava{" "}
             <BlinkingKaomoji isDark={isDark} />
           </h1>
         </motion.div>
 
         {/* 3-column grid */}
-        <div className="grid min-h-0 flex-1 gap-3 grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)_minmax(0,1.3fr)]">
+        <div className="grid grid-cols-1 gap-3 content-start lg:content-stretch lg:flex-1 lg:min-h-0 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)_minmax(0,1.3fr)]">
 
           {/* ══ Col A · Photo ══ */}
-          <motion.div variants={colAVariants} initial="hidden" animate="visible" className="min-h-0">
+          <motion.div variants={colAVariants} initial="hidden" animate="visible" className="h-[300px] lg:h-auto lg:min-h-0">
             <GlassCard isDark={isDark} className="h-full min-h-0" innerClassName="p-2 h-full">
               <div className="relative h-full overflow-hidden rounded-[10px]">
+                {/* Mobile/tablet image */}
+                <img
+                  src={aaryanMobilePhoto}
+                  alt="Aaryan Shrivastava"
+                  className="h-full w-full object-cover object-center lg:hidden"
+                />
+                {/* Desktop image */}
                 <img
                   src={photos[photoIndex]}
                   alt="Aaryan Shrivastava"
-                  className="h-full w-full object-cover object-top"
+                  className="hidden h-full w-full object-cover object-[center_80%] lg:block"
                 />
                 {photos.length > 1 && (
                   <>
@@ -521,14 +534,14 @@ export function AboutView({ isDark }: AboutViewProps) {
             {/* Bio — grows to fill available space */}
             <GlassCard
               isDark={isDark}
-              className="flex-1 min-h-0"
-              innerClassName="p-5 flex flex-col gap-3 h-full"
+              className="lg:flex-1 lg:min-h-0"
+              innerClassName="p-5 flex flex-col gap-3"
               lightGradient={LIGHT_GRAD.purple}
             >
-              <div className="flex min-h-0 flex-1 flex-col">
+              <div className="flex flex-col">
                 <span className={label}>Who I am</span>
                 <div className="mb-3 flex items-center gap-3">
-                  <div className="relative h-14 w-14 flex-shrink-0">
+                  <div className="relative h-10 w-10 sm:h-14 sm:w-14 flex-shrink-0">
                     <AnimatePresence mode="wait">
                       {whoIAmIcons.map((item, i) =>
                         i === whoIAmIndex % whoIAmIcons.length ? (
@@ -553,8 +566,8 @@ export function AboutView({ isDark }: AboutViewProps) {
                     morphTime={1.1}
                     cooldownTime={2.2}
                     onIndexChange={setWhoIAmIndex}
-                    className="h-14 flex-1"
-                    textClassName={cn("font-['Caveat'] text-[2.8rem] leading-none", isDark ? "text-white/92" : "text-slate-900")}
+                    className="h-10 sm:h-14 flex-1"
+                    textClassName={cn("font-['Caveat'] text-[2rem] sm:text-[2.8rem] leading-none", isDark ? "text-white/92" : "text-slate-900")}
                   />
                 </div>
                 <div className={cn("space-y-2.5 text-[0.74rem] leading-[1.6]", isDark ? "text-white/68" : "text-slate-600")}>
@@ -562,10 +575,7 @@ export function AboutView({ isDark }: AboutViewProps) {
                     <span className={cn("font-['Caveat'] text-[1.05rem] leading-snug", isDark ? "text-white" : "text-slate-800")}>Hey, it's lovely to have you here.</span>{" "}I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
                   </p>
                   <p>
-                    I enjoy working in ambiguity where the path isn't obvious and the best ideas come through iteration. With a strong understanding of frontend and backend systems, I design with both creativity and technical realism.
-                  </p>
-                  <p>
-                    I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.
+                    I bloom in ambiguity where the path isn't obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.
                   </p>
                   <blockquote className={cn("border-l-2 pl-3 italic", isDark ? "border-white/20 text-white/40" : "border-slate-300 text-slate-400")}>
                     <p>Imagination is more important than knowledge.</p>
@@ -597,7 +607,7 @@ export function AboutView({ isDark }: AboutViewProps) {
             </div>
 
             {/* Tool stack + Get in touch — side by side at bottom */}
-            <div className="flex flex-shrink-0 gap-3">
+            <div className="flex flex-shrink-0 flex-col sm:flex-row gap-3">
 
               {/* Tool stack — half width */}
               <GlassCard isDark={isDark} className="flex-1 min-w-0" innerClassName="overflow-hidden px-4 py-3" lightGradient={LIGHT_GRAD.blue}>
@@ -648,12 +658,12 @@ export function AboutView({ isDark }: AboutViewProps) {
           <motion.div variants={colCVariants} initial="hidden" animate="visible" className="flex min-h-0 flex-col gap-3">
 
             {/* Experience */}
-            <GlassCard isDark={isDark} className="flex-1 min-h-0" innerClassName="p-5 h-full flex flex-col" lightGradient={LIGHT_GRAD.orange}>
+            <GlassCard isDark={isDark} className="lg:flex-1 lg:min-h-0" innerClassName="p-5 flex flex-col lg:h-full" lightGradient={LIGHT_GRAD.orange}>
               <span className={label}>Experience</span>
 
-              <motion.div variants={expContainerVariants} initial="hidden" animate="visible" className="flex flex-1 flex-col mb-3">
+              <motion.div variants={expContainerVariants} initial="hidden" animate="visible" className="flex flex-col mb-3 lg:flex-1">
                 {workItems.map((item, i) => (
-                  <motion.div key={item.company} variants={expEntryVariants} className={cn("flex", i < workItems.length - 1 ? "flex-1" : "")}>
+                  <motion.div key={item.company} variants={expEntryVariants} className={cn("flex", i < workItems.length - 1 ? "lg:flex-1" : "")}>
                     <ExpEntry isDark={isDark} {...item} isLast={i === workItems.length - 1} isCurrent={item.period.includes("Present")} />
                   </motion.div>
                 ))}

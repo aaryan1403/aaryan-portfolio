@@ -154,7 +154,7 @@ export const LiquidGlassCard = ({
       </svg>
       <MotionComponent
         className={cn(
-          `relative ${draggable ? "cursor-grab active:cursor-grabbing" : ""} ${expandable ? "cursor-pointer" : ""}`,
+          `relative flex flex-col ${draggable ? "cursor-grab active:cursor-grabbing" : ""} ${expandable ? "cursor-pointer" : ""}`,
           className,
         )}
         style={{
@@ -186,7 +186,7 @@ export const LiquidGlassCard = ({
             boxShadow: shadowStyles[shadowIntensity],
           }}
         />
-        <div className={cn("relative z-30 h-full")}>{children}</div>
+        <div className="relative z-30 grow">{children}</div>
       </MotionComponent>
     </>
   );

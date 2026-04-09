@@ -2,6 +2,8 @@ import xarissDashboard from "@/assets/projects/xariss-dashboard.jpg";
 import xarissDashboardPreview from "@/assets/projects/xariss-dashboard-preview.png";
 import xarissExperiences from "@/assets/projects/xariss-experiences.png";
 import xarissInbox from "@/assets/projects/xariss-inbox.png";
+import xarissStoreDashboard from "@/assets/projects/xariss-store-dashboard.png";
+import xarissManageExperiences from "@/assets/projects/xariss-manage-experiences.png";
 
 // ─── Content Block Types ────────────────────────────────────────────────────
 
@@ -18,6 +20,22 @@ export type ContentBlock =
       question: string;
       details: string[];
     }
+  | {
+      type: "rich-persona";
+      name: string;
+      initial: string;
+      avatarColor: string;
+      avatarTextColor: string;
+      avatarPhoto?: string;
+      role: string;
+      company: string;
+      location: string;
+      quote: string;
+      goals: string[];
+      painPoints: string[];
+      behaviour: string;
+    }
+  | { type: "persona-pair"; personas: Extract<ContentBlock, { type: "rich-persona" }>[] }
   | { type: "tensions"; items: { title: string; desc: string }[] }
   | {
       type: "phases";
@@ -48,11 +66,20 @@ export type ContentBlock =
       }[];
     }
   | {
+      type: "spacing-visual";
+      baseUnit: number;
+      tokens: { name: string; px: number; color: string }[];
+      columns: number;
+      gutters: string;
+      maxWidth: string;
+      cardPadding: string;
+    }
+  | {
       type: "screen";
       number: string;
       title: string;
       question: string;
-      image: string | null;
+      image: string | null | undefined;
       decisions: string[];
     }
   | { type: "decision"; number: string; title: string; body: string }
@@ -77,6 +104,7 @@ export type CaseStudyData = {
   title: string;
   subtitle: string;
   coverImage: string;
+  demoVideo?: string;
   accentColor: string;
   accentColorDark: string;
   role: string;
@@ -96,6 +124,7 @@ const xarissCaseStudy: CaseStudyData = {
   subtitle:
     "Designing an enterprise analytics and operations platform for luxury brand partnerships — from zero to a full 7-screen high-fidelity prototype.",
   coverImage: xarissDashboard,
+  demoVideo: "/xariss-demo.mov",
   accentColor: "#1a2744",
   accentColorDark: "#3B6FD4",
   role: "UX Designer (Solo)",
@@ -214,6 +243,75 @@ const xarissCaseStudy: CaseStudyData = {
             {
               title: "Insight vs Instruction",
               desc: "Surfacing that conversion dropped 31% is useless without telling the user what to do about it.",
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 02b · User Personas ───────────────────────────────────────────────────
+    {
+      id: "personas",
+      number: "02b",
+      title: "User Personas",
+      shortTitle: "Personas",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "Two distinct personas emerged from synthesis. Marco represents the strategic, portfolio-level user who measures success in revenue and growth trends. Giulia represents the operational, single-store user who measures success in what she can act on right now. Designing for both simultaneously was the central design challenge.",
+        },
+        {
+          type: "persona-pair",
+          personas: [
+            {
+              type: "rich-persona",
+              name: "Marco R.",
+              initial: "M",
+              avatarColor: "#1e40af",
+              avatarTextColor: "#ffffff",
+              avatarPhoto: "https://randomuser.me/api/portraits/men/32.jpg",
+              role: "Brand Owner",
+              company: "Gucci Italia",
+              location: "Milan · Manages 4 stores",
+              quote: "Which stores are driving revenue — and which are leaking demand?",
+              goals: [
+                "See portfolio performance at a glance without digging through reports",
+                "Compare store-level KPIs to identify where to invest attention",
+                "Make data-driven decisions about listing strategy and pricing",
+                "Justify platform value to internal stakeholders with clear ROI",
+              ],
+              painPoints: [
+                "Raw data without clear interpretation wastes decision-making time",
+                "No single view to compare all stores — needs to switch between tools",
+                "Can't tell if a conversion drop is seasonal or structural",
+                "Insight cards that describe a problem but suggest no action",
+              ],
+              behaviour: "Logs in weekly or before brand reviews. Treats the platform as an executive report, not a daily tool. Skips navigation and goes straight to top-line scores.",
+            },
+            {
+              type: "rich-persona",
+              name: "Giulia L.",
+              initial: "G",
+              avatarColor: "#0f766e",
+              avatarTextColor: "#ffffff",
+              avatarPhoto: "https://randomuser.me/api/portraits/women/44.jpg",
+              role: "Store Manager",
+              company: "Gucci Florence",
+              location: "Via Tornabuoni · Manages 1 store",
+              quote: "What do I need to do today to keep bookings coming in?",
+              goals: [
+                "Know what needs my attention before the first guest arrives",
+                "Respond to customer inquiries quickly, with the right context",
+                "Keep listing content fresh and availability slots up to date",
+                "Understand why bookings dropped without needing an analyst",
+              ],
+              painPoints: [
+                "Dashboards built for analysts, not operators — too much noise",
+                "Guest inquiries buried in email, disconnected from booking context",
+                "No clear signal when a listing needs to be updated vs. is fine",
+                "Period-based analytics are useless at 9am — she needs today's picture",
+              ],
+              behaviour: "Checks the dashboard every morning and after lunch. Uses it the way she uses a task list — needs to see what's overdue, what's urgent, and what can wait.",
             },
           ],
         },
@@ -433,8 +531,21 @@ const xarissCaseStudy: CaseStudyData = {
           text: "Spacing & Grid",
         },
         {
-          type: "paragraph",
-          text: "A 4px base unit generates the full spacing scale (4/8/12/16/24/32/48px). The main content area uses a 12-column grid with 16px gutters, capped at 1160px to maintain comfortable line lengths at high resolutions. Card padding is fixed at 24px. Page padding is 26–32px. This creates predictable visual rhythm that designers can maintain without checking specifications.",
+          type: "spacing-visual",
+          baseUnit: 4,
+          tokens: [
+            { name: "4px",  px: 4,  color: "#3B6FD4" },
+            { name: "8px",  px: 8,  color: "#3B6FD4" },
+            { name: "12px", px: 12, color: "#2563EB" },
+            { name: "16px", px: 16, color: "#2563EB" },
+            { name: "24px", px: 24, color: "#1d4ed8" },
+            { name: "32px", px: 32, color: "#1d4ed8" },
+            { name: "48px", px: 48, color: "#1e3a8a" },
+          ],
+          columns: 12,
+          gutters: "16px",
+          maxWidth: "1160px",
+          cardPadding: "24px",
         },
         {
           type: "heading",
@@ -518,7 +629,7 @@ const xarissCaseStudy: CaseStudyData = {
           number: "02",
           title: "Store Manager Dashboard",
           question: "What do I need to act on today?",
-          image: null,
+          image: xarissStoreDashboard,
           decisions: [
             "Shares the same shell and design system as the Brand Dashboard but makes 14 structural changes. Multi-store components are removed.",
             "Three operational widgets in Zone C (Today's Bookings, Pending Inquiries, Capacity Status) replace analytics-focused components.",
@@ -563,7 +674,7 @@ const xarissCaseStudy: CaseStudyData = {
           title: "Experiences Module",
           question:
             "Which of my experiences need attention, and what kind of attention do they need?",
-          image: null,
+          image: xarissManageExperiences,
           decisions: [
             "Grid/table view with classification badges and content health bars communicates experience status without requiring the user to read every number.",
             "Red card border on Declining experiences makes the problem visible before the user reads the KPIs.",
@@ -576,7 +687,7 @@ const xarissCaseStudy: CaseStudyData = {
           title: "Content & Media Library",
           question:
             "Is my content fresh, complete, and ready to convert high-intent visitors?",
-          image: null,
+          image: undefined,
           decisions: [
             "Stale and missing-alt-text assets flagged in a dedicated section above the rest of the media grid — alert-first pattern used throughout the platform.",
             "Right-hand Content Health panel scores five dimensions with colour-coded sub-scores, then lists specific items requiring attention with direct CTAs.",
@@ -588,7 +699,7 @@ const xarissCaseStudy: CaseStudyData = {
           title: "Settings Module",
           question:
             "How do I configure my account without losing my place in the product?",
-          image: null,
+          image: undefined,
           decisions: [
             "Secondary navigation rail (not the global sidebar) for sub-section navigation — reducing sidebar items to seven while giving settings the depth it needs.",
             "Notification toggles map precisely to the five Partnership Health Score components — a deliberate conceptual link between monitoring and alerting.",
