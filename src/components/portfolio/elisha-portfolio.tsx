@@ -165,6 +165,8 @@ export function ElishaPortfolio() {
   const [activeCaseStudySlug, setActiveCaseStudySlug] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [panelHeightOverride, setPanelHeightOverride] = useState<number | null>(null);
 
   const activeProject = useMemo(
     () =>
@@ -240,6 +242,37 @@ export function ElishaPortfolio() {
       audio.removeEventListener("ended", handleEnded);
     };
   }, []);
+
+  useEffect(() => {
+    if (layoutMode !== "grid") {
+      setPanelHeightOverride(null);
+      return;
+    }
+    const measure = () => {
+      const grid = document.querySelector<HTMLElement>(".grid-cols-2.gap-5");
+      const panel = panelRef.current;
+      if (!grid || !panel) return;
+      const panelRect = panel.getBoundingClientRect();
+      const cards = Array.from(grid.querySelectorAll("article")).filter(
+        (c) => c.getBoundingClientRect().height > 10,
+      );
+      if (cards.length === 0) return;
+      const maxBottom = Math.max(...cards.map((c) => c.getBoundingClientRect().bottom));
+      setPanelHeightOverride(Math.round(maxBottom - panelRect.top));
+    };
+    const timer = setTimeout(measure, 1400);
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => requestAnimationFrame(measure), 150);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [layoutMode]);
 
   async function copyToClipboard(value: string, label: string) {
     try {
@@ -418,15 +451,18 @@ export function ElishaPortfolio() {
           </motion.div>
 
           <motion.div
+            ref={panelRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5 }}
             className={cn(
-              "mt-3 hidden h-[calc(100vh-20rem)] min-h-[18rem] max-h-[38.5rem] w-full max-w-[21.5rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
+              "mt-3 hidden min-h-[18rem] w-full max-w-[21.5rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
+              panelHeightOverride === null && "h-[calc(100vh-20rem)] max-h-[38.5rem]",
               isDark
                 ? "border-white/10 bg-white/5"
                 : "border-slate-900/10 bg-white/45",
             )}
+            style={panelHeightOverride !== null ? { height: `${panelHeightOverride}px` } : undefined}
           >
             {viewMode === "about" ? (
               <div className="flex h-full flex-col justify-between">
