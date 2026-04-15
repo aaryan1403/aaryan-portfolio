@@ -40,9 +40,11 @@ const projects: ProjectCardData[] = [
     rotation: -8,
     delay: 0,
     hasCaseStudy: true,
+    caseStudySlug: "xariss",
     link: "https://www.behance.net/gallery/245926805/Luxury-Enterprise-SaaS-Panel",
+    year: "2026",
     description:
-      "A partner dashboard direction built around calmer data density, quick scanning, and a more structured interface for ongoing collaboration and reporting.",
+      "A B2B CRM platform for luxury brands to manage listings, track bookings, and act on performance data, designed end-to-end for two distinct user roles. **48 brands** onboarded, with store managers going from raw data to actionable decisions in **under 10 minutes**.",
     previewImages: [xarissDashboardPreview, xarissExperiences, xarissInbox],
   },
   {
@@ -50,9 +52,12 @@ const projects: ProjectCardData[] = [
     image: cpiCover,
     rotation: 20,
     delay: 0.1,
+    hasCaseStudy: true,
+    caseStudySlug: "paceyourself",
     link: "https://www.behance.net/gallery/207388571/Pace-Yourself",
+    year: "2024",
     description:
-      "A support-led health platform focused on helping people living with chronic pain find trusted information, practical tools, and a calmer digital experience.",
+      "A mobile app helping people with chronic pain manage their daily lives — designed through **30+** academic papers, focus groups, thematic analysis, and a **27-person** workshop to ground every decision in real user need. Now live and used by **1,000+** people.",
     previewImages: [cpiKeyChallenges, cpiWireframes, cpiFinalScreens],
   },
   {
@@ -61,8 +66,9 @@ const projects: ProjectCardData[] = [
     rotation: -16,
     delay: 0.2,
     link: "https://www.behance.net/gallery/206497141/UTS-Reimagined",
+    year: "2022",
     description:
-      "A UX/UI redesign for the UTS mobile ticketing experience focused on simplifying navigation, improving booking clarity, and making everyday travel feel lighter.",
+      "A redesign of Mumbai's official local train ticketing app, used daily by millions of commuters — focused on simplifying a fragmented booking flow into something fast, intuitive, and stress-free for one of the world's busiest transit systems.",
     previewImages: [utsDesignProcess, utsResearch, utsIdeation],
   },
   {
@@ -71,8 +77,9 @@ const projects: ProjectCardData[] = [
     rotation: 10,
     delay: 0.15,
     link: "https://www.behance.net/gallery/202145727/Login-Portal",
+    year: "2021",
     description:
-      "A member portal concept with a friendlier onboarding flow, clearer account selection, and a softer visual system designed to make sign-in feel less transactional.",
+      "A member login portal, designed through secondary research, information architecture, and iterative wireframing to create a seamless onboarding experience. Delivered as a high-fidelity prototype aligned with stakeholder requirements.",
     previewImages: [yif1, yif2, yif3],
   },
 ];
@@ -106,7 +113,16 @@ const scatterLayouts: Record<string, string>[][] = [
 ];
 
 const introDescription =
-  "I design and ship across eCommerce, SaaS, and data-heavy platforms, turning ambiguity into clear, usable products while leveraging AI to move faster and relying on creativity and instinct to make experiences feel genuinely human.";
+  "Product Designer with **2+ years of experience**, currently at XARISS building a B2C **Luxury Ecommerce** platform and a B2B **CRM Product**. I use AI to move fast, and creativity and product thinking to make sure what ships actually feels intuitive.";
+
+function renderBold(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**")
+      ? <strong key={i}>{part.slice(2, -2)}</strong>
+      : part,
+  );
+}
 const contactEmail = "aaryan.shri1403@gmail.com";
 const defaultLightGradient =
   "linear-gradient(180deg, #edf4ff 0%, #e4ebff 48%, #f6f1ff 100%)";
@@ -182,6 +198,7 @@ export function ElishaPortfolio() {
   const lightThemeBackground = activeProject
     ? lightThemeProjectGradients[activeProject.title] ?? defaultLightGradient
     : defaultLightGradient;
+  const xarissFeaturedVariant: 0 = 0;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -371,8 +388,8 @@ export function ElishaPortfolio() {
               {viewMode === "about"
                 ? "A dedicated about page is now wired into the app. We can build the full story, timeline, and contact details there next."
                 : activeProject
-                  ? activeProject.description
-                  : introDescription}
+                  ? renderBold(activeProject.description)
+                  : renderBold(introDescription)}
             </p>
           </motion.div>
 
@@ -396,7 +413,7 @@ export function ElishaPortfolio() {
                 ? "Use the home icon to return to the portfolio."
                 : activeProject
                   ? "Hover the stack to preview more visual directions."
-                  : "Working as: Product Designer at XARISS"}
+                  : "Prev worked for: Chronic Pain Ireland (CPI) and Cozmotec"}
             </p>
           </motion.div>
 
@@ -405,7 +422,7 @@ export function ElishaPortfolio() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5 }}
             className={cn(
-              "mt-3 hidden h-[calc(100vh-13.55rem)] min-h-[29.5rem] max-h-[38.5rem] w-full max-w-[21.5rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
+              "mt-3 hidden h-[calc(100vh-20rem)] min-h-[18rem] max-h-[38.5rem] w-full max-w-[21.5rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
               isDark
                 ? "border-white/10 bg-white/5"
                 : "border-slate-900/10 bg-white/45",
@@ -529,14 +546,14 @@ export function ElishaPortfolio() {
 
         <section
           className={cn(
-            "relative flex flex-1 items-center justify-center px-6 pb-24 lg:pb-44 lg:px-0 lg:pb-0",
+            "relative flex flex-1 items-center justify-center px-6 pb-24 lg:px-0 lg:pb-0",
             layoutMode === "grid" && "pt-0",
           )}
         >
           <div className="grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3 px-4 sm:px-8 lg:hidden">
             {mobileCards.map((project) => (
               project.hasCaseStudy ? (
-              <button key={project.title} type="button" onClick={() => openCaseStudy("xariss")} className="text-left w-full">
+              <button key={project.title} type="button" onClick={() => openCaseStudy(project.caseStudySlug ?? "xariss")} className="text-left w-full">
               <motion.article
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -569,7 +586,7 @@ export function ElishaPortfolio() {
                         isDark ? "text-white/55" : "text-slate-600",
                       )}
                     >
-                      {project.description}
+                      {renderBold(project.description)}
                     </p>
                   </div>
                   <span
@@ -617,7 +634,7 @@ export function ElishaPortfolio() {
                         isDark ? "text-white/55" : "text-slate-600",
                       )}
                     >
-                      {project.description}
+                      {renderBold(project.description)}
                     </p>
                   </div>
                   <span
@@ -644,7 +661,7 @@ export function ElishaPortfolio() {
                   animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -14, scale: 1.01, filter: "blur(8px)" }}
                   transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative hidden h-[760px] w-full lg:block"
+                  className="relative hidden h-[min(760px,calc(100vh-200px))] w-full lg:block"
                 >
                   {positionedProjects.map((project, index) => (
                     <ProjectCard
@@ -654,10 +671,11 @@ export function ElishaPortfolio() {
                       index={index}
                       isActive={activeProjectTitle === project.title}
                       isDark={isDark}
+                      featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
                       onHoverChange={(isHovering) => {
                         setActiveProjectTitle(isHovering ? project.title : null);
                       }}
-                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy("xariss") : undefined}
+                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
                     />
                   ))}
                 </motion.div>
@@ -678,10 +696,11 @@ export function ElishaPortfolio() {
                       index={index}
                       isActive={activeProjectTitle === project.title}
                       isDark={isDark}
+                      featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
                       onHoverChange={(isHovering) => {
                         setActiveProjectTitle(isHovering ? project.title : null);
                       }}
-                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy("xariss") : undefined}
+                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
                     />
                   ))}
                 </motion.div>

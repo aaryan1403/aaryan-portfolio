@@ -67,7 +67,7 @@ const tools = [
 ];
 
 const workItems: { role: string; company: string; period: string; location: string; type: ExpType }[] = [
-  { role: "Founding Product Designer", company: "XARISS Luxury",          period: "Jan 2025 – Present",   location: "Dublin", type: "Work" },
+  { role: "Product Designer",           company: "XARISS Luxury",          period: "Jan 2025 – Present",   location: "Dublin", type: "Work" },
   { role: "UI Designer",               company: "Cozmotec",               period: "Aug – Dec 2024",        location: "Dublin", type: "Work" },
   { role: "UX Designer",               company: "Chronic Pain Ireland",   period: "May – Aug 2024",        location: "Dublin", type: "Work" },
   { role: "UX/UI Designer",            company: "Youth India Foundation", period: "Mar – Jul 2022",        location: "Mumbai", type: "Work" },
@@ -170,9 +170,21 @@ const colBVariants = {
   hidden:  { opacity: 0, scale: 0.84, y: 36 },
   visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...SPRING, delay: 0.21 } },
 };
+const colB2Variants = {
+  hidden:  { opacity: 0, scale: 0.88, y: 28 },
+  visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...SPRING, delay: 0.28 } },
+};
+const colB3Variants = {
+  hidden:  { opacity: 0, scale: 0.88, y: 28 },
+  visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...SPRING, delay: 0.35 } },
+};
 const colCVariants = {
   hidden:  { opacity: 0, scale: 0.84, x: 28, y: 28 },
   visible: { opacity: 1, scale: 1,    x: 0,  y: 0,  transition: { ...SPRING, delay: 0.30 } },
+};
+const colC2Variants = {
+  hidden:  { opacity: 0, scale: 0.84, x: 28, y: 28 },
+  visible: { opacity: 1, scale: 1,    x: 0,  y: 0,  transition: { ...SPRING, delay: 0.42 } },
 };
 
 // Experience timeline stagger
@@ -236,7 +248,7 @@ function ExpEntry({
   period: string; location: string; type: ExpType; isLast: boolean; isCurrent?: boolean;
 }) {
   return (
-    <div className={cn("relative pl-6", !isLast && "flex-1")}>
+    <div className="relative pl-6">
       {!isLast && (
         <div className={cn(
           "absolute bottom-0 left-[6px] top-[10px] w-px",
@@ -313,26 +325,26 @@ function CurrentlyCard({
         {/* Card body */}
         <div
           className={cn(
-            "flex h-full flex-col gap-2 rounded-[10px] p-3.5",
+            "flex h-full flex-col gap-1.5 rounded-[10px] p-3",
             isDark ? "border border-white/10" : "border border-white/75",
           )}
           style={isDark ? { backgroundColor: item.bgDark } : { backgroundImage: item.bg }}
         >
           <div className="flex items-center gap-2">
             <div
-              className="flex h-6 w-6 items-center justify-center rounded-lg"
+              className="flex h-8 w-8 items-center justify-center rounded-lg"
               style={{
                 backgroundColor: isDark ? `${item.accent}22` : `${item.accent}28`,
                 border: `1.5px solid ${item.accent}44`,
               }}
             >
-              <Icon className="h-3 w-3" style={{ color: item.accent }} />
+              <Icon className="h-4 w-4" style={{ color: item.accent }} />
             </div>
-            <span className={cn("font-mono text-[8px] uppercase tracking-[0.2em]", isDark ? "text-white/45" : "text-slate-500")}>
+            <span className={cn("font-mono text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/45" : "text-slate-500")}>
               {item.category}
             </span>
           </div>
-          <p className={cn("font-['Caveat'] text-[1.1rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
+          <p className={cn("font-['Caveat'] text-[1.25rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
             {item.value.split("\n").map((line, i, arr) => (
               <span key={i}>
                 {line}
@@ -424,7 +436,7 @@ export function AboutView({ isDark }: AboutViewProps) {
   return (
     <motion.div
       className={cn(
-        "fixed inset-0 z-20 flex flex-col overflow-y-auto",
+        "fixed inset-0 z-20 flex flex-col overflow-y-auto [@media(max-height:650px)]:lg:overflow-y-auto",
         isDark
           ? "bg-gradient-to-b from-[#1a1a2e] via-[#252541] to-[#2d2d4a]"
           : "bg-gradient-to-b from-[#edf4ff] via-[#e4ebff] to-[#f6f1ff]",
@@ -445,6 +457,15 @@ export function AboutView({ isDark }: AboutViewProps) {
           will-change: transform;
         }
         .about-marquee-track:hover { animation-play-state: paused; }
+        @media (min-width: 1024px) {
+          .about-grid { grid-template-rows: minmax(0, 1fr) 158px 110px; }
+        }
+        @media (min-width: 1024px) and (max-height: 800px) {
+          .about-grid { grid-template-rows: minmax(0, 1fr) 130px 95px; }
+        }
+        @media (min-width: 1024px) and (max-height: 650px) {
+          .about-grid { grid-template-rows: auto auto 110px; }
+        }
       `}</style>
 
       {/* ── Background ── */}
@@ -465,7 +486,7 @@ export function AboutView({ isDark }: AboutViewProps) {
       </div>
 
       {/* ── Layout ── */}
-      <div className="relative z-10 flex flex-col px-6 pb-24 lg:pb-20 pt-5 sm:px-8 lg:pl-12 lg:pr-8 lg:h-full">
+      <div className="relative z-10 flex flex-col px-6 pb-24 pt-5 sm:px-8 lg:h-full lg:overflow-hidden lg:pb-[82px] lg:pl-12 lg:pr-8 lg:pt-5 [@media(max-height:650px)]:lg:h-auto [@media(max-height:650px)]:lg:min-h-full [@media(max-height:650px)]:lg:overflow-visible">
 
         {/* Header */}
         <motion.div
@@ -483,25 +504,18 @@ export function AboutView({ isDark }: AboutViewProps) {
           </h1>
         </motion.div>
 
-        {/* 3-column grid */}
-        <div className="grid grid-cols-1 gap-3 content-start lg:content-stretch lg:flex-1 lg:min-h-0 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)_minmax(0,1.3fr)]">
+        {/* 3-column × 3-row grid — explicit placement for precise cross-column alignment */}
+        <div className="about-grid grid grid-cols-1 gap-3 lg:flex-1 lg:min-h-0 lg:gap-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.5fr)_minmax(0,1.2fr)] [@media(max-height:650px)]:lg:flex-none">
 
-          {/* ══ Col A · Photo ══ */}
-          <motion.div variants={colAVariants} initial="hidden" animate="visible" className="h-[300px] lg:h-auto lg:min-h-0">
-            <GlassCard isDark={isDark} className="h-full min-h-0" innerClassName="p-2 h-full">
+          {/* ══ Col A · Photo — spans all 3 rows ══ */}
+          <motion.div
+            variants={colAVariants} initial="hidden" animate="visible"
+            className="h-[300px] lg:col-start-1 lg:row-start-1 lg:row-span-3 lg:h-auto lg:min-h-0"
+          >
+            <GlassCard isDark={isDark} className="h-full" innerClassName="p-2 h-full">
               <div className="relative h-full overflow-hidden rounded-[10px]">
-                {/* Mobile/tablet image */}
-                <img
-                  src={aaryanMobilePhoto}
-                  alt="Aaryan Shrivastava"
-                  className="h-full w-full object-cover object-center lg:hidden"
-                />
-                {/* Desktop image */}
-                <img
-                  src={photos[photoIndex]}
-                  alt="Aaryan Shrivastava"
-                  className="hidden h-full w-full object-cover object-[center_80%] lg:block"
-                />
+                <img src={aaryanMobilePhoto} alt="Aaryan Shrivastava" className="h-full w-full object-cover object-center lg:hidden" />
+                <img src={photos[photoIndex]} alt="Aaryan Shrivastava" className="hidden h-full w-full object-cover object-[center_80%] lg:block" />
                 {photos.length > 1 && (
                   <>
                     <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
@@ -528,20 +542,21 @@ export function AboutView({ isDark }: AboutViewProps) {
             </GlassCard>
           </motion.div>
 
-          {/* ══ Col B · Bio + AI/Brain + Tools + Get in touch ══ */}
-          <motion.div variants={colBVariants} initial="hidden" animate="visible" className="flex min-h-0 flex-col gap-3">
-
-            {/* Bio — grows to fill available space */}
+          {/* ══ Col B Row 1 · Bio ══ */}
+          <motion.div
+            variants={colBVariants} initial="hidden" animate="visible"
+            className="lg:col-start-2 lg:row-start-1 lg:min-h-0"
+          >
             <GlassCard
               isDark={isDark}
-              className="lg:flex-1 lg:min-h-0"
-              innerClassName="p-5 flex flex-col gap-3"
+              className="h-full lg:overflow-hidden [@media(max-height:650px)]:lg:h-auto [@media(max-height:650px)]:lg:overflow-visible"
+              innerClassName="flex h-full flex-col justify-between gap-3 p-5 pb-7 lg:overflow-y-auto [@media(max-height:650px)]:h-auto [@media(max-height:650px)]:gap-2.5 [@media(max-height:650px)]:overflow-visible [@media(max-height:650px)]:p-4"
               lightGradient={LIGHT_GRAD.purple}
             >
               <div className="flex flex-col">
                 <span className={label}>Who I am</span>
-                <div className="mb-3 flex items-center gap-3">
-                  <div className="relative h-10 w-10 sm:h-14 sm:w-14 flex-shrink-0">
+                <div className="mb-3 flex items-center gap-3 [@media(max-height:650px)]:mb-2.5">
+                  <div className="relative h-10 w-10 flex-shrink-0 sm:h-14 sm:w-14 [@media(max-height:650px)]:h-9 [@media(max-height:650px)]:w-9 [@media(max-height:650px)]:sm:h-12 [@media(max-height:650px)]:sm:w-12">
                     <AnimatePresence mode="wait">
                       {whoIAmIcons.map((item, i) =>
                         i === whoIAmIndex % whoIAmIcons.length ? (
@@ -551,10 +566,7 @@ export function AboutView({ isDark }: AboutViewProps) {
                             exit={{ opacity: 0, scale: 0.6, rotate: 12 }}
                             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                             className="absolute inset-0 flex items-center justify-center rounded-xl"
-                            style={{
-                              backgroundColor: isDark ? `${item.color}22` : `${item.color}28`,
-                              border: `1.5px solid ${item.color}44`,
-                            }}>
+                            style={{ backgroundColor: isDark ? `${item.color}22` : `${item.color}28`, border: `1.5px solid ${item.color}44` }}>
                             <item.icon className="h-7 w-7" style={{ color: item.color }} />
                           </motion.div>
                         ) : null
@@ -562,15 +574,20 @@ export function AboutView({ isDark }: AboutViewProps) {
                     </AnimatePresence>
                   </div>
                   <GooeyText
-                    texts={whoIAmTexts}
-                    morphTime={1.1}
-                    cooldownTime={2.2}
-                    onIndexChange={setWhoIAmIndex}
-                    className="h-10 sm:h-14 flex-1"
-                    textClassName={cn("font-['Caveat'] text-[2rem] sm:text-[2.8rem] leading-none", isDark ? "text-white/92" : "text-slate-900")}
+                    texts={whoIAmTexts} morphTime={1.1} cooldownTime={2.2} onIndexChange={setWhoIAmIndex}
+                    className="h-10 flex-1 sm:h-14 [@media(max-height:650px)]:h-9 [@media(max-height:650px)]:sm:h-12"
+                    textClassName={cn(
+                      "font-['Caveat'] text-[2rem] leading-none sm:text-[2.8rem] [@media(max-height:650px)]:text-[1.8rem] [@media(max-height:650px)]:sm:text-[2.35rem]",
+                      isDark ? "text-white/92" : "text-slate-900",
+                    )}
                   />
                 </div>
-                <div className={cn("space-y-2.5 text-[0.74rem] leading-[1.6]", isDark ? "text-white/68" : "text-slate-600")}>
+                <div
+                  className={cn(
+                    "space-y-2.5 text-[0.74rem] leading-[1.6] [@media(max-height:650px)]:space-y-2 [@media(max-height:650px)]:text-[0.71rem] [@media(max-height:650px)]:leading-[1.5]",
+                    isDark ? "text-white/68" : "text-slate-600",
+                  )}
+                >
                   <p>
                     <span className={cn("font-['Caveat'] text-[1.05rem] leading-snug", isDark ? "text-white" : "text-slate-800")}>Hey, it's lovely to have you here.</span>{" "}I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
                   </p>
@@ -589,94 +606,29 @@ export function AboutView({ isDark }: AboutViewProps) {
                 </p>
               </div>
             </GlassCard>
-
-            {/* AI / Brain */}
-            <div className="flex flex-shrink-0 gap-3">
-              <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.peach}>
-                <span className={label}>What I leverage AI for</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {aiItems.map((item) => <span key={item} className={pill}>{item}</span>)}
-                </div>
-              </GlassCard>
-              <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.purple}>
-                <span className={label}>What I use my Brain for</span>
-                <div className="flex flex-wrap gap-1.5">
-                  {brainItems.map((item) => <span key={item} className={pill}>{item}</span>)}
-                </div>
-              </GlassCard>
-            </div>
-
-            {/* Tool stack + Get in touch — side by side at bottom */}
-            <div className="flex flex-shrink-0 flex-col sm:flex-row gap-3">
-
-              {/* Tool stack — half width */}
-              <GlassCard isDark={isDark} className="flex-1 min-w-0" innerClassName="overflow-hidden px-4 py-3" lightGradient={LIGHT_GRAD.blue}>
-                <span className={label}>Tool stack</span>
-                <div className="overflow-hidden">
-                  <div className="about-marquee-track flex w-max items-end gap-4">
-                    {[...tools, ...tools].map((tool, i) => (
-                      <div key={i} className="flex flex-shrink-0 flex-col items-center gap-1">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-md" style={{ backgroundColor: tool.bg }}>
-                          <img src={tool.iconUrl} alt={tool.name} className="h-[18px] w-[18px]" />
-                        </div>
-                        <span className={cn("font-mono text-[8px]", isDark ? "text-white/45" : "text-slate-500")}>{tool.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </GlassCard>
-
-              {/* Get in touch — half width, 2×2 icon grid */}
-              <GlassCard isDark={isDark} className="flex-1" innerClassName="px-4 py-3" lightGradient={LIGHT_GRAD.blue}>
-                <span className={label}>Get in touch</span>
-                <div className="grid grid-cols-2 gap-2">
-                  {socialLinks.map(({ label: name, href, accent, icon: Icon }) => (
-                    <a
-                      key={name}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex items-center gap-2"
-                    >
-                      <div
-                        className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-110"
-                        style={{ backgroundColor: `${accent}22`, border: `1.5px solid ${accent}55` }}
-                      >
-                        <Icon className="h-[15px] w-[15px]" style={{ color: accent }} />
-                      </div>
-                      <span className={cn("text-[0.62rem] font-mono leading-tight", isDark ? "text-white/50" : "text-slate-500")}>{name}</span>
-                    </a>
-                  ))}
-                </div>
-              </GlassCard>
-
-            </div>
-
           </motion.div>
 
-          {/* ══ Col C · Experience + Currently ══ */}
-          <motion.div variants={colCVariants} initial="hidden" animate="visible" className="flex min-h-0 flex-col gap-3">
-
-            {/* Experience */}
-            <GlassCard isDark={isDark} className="lg:flex-1 lg:min-h-0" innerClassName="p-5 flex flex-col lg:h-full" lightGradient={LIGHT_GRAD.orange}>
+          {/* ══ Col C Rows 1–2 · Experience ══ */}
+          <motion.div
+            variants={colCVariants} initial="hidden" animate="visible"
+            className="flex flex-col lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:min-h-0"
+          >
+            <GlassCard isDark={isDark} className="flex-1 min-h-0 overflow-hidden" innerClassName="p-5 flex flex-col h-full overflow-y-auto" lightGradient={LIGHT_GRAD.orange}>
               <span className={label}>Experience</span>
-
-              <motion.div variants={expContainerVariants} initial="hidden" animate="visible" className="flex flex-col mb-3 lg:flex-1">
+              <motion.div variants={expContainerVariants} initial="hidden" animate="visible" className="flex flex-col gap-4 mb-5">
                 {workItems.map((item, i) => (
-                  <motion.div key={item.company} variants={expEntryVariants} className={cn("flex", i < workItems.length - 1 ? "lg:flex-1" : "")}>
+                  <motion.div key={item.company} variants={expEntryVariants} className="flex">
                     <ExpEntry isDark={isDark} {...item} isLast={i === workItems.length - 1} isCurrent={item.period.includes("Present")} />
                   </motion.div>
                 ))}
               </motion.div>
-
               <span className={cn("mb-2 block font-mono text-[8px] uppercase tracking-[0.28em]", isDark ? "text-white/25" : "text-slate-400")}>
                 Education
               </span>
-
               <motion.div
                 variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.085, delayChildren: 0.85 } } }}
                 initial="hidden" animate="visible"
-                className="flex flex-col gap-3"
+                className="flex flex-col gap-4"
               >
                 {educationItems.map((item, i) => (
                   <motion.div key={item.company} variants={expEntryVariants}>
@@ -685,15 +637,73 @@ export function AboutView({ isDark }: AboutViewProps) {
                 ))}
               </motion.div>
             </GlassCard>
-
-            {/* Currently — 3 cards with hover overlays */}
-            <div className="flex flex-shrink-0 gap-3">
-              {currentlyItems.map((item) => (
-                <CurrentlyCard key={item.category} isDark={isDark} item={item} />
-              ))}
-            </div>
-
           </motion.div>
+
+          {/* ══ Col B Row 2 · AI / Brain ══ */}
+          <motion.div
+            variants={colB2Variants} initial="hidden" animate="visible"
+            className="flex gap-3 lg:col-start-2 lg:row-start-2"
+          >
+            <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.peach}>
+              <span className={label}>What I leverage AI for</span>
+              <div className="flex flex-wrap gap-1.5">
+                {aiItems.map((item) => <span key={item} className={pill}>{item}</span>)}
+              </div>
+            </GlassCard>
+            <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.purple}>
+              <span className={label}>What I use my Brain for</span>
+              <div className="flex flex-wrap gap-1.5">
+                {brainItems.map((item) => <span key={item} className={pill}>{item}</span>)}
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          {/* ══ Col B Row 3 · Tool Stack / Get in Touch ══ */}
+          <motion.div
+            variants={colB3Variants} initial="hidden" animate="visible"
+            className="flex flex-col sm:flex-row gap-3 lg:col-start-2 lg:row-start-3 lg:min-h-0"
+          >
+            <GlassCard isDark={isDark} className="flex-1 min-w-0 min-h-0" innerClassName="overflow-hidden px-4 py-2.5" lightGradient={LIGHT_GRAD.blue}>
+              <span className={label}>Tool stack</span>
+              <div className="overflow-hidden">
+                <div className="about-marquee-track flex w-max items-end gap-4">
+                  {[...tools, ...tools].map((tool, i) => (
+                    <div key={i} className="flex flex-shrink-0 flex-col items-center gap-1">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-md" style={{ backgroundColor: tool.bg }}>
+                        <img src={tool.iconUrl} alt={tool.name} className="h-[18px] w-[18px]" />
+                      </div>
+                      <span className={cn("font-mono text-[8px]", isDark ? "text-white/45" : "text-slate-500")}>{tool.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </GlassCard>
+            <GlassCard isDark={isDark} className="flex-1 min-h-0" innerClassName="px-4 py-2.5" lightGradient={LIGHT_GRAD.blue}>
+              <span className={label}>Get in touch</span>
+              <div className="grid grid-cols-2 gap-2">
+                {socialLinks.map(({ label: name, href, accent, icon: Icon }) => (
+                  <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-110"
+                      style={{ backgroundColor: `${accent}22`, border: `1.5px solid ${accent}55` }}>
+                      <Icon className="h-[15px] w-[15px]" style={{ color: accent }} />
+                    </div>
+                    <span className={cn("text-[0.62rem] font-mono leading-tight", isDark ? "text-white/50" : "text-slate-500")}>{name}</span>
+                  </a>
+                ))}
+              </div>
+            </GlassCard>
+          </motion.div>
+
+          {/* ══ Col C Row 3 · Currently ══ */}
+          <motion.div
+            variants={colC2Variants} initial="hidden" animate="visible"
+            className="flex gap-3 lg:col-start-3 lg:row-start-3 lg:min-h-0"
+          >
+            {currentlyItems.map((item) => (
+              <CurrentlyCard key={item.category} isDark={isDark} item={item} />
+            ))}
+          </motion.div>
+
         </div>
       </div>
     </motion.div>
