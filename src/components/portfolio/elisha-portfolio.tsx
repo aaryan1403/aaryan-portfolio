@@ -166,7 +166,9 @@ export function ElishaPortfolio() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const [panelHeightOverride, setPanelHeightOverride] = useState<number | null>(null);
+  const [panelHeight, setPanelHeight] = useState<number>(() =>
+    Math.min(Math.max(window.innerHeight - 320, 288), 616),
+  );
 
   const activeProject = useMemo(
     () =>
@@ -244,11 +246,10 @@ export function ElishaPortfolio() {
   }, []);
 
   useEffect(() => {
-    if (layoutMode !== "grid") {
-      setPanelHeightOverride(null);
-      return;
-    }
-    const measure = () => {
+    const spreadHeight = () =>
+      Math.min(Math.max(window.innerHeight - 320, 288), 616);
+
+    const measureGrid = () => {
       const grid = document.querySelector<HTMLElement>(".grid-cols-2.gap-5");
       const panel = panelRef.current;
       if (!grid || !panel) return;
@@ -258,9 +259,15 @@ export function ElishaPortfolio() {
       );
       if (cards.length === 0) return;
       const maxBottom = Math.max(...cards.map((c) => c.getBoundingClientRect().bottom));
-      setPanelHeightOverride(Math.round(maxBottom - panelRect.top));
+      setPanelHeight(Math.round(maxBottom - panelRect.top));
     };
-    const timer = setTimeout(measure, 1400);
+
+    const measure = () => {
+      if (layoutMode === "grid") measureGrid();
+      else setPanelHeight(spreadHeight());
+    };
+
+    const timer = setTimeout(measure, layoutMode === "grid" ? 1400 : 0);
     let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
       clearTimeout(resizeTimer);
@@ -452,17 +459,18 @@ export function ElishaPortfolio() {
 
           <motion.div
             ref={panelRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
+            initial={{ opacity: 0, height: panelHeight }}
+            animate={{ opacity: 1, height: panelHeight }}
+            transition={{
+              opacity: { delay: 1.5, duration: 0.6 },
+              height: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+            }}
             className={cn(
               "mt-3 hidden min-h-[18rem] w-full max-w-[21.5rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
-              panelHeightOverride === null && "h-[calc(100vh-20rem)] max-h-[38.5rem]",
               isDark
                 ? "border-white/10 bg-white/5"
                 : "border-slate-900/10 bg-white/45",
             )}
-            style={panelHeightOverride !== null ? { height: `${panelHeightOverride}px` } : undefined}
           >
             {viewMode === "about" ? (
               <div className="flex h-full flex-col justify-between">
