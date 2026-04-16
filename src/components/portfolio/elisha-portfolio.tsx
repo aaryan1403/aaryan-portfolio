@@ -531,7 +531,17 @@ export function ElishaPortfolio() {
                 </div>
               </div>
             ) : activeProject ? (
-              <div className="flex h-full flex-col">
+              <div
+                className={cn(
+                  "flex h-full flex-col",
+                  activeProject.hasCaseStudy && "cursor-pointer",
+                )}
+                onClick={
+                  activeProject.hasCaseStudy
+                    ? () => openCaseStudy(activeProject.caseStudySlug ?? "xariss")
+                    : undefined
+                }
+              >
                 <div
                   className={cn(
                     "px-2 pb-2 font-mono text-[11px]",
@@ -541,7 +551,7 @@ export function ElishaPortfolio() {
                   Highlights
                 </div>
                 <div className="grid min-h-0 flex-1 auto-rows-fr gap-3">
-                  {activeProject.previewImages.map((previewImage, index) => (
+                  {activeProject.previewImages.slice(0, 2).map((previewImage, index) => (
                     <motion.div
                       key={previewImage}
                       initial={{ opacity: 0, y: 14 }}
@@ -717,7 +727,7 @@ export function ElishaPortfolio() {
                       isDark={isDark}
                       featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
                       onHoverChange={(isHovering) => {
-                        setActiveProjectTitle(isHovering ? project.title : null);
+                        if (isHovering) setActiveProjectTitle(project.title);
                       }}
                       onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
                     />
@@ -742,7 +752,7 @@ export function ElishaPortfolio() {
                       isDark={isDark}
                       featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
                       onHoverChange={(isHovering) => {
-                        setActiveProjectTitle(isHovering ? project.title : null);
+                        if (isHovering) setActiveProjectTitle(project.title);
                       }}
                       onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
                     />
