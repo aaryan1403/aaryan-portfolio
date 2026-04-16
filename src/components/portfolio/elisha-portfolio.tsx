@@ -166,6 +166,7 @@ export function ElishaPortfolio() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const hoverDismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [panelHeight, setPanelHeight] = useState<number>(() =>
     Math.min(Math.max(window.innerHeight - 320, 288), 616),
   );
@@ -564,11 +565,11 @@ export function ElishaPortfolio() {
                           : "border-slate-900/8 bg-white/70",
                       )}
                     >
-                      <div className="h-full min-h-0 overflow-hidden rounded-[0.95rem] bg-white/90">
+                      <div className="h-full min-h-0 overflow-hidden rounded-[0.95rem] bg-slate-900/5 flex items-center justify-center">
                         <img
                           src={previewImage}
                           alt={`${activeProject.title} preview ${index + 1}`}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-contain"
                         />
                       </div>
                     </motion.div>
@@ -727,7 +728,12 @@ export function ElishaPortfolio() {
                       isDark={isDark}
                       featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
                       onHoverChange={(isHovering) => {
-                        if (isHovering) setActiveProjectTitle(project.title);
+                        if (isHovering) {
+                          if (hoverDismissTimer.current) clearTimeout(hoverDismissTimer.current);
+                          setActiveProjectTitle(project.title);
+                        } else {
+                          hoverDismissTimer.current = setTimeout(() => setActiveProjectTitle(null), 3000);
+                        }
                       }}
                       onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
                     />
@@ -752,7 +758,12 @@ export function ElishaPortfolio() {
                       isDark={isDark}
                       featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
                       onHoverChange={(isHovering) => {
-                        if (isHovering) setActiveProjectTitle(project.title);
+                        if (isHovering) {
+                          if (hoverDismissTimer.current) clearTimeout(hoverDismissTimer.current);
+                          setActiveProjectTitle(project.title);
+                        } else {
+                          hoverDismissTimer.current = setTimeout(() => setActiveProjectTitle(null), 3000);
+                        }
                       }}
                       onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
                     />
