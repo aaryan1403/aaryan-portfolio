@@ -98,14 +98,25 @@ function ShootingStarController({ isDark }: { isDark: boolean }) {
 }
 
 // ── Static background stars ───────────────────────────────────────────────────
-const bgStars = Array.from({ length: 150 }, (_, i) => ({
-  id:       i,
-  size:     Math.random() * 2 + 1,
-  x:        Math.random() * 100,
-  y:        Math.random() * 100,
-  opacity:  Math.random() * 0.7 + 0.3,
-  duration: Math.random() * 3 + 2,
-}));
+// 120 stars in the top half (0–50%), 50 in the bottom half (50–100%)
+const bgStars = [
+  ...Array.from({ length: 120 }, (_, i) => ({
+    id:       i,
+    size:     Math.random() * 2 + 1,
+    x:        Math.random() * 100,
+    y:        Math.random() * 50,          // top half
+    opacity:  Math.random() * 0.7 + 0.3,
+    duration: Math.random() * 3 + 2,
+  })),
+  ...Array.from({ length: 50 }, (_, i) => ({
+    id:       120 + i,
+    size:     Math.random() * 2 + 1,
+    x:        Math.random() * 100,
+    y:        50 + Math.random() * 50,     // bottom half
+    opacity:  Math.random() * 0.7 + 0.3,
+    duration: Math.random() * 3 + 2,
+  })),
+];
 
 // ── StarField ─────────────────────────────────────────────────────────────────
 type StarFieldProps = { isDark: boolean };

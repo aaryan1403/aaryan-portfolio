@@ -66,6 +66,8 @@ function PlaceholderImage({
 
 // ─── Case Study Video Player ──────────────────────────────────────────────────
 
+const SPEEDS = [0.5, 1, 1.5, 2];
+
 function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -73,6 +75,7 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
   const [hasStarted, setHasStarted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [speed, setSpeed] = useState(1);
 
   function togglePlay() {
     const v = videoRef.current;
@@ -114,6 +117,13 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = (e.clientX - rect.left) / rect.width;
     v.currentTime = pct * v.duration;
+  }
+
+  function cycleSpeed() {
+    const v = videoRef.current;
+    const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+    setSpeed(next);
+    if (v) v.playbackRate = next;
   }
 
   function formatTime(s: number) {
@@ -242,6 +252,18 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
           {isMuted
             ? <VolumeX className="w-3.5 h-3.5" />
             : <Volume2 className="w-3.5 h-3.5" />}
+        </button>
+
+        {/* Playback speed */}
+        <button
+          type="button"
+          onClick={cycleSpeed}
+          className={cn(
+            "flex items-center justify-center h-7 px-2 rounded-full font-mono text-[10px] font-medium transition-all duration-150 shrink-0",
+            isDark ? "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-600",
+          )}
+        >
+          {speed === 1 ? "1×" : `${speed}×`}
         </button>
 
         {/* Fullscreen */}
@@ -436,6 +458,17 @@ function SpacingVisual({ block, isDark }: { block: SpacingVisualData; isDark: bo
   );
 }
 
+// ─── Inline bold helper ───────────────────────────────────────────────────────
+
+function renderBold(text: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**")
+      ? <strong key={i}>{part.slice(2, -2)}</strong>
+      : part,
+  );
+}
+
 // ─── Content Block Renderer ───────────────────────────────────────────────────
 
 function BlockRenderer({
@@ -534,7 +567,7 @@ function BlockRenderer({
       );
 
     case "rich-persona":
-      return <RichPersonaCard persona={block} isDark={isDark} index={0} />;
+      return <RichPersonaCard persona={block} isDark={isDark} index={sectionIndex % 2} />;
 
     case "persona-pair":
       return (
@@ -768,6 +801,707 @@ function BlockRenderer({
         </div>
       );
 
+    case "process-steps": {
+      return (
+        <div className="w-full space-y-4">
+          {/* Horizontal flow — sm+ */}
+          <div className="hidden sm:flex items-start">
+            {block.steps.map((step, i) => (
+              <div key={i} className="flex items-start flex-1 min-w-0">
+                <div className="flex flex-col items-center flex-1 min-w-0 px-1">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-mono text-[11px] font-bold"
+                    style={{
+                      backgroundColor: isDark ? `${accentColor}33` : `${accentColor}18`,
+                      color: accentColor,
+                      boxShadow: `0 0 0 2px ${accentColor}40`,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                  <p className={cn("font-mono text-[9px] uppercase tracking-[0.15em] text-center mt-2 leading-tight", isDark ? "text-white/75" : "text-slate-800")}>
+                    {step.label}
+                  </p>
+                  {step.description && (
+                    <p className={cn("text-[0.72rem] leading-[1.5] text-center mt-1.5", isDark ? "text-white/40" : "text-slate-500")}>
+                      {step.description}
+                    </p>
+                  )}
+                  {step.subItems && step.subItems.length > 0 && (
+                    <ul className="mt-2 space-y-1 w-full">
+                      {step.subItems.map((item, j) => (
+                        <li key={j} className={cn("flex items-start gap-1.5 text-[0.7rem] leading-[1.45]", isDark ? "text-white/35" : "text-slate-500")}>
+                          <span className="mt-[5px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {i < block.steps.length - 1 && (
+                  <div className="flex items-center w-5 shrink-0 mt-[18px]">
+                    <div className="h-px flex-1" style={{ backgroundColor: `${accentColor}40` }} />
+                    <svg width="6" height="8" viewBox="0 0 6 8" style={{ color: `${accentColor}60` }}>
+                      <path d="M0 0 L6 4 L0 8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {/* Vertical stack — mobile */}
+          <div className="sm:hidden space-y-3">
+            {block.steps.map((step, i) => {
+              const lc = LIGHT_SECTION_COLORS[i % LIGHT_SECTION_COLORS.length];
+              return (
+                <div
+                  key={i}
+                  className={cn("flex gap-4 rounded-xl px-4 py-3 border", isDark ? "bg-white/[0.04] border-white/6" : "border")}
+                  style={!isDark ? { background: lc.bg, borderColor: lc.border } : undefined}
+                >
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-mono text-[10px] font-bold mt-0.5"
+                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                  >
+                    {i + 1}
+                  </div>
+                  <div>
+                    <p className={cn("font-mono text-[10px] font-medium uppercase tracking-[0.12em]", isDark ? "text-white/80" : "text-slate-800")}>
+                      {step.label}
+                    </p>
+                    {step.description && (
+                      <p className={cn("text-[0.8rem] leading-[1.6] mt-1", isDark ? "text-white/45" : "text-slate-600")}>
+                        {step.description}
+                      </p>
+                    )}
+                    {step.subItems && (
+                      <ul className="mt-2 space-y-1">
+                        {step.subItems.map((item, j) => (
+                          <li key={j} className={cn("flex items-start gap-2 text-[0.775rem] leading-[1.5]", isDark ? "text-white/35" : "text-slate-500")}>
+                            <span className="mt-[5px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    case "role-tags": {
+      return (
+        <div
+          className="w-full rounded-2xl p-6 sm:p-8 border"
+          style={
+            isDark
+              ? {
+                  background: `linear-gradient(135deg, ${accentColor}40 0%, ${accentColor}25 100%)`,
+                  borderColor: `${accentColor}50`,
+                }
+              : {
+                  background: `linear-gradient(135deg, ${accentColor}12 0%, ${accentColor}07 100%)`,
+                  borderColor: `${accentColor}25`,
+                }
+          }
+        >
+          <p className={cn("font-mono text-[9px] uppercase tracking-[0.25em] mb-5", isDark ? "text-white/40" : "text-slate-500")}>
+            Responsibilities
+          </p>
+          <div className="flex flex-wrap gap-2.5">
+            {block.tags.map((tag, i) => (
+              <span
+                key={i}
+                className="px-3.5 py-1.5 rounded-full text-[0.8rem] font-medium border"
+                style={
+                  isDark
+                    ? { backgroundColor: "rgba(255,255,255,0.10)", color: "rgba(255,255,255,0.85)", borderColor: "rgba(255,255,255,0.15)" }
+                    : { backgroundColor: accentColor, color: "#ffffff", borderColor: "transparent" }
+                }
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    case "donut-stats": {
+      const RADIUS = 36;
+      const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {block.items.map((item, i) => {
+            const offset = CIRCUMFERENCE * (1 - item.percentage / 100);
+            const lc = LIGHT_SECTION_COLORS[i % LIGHT_SECTION_COLORS.length];
+            return (
+              <div
+                key={i}
+                className={cn("rounded-2xl p-6 flex flex-col items-center gap-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border")}
+                style={!isDark ? { background: lc.bg, borderColor: lc.border } : undefined}
+              >
+                <div className="relative w-24 h-24">
+                  <svg width="96" height="96" viewBox="0 0 96 96" style={{ transform: "rotate(-90deg)" }}>
+                    <circle cx="48" cy="48" r={RADIUS} fill="none"
+                      stroke={isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)"}
+                      strokeWidth="8" />
+                    <motion.circle
+                      cx="48" cy="48" r={RADIUS} fill="none"
+                      stroke={accentColor}
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      strokeDasharray={CIRCUMFERENCE}
+                      initial={{ strokeDashoffset: CIRCUMFERENCE }}
+                      whileInView={{ strokeDashoffset: offset }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: i * 0.15 }}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="font-['Caveat'] text-2xl font-medium" style={{ color: accentColor }}>
+                      {item.percentage}%
+                    </span>
+                  </div>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className={cn("text-[0.875rem] font-semibold", isDark ? "text-white/85" : "text-slate-800")}>
+                    {item.label}
+                  </p>
+                  <p className={cn("text-[0.775rem] leading-[1.55]", isDark ? "text-white/45" : "text-slate-600")}>
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    case "timeline-visual": {
+      const timelineItems = block.items;
+
+      // ── Option A: Vertical Rail ───────────────────────────────────────────
+      if (block.variant === 1) {
+        return (
+          <div className="relative pl-8">
+            <div
+              className="absolute left-[14px] top-4 bottom-4 w-[2px] rounded-full"
+              style={{
+                background: isDark
+                  ? `linear-gradient(to bottom, ${accentColor}70, ${accentColor}15)`
+                  : `linear-gradient(to bottom, ${accentColor}55, ${accentColor}10)`,
+              }}
+            />
+            <div className="space-y-4">
+              {timelineItems.map((item, i) => (
+                <div key={i} className="flex gap-4">
+                  <div
+                    className="relative z-10 w-5 h-5 rounded-full shrink-0 mt-1 flex items-center justify-center border-2"
+                    style={{ backgroundColor: isDark ? "#1a1a2e" : "#f5f3ff", borderColor: accentColor }}
+                  >
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: accentColor }} />
+                  </div>
+                  <div className={cn("flex-1 rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200 bg-white/70")}>
+                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                      <span
+                        className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest shrink-0"
+                        style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                      >
+                        {item.range}
+                      </span>
+                      <span className={cn("text-[0.85rem] font-semibold", isDark ? "text-white/90" : "text-slate-800")}>
+                        {item.stage}
+                      </span>
+                    </div>
+                    <p className={cn("text-[0.78rem] leading-[1.65]", isDark ? "text-white/45" : "text-slate-600")}>
+                      {item.deliverable}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // ── Option B: Progress Cards ──────────────────────────────────────────
+      if (block.variant === 2) {
+        return (
+          <div className="space-y-3">
+            {timelineItems.map((item, i) => {
+              const m = item.range.match(/W(\d+)[^\d]+(\d+)/);
+              const ws = m ? parseInt(m[1]) : i + 1;
+              const we = m ? parseInt(m[2]) : i + 2;
+              const total = 8;
+              const barLeft = ((ws - 1) / total) * 100;
+              const barW = ((we - ws + 1) / total) * 100;
+              const lc = LIGHT_SECTION_COLORS[i % LIGHT_SECTION_COLORS.length];
+              return (
+                <div
+                  key={i}
+                  className={cn("rounded-2xl p-5 border", isDark ? "bg-white/[0.04] border-white/6" : "border")}
+                  style={!isDark ? { background: lc.bg, borderColor: lc.border } : undefined}
+                >
+                  <div className="mb-3">
+                    <div className="flex justify-between items-center mb-1.5">
+                      <span className="font-mono text-[8px] uppercase tracking-widest" style={{ color: accentColor }}>
+                        {item.range}
+                      </span>
+                      <span className="font-mono text-[8px]" style={{ color: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)" }}>
+                        8-WEEK PROJECT
+                      </span>
+                    </div>
+                    <div className={cn("relative h-1.5 rounded-full", isDark ? "bg-white/8" : "bg-black/5")}>
+                      <div
+                        className="absolute top-0 h-full rounded-full"
+                        style={{ left: `${barLeft}%`, width: `${barW}%`, backgroundColor: accentColor }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div
+                      className="w-9 h-9 rounded-xl shrink-0 flex items-center justify-center font-['Caveat'] text-lg font-bold"
+                      style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-[0.85rem] font-semibold mb-1", isDark ? "text-white/90" : "text-slate-800")}>
+                        {item.stage}
+                      </p>
+                      <p className={cn("text-[0.775rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>
+                        {item.deliverable}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ── Option C: Grid Cards with ghost number ────────────────────────────
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {timelineItems.map((item, i) => {
+            const lc = LIGHT_SECTION_COLORS[i % LIGHT_SECTION_COLORS.length];
+            return (
+              <div
+                key={i}
+                className={cn("rounded-2xl p-5 border relative overflow-hidden", isDark ? "bg-white/[0.04] border-white/6" : "border")}
+                style={!isDark ? { background: lc.bg, borderColor: lc.border } : undefined}
+              >
+                <div
+                  className="absolute -right-1 -top-4 font-['Caveat'] text-[80px] leading-none font-bold select-none pointer-events-none"
+                  style={{ color: isDark ? `${accentColor}10` : `${accentColor}09` }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div className="relative z-10">
+                  <span
+                    className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest"
+                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                  >
+                    {item.range}
+                  </span>
+                  <p className={cn("text-[0.875rem] font-semibold mt-2 mb-1.5", isDark ? "text-white/90" : "text-slate-800")}>
+                    {item.stage}
+                  </p>
+                  <p className={cn("text-[0.775rem] leading-[1.65]", isDark ? "text-white/45" : "text-slate-600")}>
+                    {item.deliverable}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    case "diamond-visual": {
+      const dItems = block.items;
+
+      // ── Option A: SVG Double Diamond ──────────────────────────────────────
+      if (block.variant === 1) {
+        return (
+          <div className="space-y-5">
+            <div className="flex justify-between px-1 mb-1">
+              <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>Designing the right thing</p>
+              <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>Designing things right</p>
+            </div>
+            <div className={cn("rounded-2xl overflow-hidden border", isDark ? "border-white/6" : "border-slate-200")}>
+              <svg viewBox="0 0 400 110" className="w-full" style={{ height: "110px", display: "block" }}>
+                <polygon
+                  points="8,55 100,8 192,55 100,102"
+                  fill={isDark ? `${accentColor}35` : `${accentColor}20`}
+                  stroke={accentColor}
+                  strokeWidth="1.5"
+                  strokeOpacity="0.55"
+                />
+                <polygon
+                  points="208,55 300,8 392,55 300,102"
+                  fill={isDark ? `${accentColor}25` : `${accentColor}14`}
+                  stroke={accentColor}
+                  strokeWidth="1.5"
+                  strokeOpacity="0.4"
+                />
+                <line x1="192" y1="55" x2="208" y2="55" stroke={accentColor} strokeWidth="1.2" strokeOpacity="0.4" strokeDasharray="3,3" />
+                <text x="68" y="52" textAnchor="middle" fontFamily="system-ui,sans-serif" fontSize="9" fontWeight="700" fill={accentColor} fillOpacity="0.9">Discover</text>
+                <text x="132" y="62" textAnchor="middle" fontFamily="system-ui,sans-serif" fontSize="9" fontWeight="700" fill={accentColor} fillOpacity="0.65">Define</text>
+                <text x="268" y="52" textAnchor="middle" fontFamily="system-ui,sans-serif" fontSize="9" fontWeight="700" fill={accentColor} fillOpacity="0.9">Develop</text>
+                <text x="332" y="62" textAnchor="middle" fontFamily="system-ui,sans-serif" fontSize="9" fontWeight="700" fill={accentColor} fillOpacity="0.65">Deliver</text>
+              </svg>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {dItems.map((item, i) => (
+                <div key={i} className={cn("rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200 bg-white/60")}>
+                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: accentColor }}>{item.range}</div>
+                  <p className={cn("text-[0.8rem] font-semibold mb-1", isDark ? "text-white/85" : "text-slate-800")}>{item.stage}</p>
+                  <p className={cn("text-[0.75rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>{item.deliverable}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // ── Option B: Phase Circles ───────────────────────────────────────────
+      if (block.variant === 2) {
+        return (
+          <div className="space-y-5">
+            <div className="flex items-start">
+              {dItems.map((item, i) => (
+                <div key={i} className="flex items-start flex-1 min-w-0">
+                  <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 px-0.5">
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center font-['Caveat'] text-2xl font-bold shrink-0"
+                      style={{
+                        backgroundColor: i % 2 === 0 ? `${accentColor}30` : `${accentColor}18`,
+                        color: accentColor,
+                        boxShadow: `0 0 0 3px ${accentColor}20`,
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    <p className="font-mono text-[8px] uppercase tracking-widest text-center px-1" style={{ color: accentColor }}>
+                      {item.stage}
+                    </p>
+                    <p className={cn("text-[0.68rem] leading-[1.5] text-center px-1", isDark ? "text-white/35" : "text-slate-500")}>
+                      {item.deliverable.split(":")[0]}
+                    </p>
+                  </div>
+                  {i < dItems.length - 1 && (
+                    <div className="shrink-0 flex items-start pt-[22px]">
+                      <div className="flex items-center">
+                        <div className="w-3 h-px" style={{ backgroundColor: `${accentColor}40` }} />
+                        <svg width="5" height="7" viewBox="0 0 5 7">
+                          <path d="M0 0 L5 3.5 L0 7" stroke={accentColor} strokeWidth="1.2" fill="none" opacity="0.5" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {dItems.map((item, i) => (
+                <div key={i} className={cn("rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200")}>
+                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: accentColor }}>{item.range}</div>
+                  <p className={cn("text-[0.8rem] font-semibold mb-1", isDark ? "text-white/85" : "text-slate-800")}>{item.stage}</p>
+                  <p className={cn("text-[0.75rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>{item.deliverable}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // ── Option C: Stepped Direction Cards ────────────────────────────────
+      const directions = ["↗", "↘", "↗", "↘"];
+      const dirLabels = ["Diverge", "Converge", "Diverge", "Converge"];
+      const indentClass = ["mr-10", "ml-10", "mr-10", "ml-10"];
+      return (
+        <div className="space-y-2">
+          {dItems.map((item, i) => (
+            <div
+              key={i}
+              className={cn(
+                "rounded-2xl p-5 border flex gap-4 items-center",
+                indentClass[i],
+                isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200 bg-white/60",
+              )}
+            >
+              <div className="shrink-0 text-center w-12">
+                <div className="font-['Caveat'] text-3xl leading-none" style={{ color: accentColor }}>
+                  {directions[i]}
+                </div>
+                <div className="font-mono text-[7px] uppercase tracking-widest mt-0.5" style={{ color: `${accentColor}bb` }}>
+                  {dirLabels[i]}
+                </div>
+              </div>
+              <div className="h-10 w-px shrink-0" style={{ backgroundColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)" }} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span
+                    className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest"
+                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                  >
+                    {item.range}
+                  </span>
+                  <span className={cn("text-[0.85rem] font-semibold", isDark ? "text-white/90" : "text-slate-800")}>
+                    {item.stage}
+                  </span>
+                </div>
+                <p className={cn("text-[0.775rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>
+                  {item.deliverable}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    case "large-paragraph":
+      return (
+        <p className={cn("text-[1.05rem] sm:text-[1.15rem] leading-[1.8] max-w-2xl font-light", isDark ? "text-white/78" : "text-slate-700")}>
+          {block.text}
+        </p>
+      );
+
+    case "design-rules-cards":
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {block.items.map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className={cn(
+                "rounded-xl p-5 border space-y-3 relative overflow-hidden",
+                isDark ? "bg-white/[0.04] border-white/6" : "bg-white/60 border-slate-200",
+              )}
+            >
+              <div
+                className="absolute -right-2 -top-5 font-['Caveat'] text-[72px] leading-none font-bold select-none pointer-events-none"
+                style={{ color: isDark ? `${accentColor}12` : `${accentColor}10` }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <span
+                className="inline-block font-mono text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest"
+                style={{ backgroundColor: `${accentColor}18`, color: accentColor }}
+              >
+                {card.label}
+              </span>
+              <p className={cn("text-[0.85rem] leading-[1.75] relative z-10", isDark ? "text-white/62" : "text-slate-600")}>
+                {card.body}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      );
+
+    case "design-decisions":
+      return (
+        <div className="space-y-0">
+          {block.items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.45, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              className={cn(
+                "py-4 flex gap-4 items-start",
+                i < block.items.length - 1
+                  ? isDark ? "border-b border-white/[0.06]" : "border-b border-slate-200/80"
+                  : "",
+              )}
+            >
+              <div
+                className="w-[3px] rounded-full shrink-0 self-stretch mt-1"
+                style={{ backgroundColor: `${accentColor}55`, minHeight: "1.2rem" }}
+              />
+              <div className="space-y-1.5 flex-1 min-w-0">
+                <p className={cn("text-[0.9rem] font-semibold leading-snug", isDark ? "text-white/90" : "text-slate-900")}>
+                  {item.bold}
+                </p>
+                <p className={cn("text-[0.85rem] leading-[1.75]", isDark ? "text-white/58" : "text-slate-600")}>
+                  {item.body}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      );
+
+    case "pull-quote":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          className="py-6 text-center"
+        >
+          <p
+            className="font-['Caveat'] text-[1.4rem] sm:text-[1.75rem] leading-[1.5] mx-auto max-w-2xl italic"
+            style={{ color: accentColor }}
+          >
+            "{block.text}"
+          </p>
+        </motion.div>
+      );
+
+    case "conclusion-statements":
+      return (
+        <div className="space-y-4">
+          {block.items.map((text, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="flex gap-4 items-start pl-1"
+            >
+              <div
+                className="w-[3px] rounded-full shrink-0 self-stretch mt-1"
+                style={{ backgroundColor: accentColor, minHeight: "1.4rem" }}
+              />
+              <p
+                className={cn(
+                  "text-[1.05rem] leading-[1.65] font-medium",
+                  isDark ? "text-white/85" : "text-slate-800",
+                )}
+              >
+                {text}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      );
+
+    case "learnings-grid":
+      return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {block.items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              className={cn(
+                "relative overflow-hidden rounded-2xl border p-5",
+                isDark ? "bg-white/[0.04] border-white/6" : "bg-white/60 border-slate-200",
+              )}
+            >
+              <div
+                className="absolute -right-2 -top-5 font-['Caveat'] text-[72px] leading-none font-bold select-none pointer-events-none"
+                style={{ color: isDark ? `${accentColor}10` : `${accentColor}0c` }}
+              >
+                {item.number}
+              </div>
+              <div className="relative z-10">
+                <span
+                  className="mb-2 inline-block font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                >
+                  {item.number}
+                </span>
+                <p className={cn("text-[0.9rem] font-semibold mb-1.5 leading-snug", isDark ? "text-white/92" : "text-slate-900")}>
+                  {item.label}
+                </p>
+                <p className={cn("text-[0.78rem] leading-[1.65]", isDark ? "text-white/55" : "text-slate-600")}>
+                  {item.body}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      );
+
+    case "closing-quote":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="py-4 text-center"
+        >
+          <p
+            className="font-['Caveat'] text-[1.35rem] sm:text-[1.6rem] leading-[1.5] mx-auto max-w-2xl"
+            style={{ color: accentColor }}
+          >
+            "{block.text}"
+          </p>
+        </motion.div>
+      );
+
+    case "appendix-blocks":
+      return (
+        <div className="space-y-6">
+          {/* Intro */}
+          <p className={cn("text-[0.88rem] leading-[1.75]", isDark ? "text-white/55" : "text-slate-500")}>
+            {block.intro}
+          </p>
+          {/* Numbered blocks */}
+          <div className="space-y-8">
+            {block.items.map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                className="space-y-3"
+              >
+                {/* Number + Title */}
+                <div className="flex items-baseline gap-3">
+                  <span
+                    className="font-mono text-[0.75rem] font-semibold tracking-widest shrink-0"
+                    style={{ color: accentColor }}
+                  >
+                    {item.number}
+                  </span>
+                  <h4 className={cn("font-['Caveat'] text-[1.2rem] sm:text-[1.4rem] leading-tight", isDark ? "text-white/88" : "text-slate-900")}>
+                    {item.title}
+                  </h4>
+                </div>
+                {/* Body paragraphs */}
+                <div className={cn("space-y-2.5 text-[0.84rem] leading-[1.75] pl-8", isDark ? "text-white/58" : "text-slate-600")}>
+                  {item.paragraphs.map((p, j) => (
+                    <p key={j}>{renderBold(p)}</p>
+                  ))}
+                </div>
+                {/* Why line */}
+                <div
+                  className="ml-8 pl-4 py-2"
+                  style={{ borderLeft: `2px solid ${accentColor}55` }}
+                >
+                  <p className={cn("text-[0.8rem] leading-[1.7] italic", isDark ? "text-white/42" : "text-slate-500")}>
+                    <span className="not-italic font-medium" style={{ color: accentColor }}>Why it's not in the case study: </span>
+                    {item.why}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      );
+
     default:
       return null;
   }
@@ -788,6 +1522,36 @@ function SectionContent({
   sectionIndex: number;
   sectionRef: (el: HTMLElement | null) => void;
 }) {
+  if (section.isAppendix) {
+    return (
+      <motion.section
+        id={section.id}
+        ref={sectionRef}
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="scroll-mt-24 pt-10 mt-8"
+      >
+        {/* Full-width hairline separator */}
+        <div className={cn("h-px w-full mb-10", isDark ? "bg-white/10" : "bg-slate-200")} />
+        {/* Appendix overline label */}
+        <p className="font-mono text-[9px] uppercase tracking-[0.32em] mb-3"
+          style={{ color: accentColor }}>
+          A note on scope
+        </p>
+        <h2 className={cn("font-['Caveat'] text-3xl sm:text-4xl leading-tight mb-6", isDark ? "text-white/88" : "text-slate-800")}>
+          {section.title}
+        </h2>
+        <div className="space-y-5">
+          {section.blocks.map((block, i) => (
+            <BlockRenderer key={i} block={block} isDark={isDark} accentColor={accentColor} sectionIndex={sectionIndex} />
+          ))}
+        </div>
+      </motion.section>
+    );
+  }
+
   return (
     <motion.section
       id={section.id}
@@ -804,7 +1568,13 @@ function SectionContent({
           {section.number}
         </span>
         <h2 className={cn("font-['Caveat'] text-3xl sm:text-4xl leading-tight", isDark ? "text-white/92" : "text-slate-900")}>
-          {section.title}
+          {section.titleParts
+            ? section.titleParts.map((part, i) => (
+                <span key={i} style={part.accent ? { color: accentColor } : undefined}>
+                  {part.text}
+                </span>
+              ))
+            : section.title}
         </h2>
       </div>
       <div className={cn("h-px w-full", isDark ? "bg-white/8" : "bg-blue-100")} />
@@ -829,26 +1599,90 @@ function SidebarTOC({
   behanceUrl: string;
   onSectionClick: (id: string) => void;
 }) {
+  const navSections = sections.filter(s => !s.isAppendix);
+  const isGrouped = navSections.some(s => s.group);
+
+  // Build ordered group list
+  const groups: { label: string; items: CaseStudySection[] }[] = [];
+  if (isGrouped) {
+    const seen = new Map<string, CaseStudySection[]>();
+    navSections.forEach(s => {
+      const g = s.group ?? "Other";
+      if (!seen.has(g)) seen.set(g, []);
+      seen.get(g)!.push(s);
+    });
+    seen.forEach((items, label) => groups.push({ label, items }));
+  }
+
+  const activeGroup = isGrouped
+    ? (navSections.find(s => s.id === activeSection)?.group ?? groups[0]?.label)
+    : null;
+
+  const sectionButton = (section: CaseStudySection, indented = false) => {
+    const isActive = activeSection === section.id;
+    return (
+      <button key={section.id} type="button" onClick={() => onSectionClick(section.id)}
+        className={cn(
+          "w-full text-left py-1.5 rounded-lg text-[0.8rem] transition-all duration-200 flex items-center gap-2.5",
+          indented ? "pl-5 pr-3" : "px-3",
+          isActive
+            ? isDark ? "text-white/90" : "text-slate-900"
+            : isDark ? "text-white/35 hover:text-white/65" : "text-slate-400 hover:text-slate-700",
+        )}>
+        <span className={cn("h-1 w-1 rounded-full shrink-0 transition-all duration-200", isActive ? "scale-125" : "scale-75 opacity-50")}
+          style={{ backgroundColor: isActive ? (isDark ? "#3B6FD4" : accentColor) : "currentColor" }} />
+        <span className="font-mono text-[9px] opacity-50 shrink-0">{section.number}</span>
+        <span className={isActive ? "font-medium" : ""}>{section.shortTitle}</span>
+      </button>
+    );
+  };
+
   return (
-    <aside className="sticky top-20 h-fit w-52 shrink-0 py-2 hidden lg:flex flex-col gap-1">
+    <aside className="sticky top-20 h-fit w-52 shrink-0 py-2 hidden lg:flex flex-col gap-0.5 overflow-y-auto max-h-[calc(100vh-6rem)]">
       <p className={cn("font-mono text-[9px] uppercase tracking-[0.25em] px-3 mb-2", isDark ? "text-white/25" : "text-slate-400")}>
         Contents
       </p>
-      {sections.map((section) => {
-        const isActive = activeSection === section.id;
-        return (
-          <button key={section.id} type="button" onClick={() => onSectionClick(section.id)}
-            className={cn("w-full text-left px-3 py-2 rounded-lg text-[0.8rem] transition-all duration-200 flex items-center gap-2.5",
-              isActive
-                ? isDark ? "text-white/90" : "text-slate-900"
-                : isDark ? "text-white/35 hover:text-white/65" : "text-slate-400 hover:text-slate-700")}>
-            <span className={cn("h-1 w-1 rounded-full shrink-0 transition-all duration-200", isActive ? "scale-125" : "scale-75 opacity-50")}
-              style={{ backgroundColor: isActive ? (isDark ? "#3B6FD4" : accentColor) : "currentColor" }} />
-            <span className="font-mono text-[9px] opacity-50 shrink-0">{section.number}</span>
-            <span className={isActive ? "font-medium" : ""}>{section.shortTitle}</span>
-          </button>
-        );
-      })}
+
+      {isGrouped ? (
+        /* ── Grouped layout (e.g. CPI) ── */
+        <div className="flex flex-col gap-0.5">
+          {groups.map(({ label, items }) => {
+            const isActiveGroup = label === activeGroup;
+            return (
+              <div key={label} className="flex flex-col">
+                {/* Group label */}
+                <p className={cn(
+                  "px-3 pt-3 pb-1 font-mono text-[8.5px] uppercase tracking-[0.28em] transition-colors duration-200 select-none",
+                  isActiveGroup
+                    ? isDark ? "text-white/70" : "text-slate-700"
+                    : isDark ? "text-white/22" : "text-slate-400/70",
+                )}>
+                  {label}
+                </p>
+                {/* Animated section list */}
+                <AnimatePresence initial={false}>
+                  {isActiveGroup && (
+                    <motion.div
+                      key="items"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                      className="overflow-hidden"
+                    >
+                      {items.map(s => sectionButton(s, true))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* ── Flat layout (e.g. XARISS) ── */
+        navSections.map(s => sectionButton(s, false))
+      )}
+
       <div className={cn("h-px w-full my-3", isDark ? "bg-white/8" : "bg-slate-200")} />
       <a href={behanceUrl} target="_blank" rel="noopener noreferrer"
         className={cn("flex items-center gap-2 px-3 py-2 rounded-lg text-[0.75rem] transition-all duration-200",
@@ -875,7 +1709,7 @@ function MobileSectionPills({
     <div className={cn("lg:hidden sticky top-14 z-20 border-b overflow-x-auto",
       isDark ? "bg-[#1a1a2e]/90 border-white/8 backdrop-blur-md" : "bg-white/85 border-blue-100 backdrop-blur-md")}>
       <div className="flex items-center gap-1 px-4 py-2 min-w-max">
-        {sections.map((section) => {
+        {sections.filter(s => !s.isAppendix).map((section) => {
           const isActive = activeSection === section.id;
           return (
             <button key={section.id} type="button" onClick={() => onSectionClick(section.id)}
@@ -973,7 +1807,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
           </span>
           <span className={cn("h-3 w-px", isDark ? "bg-white/15" : "bg-blue-200")} />
           <span className={cn("font-mono text-[9px] uppercase tracking-[0.15em] font-medium", isDark ? "text-white/60" : "text-blue-700")}>
-            XARISS
+            {study.slug.toUpperCase()}
           </span>
         </div>
 

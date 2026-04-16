@@ -114,8 +114,8 @@ export function ProjectCard({
       className={cn(
         "cursor-pointer outline-none lg:block",
         mode === "spread"
-          ? "absolute hidden h-[min(17rem,calc((100vh-220px)/2-12px))] w-[min(25rem,calc(50vw-3rem))]"
-          : "relative hidden h-[min(18rem,calc((100vh-200px)/2-12px))] w-full",
+          ? "absolute hidden h-[min(16.15rem,calc(((100vh-220px)/2-12px)*0.95))] w-[min(21.89rem,calc((50vw-3rem)*0.8755))]"
+          : "relative hidden h-[min(17.1rem,calc(((100vh-200px)/2-12px)*0.95))] w-full",
       )}
       initial={{ opacity: 0, rotate: rotation, scale: 0.8 }}
       animate={{ opacity: 1, rotate: 0, scale: 1 }}
@@ -148,7 +148,7 @@ export function ProjectCard({
       onFocus={() => onHoverChange(true)}
       onBlur={() => onHoverChange(false)}
       tabIndex={0}
-      style={mode === "spread" ? { ...position, zIndex: index } : undefined}
+      style={mode === "spread" ? { ...position, zIndex: isFeatured ? 99 : index } : undefined}
     >
       <LiquidGlassCard
         draggable={false}
@@ -157,16 +157,16 @@ export function ProjectCard({
         glowIntensity={isDark ? "sm" : "xs"}
         borderRadius="10px"
         className={cn(
-          "relative h-full w-full overflow-hidden p-[2px] shadow-2xl transition-colors",
+          "relative h-full w-full overflow-hidden p-[4px] shadow-2xl transition-colors",
           isDark
-            ? "bg-white/[0.045]"
-            : "bg-white/55",
+            ? "bg-white/10"
+            : "bg-white/10",
         )}
       >
         <div
           className={cn(
-            "absolute inset-[2px] overflow-hidden rounded-[8px]",
-            isDark ? "border border-white/28 bg-black/8" : "border border-white/72 bg-white/30",
+            "absolute inset-[4px] overflow-hidden rounded-[6px]",
+            isDark ? "bg-black/8" : "bg-white/30",
           )}
         >
           <img src={image} alt={title} className="h-full w-full object-cover" />

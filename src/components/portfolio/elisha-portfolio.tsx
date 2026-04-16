@@ -113,7 +113,7 @@ const scatterLayouts: Record<string, string>[][] = [
 ];
 
 const introDescription =
-  "Product Designer with **2+ years of experience**, currently at XARISS building a B2C **Luxury Ecommerce** platform and a B2B **CRM Product**. I use AI to move fast, and creativity and product thinking to make sure what ships actually feels intuitive.";
+  "Product Designer with **2+ years of experience**, currently at XARISS building a B2C **Luxury Ecommerce** platform and a B2B **CRM Webapp**.";
 
 function renderBold(text: string) {
   const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -247,28 +247,15 @@ export function ElishaPortfolio() {
   }, []);
 
   useEffect(() => {
-    const spreadHeight = () =>
-      Math.min(Math.max(window.innerHeight - 320, 288), 616);
-
-    const measureGrid = () => {
-      const grid = document.querySelector<HTMLElement>(".grid-cols-2.gap-5");
-      const panel = panelRef.current;
-      if (!grid || !panel) return;
-      const panelRect = panel.getBoundingClientRect();
-      const cards = Array.from(grid.querySelectorAll("article")).filter(
-        (c) => c.getBoundingClientRect().height > 10,
-      );
-      if (cards.length === 0) return;
-      const maxBottom = Math.max(...cards.map((c) => c.getBoundingClientRect().bottom));
-      setPanelHeight(Math.round(maxBottom - panelRect.top));
-    };
-
     const measure = () => {
-      if (layoutMode === "grid") measureGrid();
-      else setPanelHeight(spreadHeight());
+      const panel = panelRef.current;
+      if (!panel) return;
+      const panelRect = panel.getBoundingClientRect();
+      const targetBottom = window.innerHeight - 80;
+      setPanelHeight(Math.round(targetBottom - panelRect.top));
     };
 
-    const timer = setTimeout(measure, layoutMode === "grid" ? 1400 : 0);
+    const timer = setTimeout(measure, 600);
     let resizeTimer: ReturnType<typeof setTimeout>;
     const handleResize = () => {
       clearTimeout(resizeTimer);
@@ -372,8 +359,7 @@ export function ElishaPortfolio() {
               </h1>
             ) : activeProject ? (
               <div className="pt-1">
-                <p className={cn("mb-2 font-mono text-[10px] uppercase tracking-[0.28em]", isDark ? "text-white/45" : "text-slate-500")}>Selected project</p>
-                <h1 className={cn("max-w-[21rem] font-['Caveat'] text-[1.62rem] leading-[1.01]", isDark ? "text-white/92" : "text-slate-900/92")}>{activeProject.title}</h1>
+                <h1 className={cn("font-['Caveat'] text-[10px] uppercase tracking-[0.28em]", isDark ? "text-white/45" : "text-slate-500")}>{activeProject.title}</h1>
               </div>
             ) : (
               <h1 className={cn("max-w-none whitespace-nowrap font-['Caveat'] text-[1.45rem] sm:text-[1.72rem] leading-[0.92] lg:relative lg:-top-[2px]", isDark ? "text-white/92" : "text-slate-900/92")}>
@@ -421,7 +407,7 @@ export function ElishaPortfolio() {
               height: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
             }}
             className={cn(
-              "mt-3 hidden min-h-[18rem] w-full max-w-[21.5rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
+              "mt-3 hidden min-h-[18rem] w-full max-w-[19.93rem] overflow-hidden rounded-[12px] border p-4 backdrop-blur-sm lg:flex",
               isDark
                 ? "border-white/10 bg-white/5"
                 : "border-slate-900/10 bg-white/45",
@@ -516,7 +502,7 @@ export function ElishaPortfolio() {
                   Highlights
                 </div>
                 <div className="grid min-h-0 flex-1 auto-rows-fr gap-3">
-                  {activeProject.previewImages.slice(0, 2).map((previewImage, index) => (
+                  {activeProject.previewImages.slice(0, 3).map((previewImage, index) => (
                     <motion.div
                       key={previewImage}
                       initial={{ opacity: 0, y: 10 }}
@@ -529,11 +515,11 @@ export function ElishaPortfolio() {
                           : "border-slate-900/8 bg-white/70",
                       )}
                     >
-                      <div className="h-full min-h-0 overflow-hidden rounded-[0.95rem]">
+                      <div className="h-full w-full overflow-hidden rounded-[0.95rem]">
                         <img
                           src={previewImage}
                           alt={`${activeProject.title} preview ${index + 1}`}
-                          className="h-full w-full object-cover"
+                          className="h-full w-full object-cover object-top"
                         />
                       </div>
                     </motion.div>
@@ -715,7 +701,7 @@ export function ElishaPortfolio() {
                   animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
                   exit={{ opacity: 0, y: -14, scale: 1.01, filter: "blur(8px)" }}
                   transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                  className="hidden w-full max-w-[66rem] grid-cols-2 gap-5 px-4 lg:mt-[32px] lg:grid"
+                  className="hidden w-full max-w-[57.78rem] grid-cols-2 gap-5 px-4 lg:mt-[32px] lg:grid"
                 >
                   {projects.map((project, index) => (
                     <ProjectCard
