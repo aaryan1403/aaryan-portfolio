@@ -473,8 +473,13 @@ export function ElishaPortfolio() {
                 : "border-slate-900/10 bg-white/45",
             )}
           >
+            <AnimatePresence mode="wait">
             {viewMode === "about" ? (
-              <div className="flex h-full flex-col justify-between">
+              <motion.div key="about-panel"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="flex h-full flex-col justify-between"
+              >
                 <div>
                   <p
                     className={cn(
@@ -530,9 +535,12 @@ export function ElishaPortfolio() {
                     summary when you are ready.
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ) : activeProject ? (
-              <div
+              <motion.div
+                key={activeProject.title}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className={cn(
                   "flex h-full flex-col",
                   activeProject.hasCaseStudy && "cursor-pointer",
@@ -555,9 +563,9 @@ export function ElishaPortfolio() {
                   {activeProject.previewImages.slice(0, 2).map((previewImage, index) => (
                     <motion.div
                       key={previewImage}
-                      initial={{ opacity: 0, y: 14 }}
+                      initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.08 }}
+                      transition={{ delay: index * 0.06, duration: 0.3 }}
                       className={cn(
                         "min-h-0 overflow-hidden rounded-[1.15rem] border p-1.5",
                         isDark
@@ -565,19 +573,23 @@ export function ElishaPortfolio() {
                           : "border-slate-900/8 bg-white/70",
                       )}
                     >
-                      <div className="h-full min-h-0 overflow-hidden rounded-[0.95rem] bg-slate-900/5 flex items-center justify-center">
+                      <div className="h-full min-h-0 overflow-hidden rounded-[0.95rem]">
                         <img
                           src={previewImage}
                           alt={`${activeProject.title} preview ${index + 1}`}
-                          className="h-full w-full object-contain"
+                          className="h-full w-full object-cover"
                         />
                       </div>
                     </motion.div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ) : (
-              <div className="grid h-full place-items-center px-4 text-center">
+              <motion.div key="empty-panel"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="grid h-full place-items-center px-4 text-center"
+              >
                 <div className="flex flex-col items-center justify-center gap-5">
                   <div className="flex items-center justify-center gap-4">
                     <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-orange-300 to-pink-300">
@@ -594,8 +606,9 @@ export function ElishaPortfolio() {
                     preview a project
                   </p>
                 </div>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </motion.div>
         </section>
 
