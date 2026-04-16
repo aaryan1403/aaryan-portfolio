@@ -186,7 +186,7 @@ export const LiquidGlassCard = ({
             boxShadow: shadowStyles[shadowIntensity],
           }}
         />
-        <div className="relative z-30 grow">{children}</div>
+        <div className="relative z-30 grow min-h-0">{children}</div>
       </MotionComponent>
     </>
   );
