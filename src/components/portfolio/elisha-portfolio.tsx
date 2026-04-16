@@ -157,7 +157,7 @@ export function ElishaPortfolio() {
   const [currentTime, setCurrentTime] = useState(formatTime);
   const [istTime, setIstTime]         = useState(formatIST);
   const [activeProjectTitle, setActiveProjectTitle] = useState<string | null>(null);
-  const [layoutMode, setLayoutMode] = useState<LayoutMode>("spread");
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>("grid");
   const [scatterVariant, setScatterVariant] = useState(0);
   const [isDark, setIsDark] = useState(true);
   const [feedback, setFeedback] = useState<string | null>(null);
