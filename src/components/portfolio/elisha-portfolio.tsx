@@ -361,98 +361,56 @@ export function ElishaPortfolio() {
 
       <div className={cn("relative z-10 flex min-h-screen flex-col lg:flex-row", (viewMode === "about" || viewMode === "casestudy") && "invisible lg:visible")}>
         <section className="w-full px-6 pt-6 pb-2 sm:px-10 lg:w-[30%] lg:pl-12 lg:pr-6 lg:pt-6 lg:pb-10">
-          <div>
-            <AnimatePresence mode="sync">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.8 }}
+          >
             {viewMode === "about" ? (
-              <motion.h1 key="about-title"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className={cn(
-                  "max-w-none whitespace-nowrap font-['Caveat'] text-[1.7rem] sm:text-[2.15rem] leading-[0.92]",
-                  isDark ? "text-white/92" : "text-slate-900/92",
-                )}
-              >
+              <h1 className={cn("max-w-none whitespace-nowrap font-['Caveat'] text-[1.7rem] sm:text-[2.15rem] leading-[0.92]", isDark ? "text-white/92" : "text-slate-900/92")}>
                 About Aaryan
-              </motion.h1>
+              </h1>
             ) : activeProject ? (
-              <motion.div key={`project-title-${activeProject.title}`}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="pt-1"
-              >
-                <p
-                  className={cn(
-                    "mb-2 font-mono text-[10px] uppercase tracking-[0.28em]",
-                    isDark ? "text-white/45" : "text-slate-500",
-                  )}
-                >
-                  Selected project
-                </p>
-                <h1
-                  className={cn(
-                    "max-w-[21rem] font-['Caveat'] text-[1.62rem] leading-[1.01]",
-                    isDark ? "text-white/92" : "text-slate-900/92",
-                  )}
-                >
-                  {activeProject.title}
-                </h1>
-              </motion.div>
+              <div className="pt-1">
+                <p className={cn("mb-2 font-mono text-[10px] uppercase tracking-[0.28em]", isDark ? "text-white/45" : "text-slate-500")}>Selected project</p>
+                <h1 className={cn("max-w-[21rem] font-['Caveat'] text-[1.62rem] leading-[1.01]", isDark ? "text-white/92" : "text-slate-900/92")}>{activeProject.title}</h1>
+              </div>
             ) : (
-              <motion.h1 key="default-title"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className={cn(
-                  "max-w-none whitespace-nowrap font-['Caveat'] text-[1.45rem] sm:text-[1.72rem] leading-[0.92] lg:relative lg:-top-[2px]",
-                  isDark ? "text-white/92" : "text-slate-900/92",
-                )}
-              >
+              <h1 className={cn("max-w-none whitespace-nowrap font-['Caveat'] text-[1.45rem] sm:text-[1.72rem] leading-[0.92] lg:relative lg:-top-[2px]", isDark ? "text-white/92" : "text-slate-900/92")}>
                 Hey, it's Aaryan Shrivastava
-              </motion.h1>
+              </h1>
             )}
-            </AnimatePresence>
-          </div>
+          </motion.div>
 
-          <div className="mt-1">
-            <AnimatePresence mode="sync">
-              <motion.p
-                key={`desc-${viewMode === "about" ? "about" : activeProject?.title ?? "default"}`}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className={cn(
-                  "max-w-full lg:max-w-[20.5rem] text-[0.75rem] leading-[1.45]",
-                  activeProject && viewMode === "home" && "max-w-full lg:max-w-[23rem] text-[0.765rem] leading-[1.44]",
-                  isDark ? "text-white/80" : "text-slate-700",
-                )}
-              >
-                {viewMode === "about"
-                  ? "A dedicated about page is now wired into the app. We can build the full story, timeline, and contact details there next."
-                  : activeProject
-                    ? renderBold(activeProject.description)
-                    : renderBold(introDescription)}
-              </motion.p>
-            </AnimatePresence>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className={cn("mt-1", activeProject && viewMode === "home" && "pt-1.5")}
+          >
+            <p className={cn("max-w-full lg:max-w-[20.5rem] text-[0.75rem] leading-[1.45]", activeProject && viewMode === "home" && "max-w-full lg:max-w-[23rem] text-[0.765rem] leading-[1.44]", isDark ? "text-white/80" : "text-slate-700")}>
+              {viewMode === "about"
+                ? "A dedicated about page is now wired into the app. We can build the full story, timeline, and contact details there next."
+                : activeProject
+                  ? renderBold(activeProject.description)
+                  : renderBold(introDescription)}
+            </p>
+          </motion.div>
 
-          <div className={cn("pt-1.5", activeProject && viewMode === "home" && "pt-2")}>
-            <AnimatePresence mode="sync">
-              <motion.p
-                key={`tag-${viewMode === "about" ? "about" : activeProject?.title ?? "default"}`}
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className={cn(
-                  "max-w-[20.5rem] font-mono text-[0.63rem] leading-[1.32]",
-                  activeProject && viewMode === "home" && "max-w-[23rem] text-[0.655rem] leading-[1.34]",
-                  isDark ? "text-white/50" : "text-slate-500",
-                )}
-              >
-                {viewMode === "about"
-                  ? "Use the home icon to return to the portfolio."
-                  : activeProject
-                    ? "Hover the stack to preview more visual directions."
-                    : "Prev worked for: Chronic Pain Ireland (CPI) and Cozmotec"}
-              </motion.p>
-            </AnimatePresence>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className={cn("pt-1.5", activeProject && viewMode === "home" && "pt-2")}
+          >
+            <p className={cn("max-w-[20.5rem] font-mono text-[0.63rem] leading-[1.32]", activeProject && viewMode === "home" && "max-w-[23rem] text-[0.655rem] leading-[1.34]", isDark ? "text-white/50" : "text-slate-500")}>
+              {viewMode === "about"
+                ? "Use the home icon to return to the portfolio."
+                : activeProject
+                  ? "Hover the stack to preview more visual directions."
+                  : "Prev worked for: Chronic Pain Ireland (CPI) and Cozmotec"}
+            </p>
+          </motion.div>
 
           <motion.div
             ref={panelRef}
@@ -469,11 +427,11 @@ export function ElishaPortfolio() {
                 : "border-slate-900/10 bg-white/45",
             )}
           >
-            <AnimatePresence mode="sync">
+            <AnimatePresence mode="wait">
             {viewMode === "about" ? (
               <motion.div key="about-panel"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
                 className="flex h-full flex-col justify-between"
               >
                 <div>
@@ -535,10 +493,10 @@ export function ElishaPortfolio() {
             ) : activeProject ? (
               <motion.div
                 key={activeProject.title}
-                initial={{ opacity: 0, filter: "blur(4px)" }}
+                initial={{ opacity: 0, filter: "blur(6px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(4px)" }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+                exit={{ opacity: 0, filter: "blur(6px)" }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
                 className={cn(
                   "flex h-full flex-col",
                   activeProject.hasCaseStudy && "cursor-pointer",
@@ -585,7 +543,7 @@ export function ElishaPortfolio() {
             ) : (
               <motion.div key="empty-panel"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
                 className="grid h-full place-items-center px-4 text-center"
               >
                 <div className="flex flex-col items-center justify-center gap-5">
