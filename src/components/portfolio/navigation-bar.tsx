@@ -23,7 +23,7 @@ type NavigationBarProps = {
   isDark: boolean;
   layoutMode: "spread" | "grid";
   feedback: string | null;
-  currentView: "home" | "about";
+  currentView: "home" | "about" | "casestudy";
   onGoHome: () => void;
   onToggleTheme: () => void;
   onToggleLayout: () => void;
@@ -142,12 +142,13 @@ export function NavigationBar({
 
         <div
           className={cn(
-            "flex items-center gap-1 rounded-full px-3 py-2 shadow-xl backdrop-blur-md",
+            "rounded-full shadow-xl backdrop-blur-md max-w-[calc(100vw-2rem)]",
             isDark
               ? "border border-white/18 bg-white/10"
               : "border border-slate-900/10 bg-white/72",
           )}
         >
+        <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2">
           <ActionButton
             icon={Sparkles}
             label={isDark ? "Light mode" : "Dark mode"}
@@ -160,13 +161,15 @@ export function NavigationBar({
             onClick={onGoHome}
             isDark={isDark}
           />
-          {currentView !== "about" && (
-            <ActionButton
-              icon={Grid2x2}
-              label={layoutMode === "spread" ? "Grid layout" : "Spread layout"}
-              onClick={onToggleLayout}
-              isDark={isDark}
-            />
+          {currentView !== "about" && currentView !== "casestudy" && (
+            <div className="hidden lg:contents">
+              <ActionButton
+                icon={Grid2x2}
+                label={layoutMode === "spread" ? "Grid layout" : "Spread layout"}
+                onClick={onToggleLayout}
+                isDark={isDark}
+              />
+            </div>
           )}
           <ActionButton
             icon={Mail}
@@ -189,10 +192,11 @@ export function NavigationBar({
           />
           <ActionButton
             icon={UserRound}
-            label={currentView === "about" ? "About page" : "Open about"}
+            label={currentView === "about" ? "About page" : currentView === "casestudy" ? "Open about" : "Open about"}
             onClick={onOpenAbout}
             isDark={isDark}
           />
+        </div>
         </div>
       </div>
     </motion.nav>

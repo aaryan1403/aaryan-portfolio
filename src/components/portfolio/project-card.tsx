@@ -11,6 +11,7 @@ export type ProjectCardData = {
   description: string;
   previewImages: string[];
   link: string;
+  hasCaseStudy?: boolean;
 };
 
 type ProjectCardProps = ProjectCardData & {
@@ -20,6 +21,7 @@ type ProjectCardProps = ProjectCardData & {
   mode: "spread" | "grid";
   position?: Record<string, string>;
   onHoverChange: (isHovering: boolean) => void;
+  onOpenCaseStudy?: () => void;
 };
 
 export function ProjectCard({
@@ -33,7 +35,9 @@ export function ProjectCard({
   mode,
   position,
   link,
+  hasCaseStudy,
   onHoverChange,
+  onOpenCaseStudy,
 }: ProjectCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const showOverlay = isHovered || isActive;
@@ -59,7 +63,13 @@ export function ProjectCard({
         zIndex: 50,
         transition: { duration: 0.3 },
       }}
-      onClick={() => window.open(link, "_blank", "noopener,noreferrer")}
+      onClick={() => {
+        if (hasCaseStudy && onOpenCaseStudy) {
+          onOpenCaseStudy();
+        } else {
+          window.open(link, "_blank", "noopener,noreferrer");
+        }
+      }}
       onHoverStart={() => {
         setIsHovered(true);
         onHoverChange(true);
@@ -103,7 +113,7 @@ export function ProjectCard({
             !showOverlay && "pointer-events-none",
           )}
         >
-          <span className="px-6 text-center text-[2rem] font-medium leading-tight text-white">
+          <span className="px-6 text-center text-[1.5rem] sm:text-[2rem] font-medium leading-tight text-white">
             {title}
           </span>
           <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">

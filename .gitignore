@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.vercel
+
+# Large video files in src/assets (not for git)
+src/assets/projects/*.mov
+src/assets/projects/*.mp4

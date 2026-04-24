@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const ANIM_DURATION = 6.5;   // seconds per star
-const MAX_STAGGER   = 1.5;   // max delay between stars in a batch (s)
 const GAP_MIN       = 2000;  // min gap between batches (ms)
 const GAP_MAX       = 3000;  // max gap between batches (ms)
 
@@ -24,7 +23,7 @@ function ShootingStar({ left, top, delay, isDark }: StarProps) {
   const shared = {
     duration: ANIM_DURATION,
     delay,
-    times: T,
+    times: [...T],
     ease: "linear" as const,
   };
 
@@ -63,7 +62,7 @@ function ShootingStar({ left, top, delay, isDark }: StarProps) {
 // ── Batch controller ──────────────────────────────────────────────────────────
 function ShootingStarController({ isDark }: { isDark: boolean }) {
   const [stars, setStars] = useState<StarProps[]>([]);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     function spawnBatch() {
