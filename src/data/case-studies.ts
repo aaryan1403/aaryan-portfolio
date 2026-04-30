@@ -1,6 +1,7 @@
-import xarissDashboard from "@/assets/projects/xariss-dashboard.jpg";
+import xarissDashboard from "@/assets/projects/Shots XARISS.jpeg";
 import cpiRecording from "@/assets/projects/CPI Recording.mov";
-import cpiCover from "@/assets/projects/cpi-cover.jpg";
+import cpiCover from "@/assets/projects/Shots CPI.png";
+import yifCover from "@/assets/projects/Shots Member Login.jpeg";
 import doubleDiamond from "@/assets/projects/Double Diamond Process Nessler 2018.jpg";
 import cpiOnboarding from "@/assets/projects/CPI onboarding and Add Task.png";
 import cpiHome from "@/assets/projects/CPI Home.png";
@@ -10,6 +11,13 @@ import xarissExperiences from "@/assets/projects/xariss-experiences.png";
 import xarissInbox from "@/assets/projects/xariss-inbox.png";
 import xarissStoreDashboard from "@/assets/projects/xariss-store-dashboard.png";
 import xarissManageExperiences from "@/assets/projects/xariss-manage-experiences.png";
+import yifBefore from "@/assets/projects/yif-before.png";
+import yifAfter from "@/assets/projects/yif-after.png";
+import yifScreenLoginLight from "@/assets/projects/yif-screen-login-light.png";
+import yifScreenLoginSplit from "@/assets/projects/yif-screen-login-split.jpg";
+import yifScreenMembersV1 from "@/assets/projects/yif-screen-members-v1.png";
+import yifScreenMembersV2 from "@/assets/projects/yif-screen-members-v2.png";
+import yifScreenMembersV3 from "@/assets/projects/yif-screen-members-v3.png";
 
 // ─── Content Block Types ────────────────────────────────────────────────────
 
@@ -17,7 +25,7 @@ export type ContentBlock =
   | { type: "paragraph"; text: string }
   | { type: "heading"; text: string }
   | { type: "image"; src: string; alt: string; caption?: string }
-  | { type: "placeholder-image"; label: string; caption?: string }
+  | { type: "placeholder-image"; label: string; caption?: string; src?: string }
   | {
       type: "persona";
       name: string;
@@ -86,6 +94,7 @@ export type ContentBlock =
       title: string;
       question: string;
       image: string | null | undefined;
+      decisionsHeading?: string;
       decisions: string[];
     }
   | { type: "decision"; number: string; title: string; body: string }
@@ -125,6 +134,83 @@ export type ContentBlock =
       type: "appendix-blocks";
       intro: string;
       items: { number: string; title: string; paragraphs: string[]; why: string }[];
+    }
+  | {
+      type: "gantt-timeline";
+      totalWeeks: number;
+      uxPhases: { label: string; subItems: string[]; startWeek: number; endWeek: number }[];
+      uiPhases: { label: string; subItems: string[]; startWeek: number; endWeek: number }[];
+    }
+  | {
+      type: "process-phase-cards";
+      items: {
+        iconType: "users" | "target" | "lightbulb" | "layers" | "check";
+        title: string;
+        bullets: string[];
+      }[];
+    }
+  | { type: "ia-tree" }
+  | {
+      type: "design-laws";
+      items: { name: string; concept: string; implementation: string }[];
+    }
+  | {
+      type: "before-after";
+      beforeTitle: string;
+      afterTitle: string;
+      beforeDescription: string;
+      afterDescription: string;
+      beforeItems: string[];
+      afterItems: string[];
+      beforeImage?: string;
+      afterImage?: string;
+    }
+  | {
+      type: "yif-persona";
+      name: string;
+      age: number;
+      education: string;
+      status: string;
+      occupation: string;
+      location: string;
+      story: string;
+      goals: string[];
+      painPoints: string[];
+      needs: string;
+      motivations?: string[];
+      avatarPhoto?: string;
+    }
+  | { type: "yif-persona-pair"; personas: Extract<ContentBlock, { type: "yif-persona" }>[] }
+  | { type: "exec-summary"; paragraphs: string[]; metrics: { value: string; label: string }[] }
+  | { type: "foundation-statement"; overline: string; statement: string; body: string }
+  | {
+      type: "research-block";
+      overline: string;
+      stats: { value: string; label: string }[];
+      paragraphs: { text: string; voice: "brand-owner" | "store-manager" }[];
+    }
+  | { type: "problem-callout"; overline: string; text: string }
+  | {
+      type: "research-goals";
+      goals: { id: string; text: string }[];
+    }
+  | {
+      type: "research-questions";
+      rows: { questionType: "GENERATIVE" | "EVALUATIVE"; question: string; role: string }[];
+    }
+  | {
+      type: "success-metrics";
+      rows: { metric: string; baseline: string; target: string; outcome: string }[];
+    }
+  | {
+      type: "what-i-found";
+      text: string;
+    }
+  | {
+      type: "ideation-cards";
+      openingLine: string;
+      cards: { status: "rejected" | "selected"; title: string; description: string }[];
+      closingLine: string;
     };
 
 // ─── Section & Study Types ───────────────────────────────────────────────────
@@ -179,8 +265,7 @@ const xarissCaseStudy: CaseStudyData = {
   stats: [
     { value: "48", label: "Partners Onboarded" },
     { value: "<10min", label: "Data to Decision" },
-    { value: "7", label: "Hi-Fi Screens" },
-    { value: "2", label: "User Roles" },
+    { value: "68%", label: "Partner Activation Rate" },
   ],
   sections: [
     // ── 01 · Overview ────────────────────────────────────────────────────────
@@ -191,28 +276,22 @@ const xarissCaseStudy: CaseStudyData = {
       shortTitle: "Overview",
       blocks: [
         {
-          type: "paragraph",
-          text: "XARISS is a B2B SaaS platform built for luxury brand partners (think Gucci, Bottega Veneta, Saint Laurent) to list, manage, and optimise in-store experiences for high-intent consumers. Closest analogy: OpenTable meets Salesforce for luxury retail.",
+          type: "exec-summary",
+          paragraphs: [
+            "XARISS connects luxury brand partners with high-value customers through curated in-store experiences. But partners had no visibility into how those experiences were performing. Listing updates had to go through the XARISS team. There was no way to compare stores, track conversions, or know if the partnership was commercially worth it.",
+            "I designed the Partner Intelligence Platform — a dual-role analytics and operations dashboard serving two very different users: Brand Owners who think in portfolio-level patterns, and Store Managers who think in today's tasks. One product, one navigation, but every section scoped to the user's role.",
+          ],
+          metrics: [
+            { value: "48", label: "Partners onboarded" },
+            { value: "<10min", label: "Data to decision" },
+            { value: "68%", label: "Partner activation rate" },
+          ],
         },
         {
-          type: "paragraph",
-          text: "Everything on this platform had to answer one question: is XARISS actually generating bookings and revenue for my brand? Every design decision, from the information architecture to the zone ordering on the dashboard, was made in service of that. This case study is about how a blank brief became a working seven-screen enterprise product.",
-        },
-        {
-          type: "heading",
-          text: "The Platform",
-        },
-        {
-          type: "paragraph",
-          text: "XARISS connects luxury brand owners managing multi-location portfolios with the store managers running day-to-day operations. It sits between those two roles, surfacing analytics, managing bookings, handling inquiries, and keeping listing content current, all from one place.",
-        },
-        {
-          type: "heading",
-          text: "The Challenge",
-        },
-        {
-          type: "paragraph",
-          text: "Enterprise SaaS for luxury brands has a specific set of constraints. It needs to feel premium without hiding information, it needs to be usable by people who aren't technical, and it needs to turn complex data into something a store manager can actually act on quickly.",
+          type: "foundation-statement",
+          overline: "LAYING THE FOUNDATION",
+          statement: "Italian luxury brands. Global labels. Independent houses.",
+          body: "We were asking all of them to hand us their stores, their customers, and their reputation — and giving them **nothing to measure us by**.",
         },
       ],
     },
@@ -225,226 +304,28 @@ const xarissCaseStudy: CaseStudyData = {
       shortTitle: "Problem",
       blocks: [
         {
-          type: "paragraph",
-          text: "The platform serves two users whose needs, mental models, and time pressures are almost completely different. Design for one and you've probably broken it for the other.",
-        },
-        {
-          type: "persona",
-          name: "Marco R.",
-          role: "Brand Owner",
-          location: "Gucci Italia · Views 4 stores",
-          question:
-            "Which stores are driving revenue, and which ones are leaking demand?",
-          details: [
-            "Reviews monthly performance across locations",
-            "Needs to compare stores and identify underperformers",
-            "Makes portfolio-level investment decisions",
-            "Works retrospectively, needs trend data over time",
+          type: "research-block",
+          overline: "RESEARCH",
+          stats: [
+            { value: "24", label: "Interviews" },
+            { value: "6", label: "Brand Owners" },
+            { value: "18", label: "Store Managers" },
           ],
-        },
-        {
-          type: "persona",
-          name: "Giulia L.",
-          role: "Store Manager",
-          location: "Florence, Via Tornabuoni · Runs 1 store",
-          question:
-            "What do I need to do today to keep bookings coming in?",
-          details: [
-            "Checks the dashboard daily, sometimes multiple times",
-            "Needs to know what's happening right now",
-            "Responds to inquiries and manages availability",
-            "Forward-facing, needs action items not reports",
-          ],
-        },
-        {
-          type: "heading",
-          text: "The Key Tensions",
-        },
-        {
-          type: "paragraph",
-          text: "These tensions came up in almost every decision made throughout the project:",
-        },
-        {
-          type: "tensions",
-          items: [
+          paragraphs: [
             {
-              title: "Information Density vs Clarity",
-              desc: "More data means harder decisions. The platform had to be dense enough to be useful, but structured enough that you didn't need training to read it.",
+              text: "I interviewed 24 partners. The Brand Owners weren't frustrated. They were **indifferent** — already listed on platforms they'd forgotten about. When I asked how they track which partnerships drive revenue, the most common answer was _we don't_.",
+              voice: "brand-owner",
             },
             {
-              title: "Analytics vs Operations",
-              desc: "Brand Owners need retrospective insight. Store Managers need forward-facing action. Both live in the same product.",
-            },
-            {
-              title: "Premium Feel vs Enterprise Function",
-              desc: "Luxury brand aesthetics (sparse, typographic, restrained) pull against enterprise UX needs (information-rich, scannable, colour-coded).",
-            },
-            {
-              title: "Portfolio View vs Single-Store View",
-              desc: "The same experience data means completely different things depending on whether you manage one store or four.",
-            },
-            {
-              title: "Insight vs Instruction",
-              desc: "Surfacing that conversion dropped 31% is useless without telling the user what to do about it.",
-            },
-          ],
-        },
-      ],
-    },
-
-    // ── 02b · User Personas ───────────────────────────────────────────────────
-    {
-      id: "personas",
-      number: "02b",
-      title: "User Personas",
-      shortTitle: "Personas",
-      blocks: [
-        {
-          type: "paragraph",
-          text: "Two personas came out of the research. Marco is the strategic, portfolio-level user who thinks in revenue and growth trends. Giulia is the operational, single-store user who cares about what she can act on right now. Getting the design to work for both at the same time was the main challenge.",
-        },
-        {
-          type: "persona-pair",
-          personas: [
-            {
-              type: "rich-persona",
-              name: "Marco R.",
-              initial: "M",
-              avatarColor: "#1e40af",
-              avatarTextColor: "#ffffff",
-              avatarPhoto: "https://randomuser.me/api/portraits/men/32.jpg",
-              role: "Brand Owner",
-              company: "Gucci Italia",
-              location: "Milan · Manages 4 stores",
-              quote: "Which stores are actually driving revenue, and which ones are underperforming?",
-              goals: [
-                "See portfolio performance at a glance without digging through reports",
-                "Compare store-level KPIs to identify where to invest attention",
-                "Make data-driven decisions about listing strategy and pricing",
-                "Justify platform value to internal stakeholders with clear ROI",
-              ],
-              painPoints: [
-                "Raw data without clear interpretation wastes decision-making time",
-                "No single place to compare all stores, has to jump between tools",
-                "Can't tell if a conversion drop is seasonal or structural",
-                "Insight cards that describe a problem but suggest no action",
-              ],
-              behaviour: "Logs in weekly or before brand reviews. Treats the platform as an executive report, not a daily tool. Skips navigation and goes straight to top-line scores.",
-            },
-            {
-              type: "rich-persona",
-              name: "Giulia L.",
-              initial: "G",
-              avatarColor: "#0f766e",
-              avatarTextColor: "#ffffff",
-              avatarPhoto: "https://randomuser.me/api/portraits/women/44.jpg",
-              role: "Store Manager",
-              company: "Gucci Florence",
-              location: "Via Tornabuoni · Manages 1 store",
-              quote: "What do I need to do today to keep bookings coming in?",
-              goals: [
-                "Know what needs my attention before the first guest arrives",
-                "Respond to customer inquiries quickly, with the right context",
-                "Keep listing content fresh and availability slots up to date",
-                "Understand why bookings dropped without needing an analyst",
-              ],
-              painPoints: [
-                "Dashboards built for analysts, not operators. Too much noise for daily use",
-                "Guest inquiries buried in email, disconnected from booking context",
-                "No clear signal when a listing needs to be updated vs. is fine",
-                "Period-based analytics are useless at 9am, she needs today's picture",
-              ],
-              behaviour: "Checks the dashboard every morning and after lunch. Uses it like a task list, checking what's overdue, what's urgent, and what can wait.",
-            },
-          ],
-        },
-      ],
-    },
-
-    // ── 02c · From Research to Reasoning ─────────────────────────────────────
-    {
-      id: "reasoning",
-      number: "02c",
-      title: "From Research to Reasoning",
-      shortTitle: "Reasoning",
-      titleParts: [
-        { text: "From Research ", accent: false },
-        { text: "to Reasoning", accent: true },
-      ],
-      blocks: [
-        {
-          type: "large-paragraph",
-          text: "Two users. Completely different mental models. The challenge wasn't just building a dashboard, it was building one platform that felt like it was made specifically for each of them.",
-        },
-        {
-          type: "heading",
-          text: "The Problem I Had to Solve First",
-        },
-        {
-          type: "paragraph",
-          text: "Brand Owners think in patterns: month-over-month, store vs. store, which partnership is paying off. Store Managers think in tasks: what's open, what needs a response, what's expiring today. The same navigation had to serve both without feeling like it was designed for neither.",
-        },
-        {
-          type: "callout",
-          text: "Same nav. Different scope. Every section opens pre-filtered to the user's role. Brand Owners see the full brand picture. Store Managers see their store only. One product, one UI.",
-        },
-        {
-          type: "heading",
-          text: "The Rules I Designed By",
-        },
-        {
-          type: "design-rules-cards",
-          items: [
-            {
-              label: "Typography over color",
-              body: "Color loses meaning at scale. When everything is colored, nothing is. Hierarchy comes from type scale and weight, not decorative fills.",
-            },
-            {
-              label: "Density is a feature, not a problem",
-              body: "Partners use this to make real commercial decisions. Hiding data behind excessive white space forces more navigation to see less. Density is managed through spacing rhythm, not information reduction.",
-            },
-            {
-              label: "Color only carries meaning",
-              body: "Semantic color (green for growth, amber for warning, red for critical) only appears at the component level. It never decorates a surface. When it shows up, it means something.",
+              text: "The Store Managers had **the opposite energy**. They cared too much. Online enquiries coming through XARISS were landing in spreadsheets between walk-in customers, and peak season meant those **spreadsheets just stopped getting opened**.",
+              voice: "store-manager",
             },
           ],
         },
         {
-          type: "heading",
-          text: "Why I Made These Calls",
-        },
-        {
-          type: "design-decisions",
-          items: [
-            {
-              bold: "The Health Score leads the dashboard.",
-              body: "Every Brand Owner opens the platform asking one question before anything else: is this partnership working? Answering that in the first element they see eliminates the need to synthesise four KPI cards before forming a view.",
-            },
-            {
-              bold: "Alerts sit above trend charts.",
-              body: "A partner with an unresolved high-severity alert should address it before analysing patterns. Burying alerts below trend data means urgent issues get discovered after unnecessary context-building.",
-            },
-            {
-              bold: "Today's snapshot is separate from the KPI strip.",
-              body: "The KPI cards reflect the selected date range, usually 30 days. The snapshot reflects today, regardless of what range is selected. Mixing the two makes it unclear which time window the numbers actually belong to.",
-            },
-            {
-              bold: "Insights follow the comparison tables, not precede them.",
-              body: "Insight cards explain patterns. But partners need to see the pattern first, in the store comparison or experience table, before the explanation makes any sense. Put the insight before the data and it just floats there, disconnected.",
-            },
-            {
-              bold: "Self-service management was non-negotiable.",
-              body: "One of the clearest pain points from research: partners were dependent on the XARISS team for routine content updates. Every listing edit, experience change, and publish action had to be completable without raising a ticket.",
-            },
-          ],
-        },
-        {
-          type: "heading",
-          text: "The Visual Register",
-        },
-        {
-          type: "pull-quote",
-          text: "The interface should feel like the internal tool that a luxury brand's analytics team would actually trust. Not something that performs luxury through decoration. Precision through restraint.",
+          type: "problem-callout",
+          overline: "PROBLEM STATEMENT",
+          text: "How do I build a single system that **proves commercial value** to Brand Owners who have no reason to trust another platform, and **eliminates operational friction** for Store Managers who don't have 10 minutes to spare?",
         },
       ],
     },
@@ -538,201 +419,146 @@ const xarissCaseStudy: CaseStudyData = {
       ],
     },
 
-    // ── 04 · Design System ───────────────────────────────────────────────────
+    // ── 04 · From Research to Reasoning ──────────────────────────────────────
     {
-      id: "design-system",
+      id: "reasoning",
       number: "04",
-      title: "Design System",
-      shortTitle: "Design System",
+      title: "From Research to Reasoning",
+      shortTitle: "Reasoning",
+      titleParts: [
+        { text: "From Research ", accent: false },
+        { text: "to Reasoning", accent: true },
+      ],
       blocks: [
         {
-          type: "paragraph",
-          text: "The design system came from a single governing principle: calm authority. This platform deals with real money and real business decisions. It needed to feel like a Bloomberg Terminal dressed in Bottega Veneta, information-dense without anxiety, data-rich without noise.",
-        },
-        {
-          type: "heading",
-          text: "Typography",
-        },
-        {
-          type: "paragraph",
-          text: "Two typefaces handle all hierarchy. DM Serif Display carries the emotional weight, used only for headline scores, page titles, and the XARISS wordmark. DM Sans handles everything functional: labels, table cells, navigation, captions. The contrast between a 42px serif health score and a 10px sans axis label communicates importance without needing colour to do the heavy lifting.",
-        },
-        {
-          type: "type-scale",
-          items: [
-            {
-              name: "Display / Score",
-              font: "DM Serif Display",
-              size: "38–42px",
-              weight: "400",
-              usage: "Health scores, hero values",
-            },
-            {
-              name: "Page Title",
-              font: "DM Serif Display",
-              size: "22–26px",
-              weight: "400",
-              usage: "Dashboard and section headers",
-            },
-            {
-              name: "Zone Label",
-              font: "DM Sans",
-              size: "10px",
-              weight: "600",
-              usage: "Uppercase · Spaced · Section identifiers",
-            },
-            {
-              name: "KPI Value",
-              font: "DM Sans",
-              size: "24–28px",
-              weight: "700",
-              usage: "Primary metric display",
-            },
-            {
-              name: "Table Cell",
-              font: "DM Sans",
-              size: "12px",
-              weight: "400/600",
-              usage: "Data grid content",
-            },
-            {
-              name: "Axis Label",
-              font: "DM Sans",
-              size: "10px",
-              weight: "400",
-              usage: "Chart annotations",
-            },
+          type: "research-goals",
+          goals: [
+            { id: "G1", text: "Understand how brand managers define commercial value." },
+            { id: "G2", text: "Identify current decision-making workflows and what data partners look for before investing more." },
+            { id: "G3", text: "Map trust barriers toward external platforms." },
+            { id: "G4", text: "Understand time constraints and cognitive load of store-level staff." },
+            { id: "G5", text: "Identify what triggers a partner to take action versus ignore a signal." },
           ],
         },
         {
-          type: "heading",
-          text: "Colour Philosophy",
-        },
-        {
-          type: "paragraph",
-          text: "The palette uses a near-monochromatic neutral base (#0F1117 ink through #F7F8FA surface) with a single blue accent (#3B6FD4) and three semantic colours (green/amber/red) reserved strictly for functional meaning.",
-        },
-        {
-          type: "callout",
-          text: "No element uses colour for decoration. Every instance of green, amber, or red means something specific: positive trajectory, warning threshold, or critical failure. That rule held across all 15 components and all 7 screens.",
-        },
-        {
-          type: "color-system",
-          items: [
-            {
-              name: "Ink",
-              hex: "#0F1117",
-              role: "Background base",
-              usage: "Page background, deepest surfaces",
-            },
-            {
-              name: "Surface",
-              hex: "#F7F8FA",
-              role: "Light surface",
-              usage: "Card backgrounds, input fields",
-            },
-            {
-              name: "Brand Blue",
-              hex: "#3B6FD4",
-              role: "Primary accent",
-              usage: "XARISS UI elements, primary actions",
-            },
-            {
-              name: "Success",
-              hex: "#22C55E",
-              role: "Positive trajectory",
-              usage: "Growth indicators, healthy status",
-            },
-            {
-              name: "Warning",
-              hex: "#F59E0B",
-              role: "Warning threshold",
-              usage: "Declining metrics, content staleness",
-            },
-            {
-              name: "Critical",
-              hex: "#EF4444",
-              role: "Critical failure",
-              usage: "Conversion drops, urgent alerts",
-            },
+          type: "research-questions",
+          rows: [
+            { questionType: "GENERATIVE", question: "How do you evaluate if a partnership is working?", role: "Brand Owner" },
+            { questionType: "GENERATIVE", question: "What data do you look for before investing more?", role: "Brand Owner" },
+            { questionType: "GENERATIVE", question: "Have you worked with platforms you didn't trust? Why?", role: "Brand Owner" },
+            { questionType: "EVALUATIVE", question: "If you had one screen, what would you want to see first?", role: "Brand Owner" },
+            { questionType: "GENERATIVE", question: "How do you track performance or customer interest today?", role: "Store Manager" },
+            { questionType: "GENERATIVE", question: "What slows you down when using reports or spreadsheets?", role: "Store Manager" },
+            { questionType: "EVALUATIVE", question: "How much time do you have for dashboards in a day?", role: "Store Manager" },
+            { questionType: "EVALUATIVE", question: "How should urgent issues be communicated to you?", role: "Store Manager" },
           ],
         },
         {
-          type: "heading",
-          text: "Spacing & Grid",
-        },
-        {
-          type: "spacing-visual",
-          baseUnit: 4,
-          tokens: [
-            { name: "4px",  px: 4,  color: "#3B6FD4" },
-            { name: "8px",  px: 8,  color: "#3B6FD4" },
-            { name: "12px", px: 12, color: "#2563EB" },
-            { name: "16px", px: 16, color: "#2563EB" },
-            { name: "24px", px: 24, color: "#1d4ed8" },
-            { name: "32px", px: 32, color: "#1d4ed8" },
-            { name: "48px", px: 48, color: "#1e3a8a" },
+          type: "success-metrics",
+          rows: [
+            { metric: "Partner Activation Rate", baseline: "No prior platform", target: "≥ 60%", outcome: "68%" },
+            { metric: "Time to Decision", baseline: "No self-serve data", target: "< 15 min", outcome: "< 10 min" },
+            { metric: "Partners Onboarded", baseline: "0", target: "40+", outcome: "48" },
           ],
-          columns: 12,
-          gutters: "16px",
-          maxWidth: "1160px",
-          cardPadding: "24px",
         },
         {
-          type: "heading",
-          text: "Experience Classification System",
+          type: "what-i-found",
+          text: "Thematic analysis on the 24 interviews surfaced five recurring pain points, but they all came back to the same root: partners had **no self-serve way to understand or manage their presence on XARISS**. Brand Owners **couldn't measure value**. Store Managers **couldn't manage workload**. Both were dependent on us for things they should've been able to do themselves.",
         },
         {
-          type: "paragraph",
-          text: "One of the most important calls in the design system was a five-tier classification for experience performance. Each tier has a colour, an icon, and a default recommended action, so the platform speaks one language across analytics and operations.",
+          type: "ideation-cards",
+          openingLine: "I ran Crazy 8s to generate breadth, then Dark Side Ideation to stress-test the worst versions of each idea. Three directions emerged. **Two failed. One survived.**",
+          cards: [
+            {
+              status: "rejected",
+              title: "Separate dashboards per role",
+              description: "A dedicated Brand Owner app and a separate Store Manager app. Rejected — doubles the maintenance surface, fragments the product, and forces future features to be built twice.",
+            },
+            {
+              status: "rejected",
+              title: "Single dashboard, toggle between views",
+              description: "One screen with a role toggle at the top. Rejected — Store Managers would see a Brand Owner view they can't use every time they switch. Cognitive noise for the user who has the least time to waste.",
+            },
+            {
+              status: "selected",
+              title: "One navigation, role-scoped data",
+              description: "Same structure, same pages, but every section opens pre-filtered to the user's scope. Brand Owners see portfolio-level data. Store Managers see their store only. No toggles, no confusion, no duplicate product.",
+            },
+          ],
+          closingLine: "That last direction became the architecture: a vertical information cascade where each layer answers a progressively more specific question. The top of the dashboard answers the primary question **in under 60 seconds**. Everything below it exists to explain why.",
         },
+      ],
+    },
+
+    // ── 05 · User Personas ────────────────────────────────────────────────────
+    {
+      id: "personas",
+      number: "05",
+      title: "User Personas",
+      shortTitle: "Personas",
+      blocks: [
         {
-          type: "classification",
-          items: [
+          type: "persona-pair",
+          personas: [
             {
-              name: "Revenue Driver",
-              color: "#16a34a",
-              textColor: "#ffffff",
-              desc: "Experiences generating top 25% revenue",
-              action: "Scale",
+              type: "rich-persona",
+              name: "Marco R.",
+              initial: "M",
+              avatarColor: "#1e40af",
+              avatarTextColor: "#ffffff",
+              avatarPhoto: "https://randomuser.me/api/portraits/men/32.jpg",
+              role: "Brand Owner",
+              company: "Gucci Italia",
+              location: "Milan · Manages 4 stores",
+              quote: "Which stores are actually driving revenue, and which ones are underperforming?",
+              goals: [
+                "See portfolio performance at a glance without digging through reports",
+                "Compare store-level KPIs to identify where to invest attention",
+                "Make data-driven decisions about listing strategy and pricing",
+                "Justify platform value to internal stakeholders with clear ROI",
+              ],
+              painPoints: [
+                "Raw data without clear interpretation wastes decision-making time",
+                "No single place to compare all stores, has to jump between tools",
+                "Can't tell if a conversion drop is seasonal or structural",
+                "Insight cards that describe a problem but suggest no action",
+              ],
+              behaviour: "Logs in weekly or before brand reviews. Treats the platform as an executive report, not a daily tool. Skips navigation and goes straight to top-line scores.",
             },
             {
-              name: "High Potential",
-              color: "#0d9488",
-              textColor: "#ffffff",
-              desc: "Strong views, underperforming conversion",
-              action: "Diagnose & optimise",
-            },
-            {
-              name: "Declining",
-              color: "#dc2626",
-              textColor: "#ffffff",
-              desc: "Week-over-week booking drop > 20%",
-              action: "Immediate review",
-            },
-            {
-              name: "Niche Performer",
-              color: "#7c3aed",
-              textColor: "#ffffff",
-              desc: "Low volume, high conversion",
-              action: "Targeted promotion",
-            },
-            {
-              name: "Stale",
-              color: "#d97706",
-              textColor: "#ffffff",
-              desc: "No bookings in 30 days or content > 60 days old",
-              action: "Update or archive",
+              type: "rich-persona",
+              name: "Giulia L.",
+              initial: "G",
+              avatarColor: "#0f766e",
+              avatarTextColor: "#ffffff",
+              avatarPhoto: "https://randomuser.me/api/portraits/women/44.jpg",
+              role: "Store Manager",
+              company: "Gucci Florence",
+              location: "Via Tornabuoni · Manages 1 store",
+              quote: "What do I need to do today to keep bookings coming in?",
+              goals: [
+                "Know what needs my attention before the first guest arrives",
+                "Respond to customer inquiries quickly, with the right context",
+                "Keep listing content fresh and availability slots up to date",
+                "Understand why bookings dropped without needing an analyst",
+              ],
+              painPoints: [
+                "Dashboards built for analysts, not operators. Too much noise for daily use",
+                "Guest inquiries buried in email, disconnected from booking context",
+                "No clear signal when a listing needs to be updated vs. is fine",
+                "Period-based analytics are useless at 9am, she needs today's picture",
+              ],
+              behaviour: "Checks the dashboard every morning and after lunch. Uses it like a task list, checking what's overdue, what's urgent, and what can wait.",
             },
           ],
         },
       ],
     },
 
-    // ── 05 · Screen Decisions ────────────────────────────────────────────────
+    // ── 06 · Screen Decisions ────────────────────────────────────────────────
     {
       id: "screens",
-      number: "05",
+      number: "06",
       title: "Screen Decisions",
       shortTitle: "Screens",
       blocks: [
@@ -747,12 +573,10 @@ const xarissCaseStudy: CaseStudyData = {
           question:
             "Is my partnership performing, and which store is responsible for the gap?",
           image: xarissDashboardPreview,
+          decisionsHeading: "WHY THIS UX WORKS",
           decisions: [
-            "The Partnership Health Score opens the dashboard as a single 82/100 composite, giving the user a quick pass/fail read before any supporting data.",
-            "Five sub-components (Booking Growth, Conversion Efficiency, Content Freshness, Customer Response, Experience Diversity) are revealed beneath, each with its own trend indicator.",
-            "The Store Comparison table uses a classification column instead of ranking stores by revenue, turning raw numbers into vocabulary that drives conversation and action.",
-            "The Efficiency Matrix scatter plot juxtaposes conversion rate against revenue contribution, making it immediately visible when a high-traffic store is underconverting.",
-            "Insight cards surface four automated interpretations with estimated revenue impact to create urgency without being alarmist.",
+            "Partners had no self-serve visibility. Performance data lived in internal XARISS reports that partners had to request and wait for. This dashboard replaces that dependency entirely.",
+            "The Partnership Health Score sits first because Brand Owners don't have time to interpret raw numbers — they need a pass/fail read in five seconds. The KPI cards show 30-day deltas because that's how they told me they think: month over month, up or down, invest more or pull back. What used to be a \"send me the report\" email is now a single glance.",
           ],
         },
         {
@@ -761,12 +585,10 @@ const xarissCaseStudy: CaseStudyData = {
           title: "Store Manager Dashboard",
           question: "What do I need to act on today?",
           image: xarissStoreDashboard,
+          decisionsHeading: "WHY THIS UX WORKS",
           decisions: [
-            "Shares the same shell and design system as the Brand Dashboard but makes 14 structural changes. Multi-store components are removed.",
-            "Three operational widgets in Zone C (Today's Bookings, Pending Inquiries, Capacity Status) replace analytics-focused components.",
-            "The Pending Inquiries widget has a red left border and shows the age of the oldest unanswered inquiry (52 hours). Urgency through time, not badge counts.",
-            "The Listing Status module shows two cards with health scores directly on the dashboard, surfacing content gaps without extra navigation.",
-            "Avatar colour shifts from blue (Brand Owner) to teal (Store Manager) as a persistent signal of which role context you're in. Same pattern Slack and Notion use.",
+            "Same shell, same nav, but every metric is scoped to one store and one day. KPIs show today's bookings, today's enquiries, today's revenue — not last month's trends. Replaces the spreadsheet Store Managers were maintaining between walk-in customers.",
+            "The Conversion sub-score at 58% in red tells them what needs fixing without reading anything else.",
           ],
         },
         {
@@ -776,12 +598,10 @@ const xarissCaseStudy: CaseStudyData = {
           question:
             "Why is this experience's conversion collapsing, and what specifically broke?",
           image: xarissExperiences,
+          decisionsHeading: "WHY THIS UX WORKS",
           decisions: [
-            "Horizontal funnel layout: each stage shows absolute count, percentage of total, and change from the prior period. Everything visible at once.",
-            "Drop transitions between stages appear as percentage labels in coloured pills: white/green for normal, amber for elevated, red for critical.",
-            "When a drop is elevated or critical, a contextual callout appears directly below the transition with a CTA. The insight lives next to the data that caused it.",
-            "A four-stat diagnosis banner synthesises: Overall Conv. Rate, Primary Drop Stage, Secondary Drop Stage, and Est. Missed Bookings.",
-            "The right-hand Diagnosis card states the interpretation in plain language: 'Demand is healthy. Conversion is failing at two sequential stages.'",
+            "Five-stage conversion funnel with drop-off rates color-coded between stages — green for normal, amber for elevated, red for critical. Partners used to see a booking number and have no idea where demand was being lost.",
+            "Now the funnel shows exactly where it breaks: the -84% View → Attempt drop turns red, a contextual callout appears inline with a \"Check Availability\" CTA. The diagnosis and the fix live in the same view.",
           ],
         },
         {
@@ -791,12 +611,10 @@ const xarissCaseStudy: CaseStudyData = {
           question:
             "Who needs a response right now, and what do I know about them before I reply?",
           image: xarissInbox,
+          decisionsHeading: "WHY THIS UX WORKS",
           decisions: [
-            "Three-panel layout: thread list (290px fixed) / message detail (flex) / guest profile (250px fixed).",
-            "Guest profile panel is always visible. The store manager sees past bookings, lifetime value, and cancellation rate before they even read the inquiry.",
-            "Thread timestamps use colour to communicate urgency: grey for normal, amber for 12–24 hours, red for over 24 hours. Classification is at a glance.",
-            "Reply box contains three template shortcuts that pre-populate the textarea, reducing cognitive load of routine responses while keeping content editable.",
-            "Experience tags appear on every thread item, the most operationally relevant context after the guest name.",
+            "Three-panel layout — thread list, message detail, guest profile. Store Managers were answering enquiries blind, with no context on who the customer was or what they'd booked before. Now the guest's booking history, lifetime value, and cancellation rate are visible before they even read the message.",
+            "Reply templates pre-populate routine responses so a Store Manager between walk-in customers can respond in under 30 seconds instead of drafting from scratch. Overdue threads turn red at 24 hours — urgency through time, not badge counts.",
           ],
         },
         {
@@ -839,10 +657,10 @@ const xarissCaseStudy: CaseStudyData = {
       ],
     },
 
-    // ── 06 · Notable Decisions ───────────────────────────────────────────────
+    // ── 08 · Notable Decisions ───────────────────────────────────────────────
     {
       id: "decisions",
-      number: "06",
+      number: "07",
       title: "Notable Design Decisions",
       shortTitle: "Key Decisions",
       blocks: [
@@ -883,10 +701,10 @@ const xarissCaseStudy: CaseStudyData = {
       ],
     },
 
-    // ── 07 · Outcomes ────────────────────────────────────────────────────────
+    // ── 09 · Outcomes ────────────────────────────────────────────────────────
     {
       id: "outcomes",
-      number: "07",
+      number: "08",
       title: "Outcomes & Reflection",
       shortTitle: "Outcomes",
       blocks: [
@@ -911,7 +729,6 @@ const xarissCaseStudy: CaseStudyData = {
           type: "reflection",
           heading: "What I Would Do Differently",
           items: [
-            "User testing with actual luxury brand operations staff would probably surface edge cases in the experience table, especially around multi-store experiences that appear in different contexts.",
             "The mobile-responsive design was scoped out to maintain prototype fidelity, but store managers are more likely to be on tablet than desktop. A tablet variant would be the highest-priority next iteration.",
             "The onboarding flow for a new brand partner (setting up their first experience, configuring availability, connecting their store) is the missing piece that explains how users actually arrive at this platform.",
           ],
@@ -1807,9 +1624,610 @@ const paceyourselfCaseStudy: CaseStudyData = {
   ],
 };
 
+// ─── YIF Member Login Portal Case Study ─────────────────────────────────────
+
+const yifCaseStudy: CaseStudyData = {
+  slug: "yifloginportal",
+  title: "YIF Member Login Portal",
+  subtitle:
+    "Designing a centralized, user-friendly login portal for Youth India Foundation — from user research and information architecture to high-fidelity screens over 3 months.",
+  coverImage: yifCover,
+  accentColor: "#FB7800",
+  accentColorDark: "#FF9A3C",
+  role: "UX/UI Designer (Solo)",
+  timeline: "3 months · Mar–Jul 2022",
+  tools: "Figma · Pen & Paper",
+  deliverable: "5 hi-fi screens + design system",
+  behanceUrl: "https://www.behance.net/gallery/202145727/Login-Portal",
+  stats: [
+    { value: "70%", label: "User satisfaction increase" },
+    { value: "10", label: "Members interviewed" },
+    { value: "3mo", label: "Project duration" },
+    { value: "5", label: "Hi-fi screens" },
+  ],
+  sections: [
+    // ── 01 · About ───────────────────────────────────────────────────────────
+    {
+      id: "about",
+      number: "01",
+      title: "About the Project",
+      shortTitle: "About",
+      group: "Introduction",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "During my internship at Youth India Foundation (March 2022 – July 2022), I was entrusted with designing a member login portal for the foundation. The project spanned three months and aimed to improve the user experience by developing a user-friendly, visually appealing, and functional portal. To ensure a robust design approach, I followed the 5-step design thinking process, placing user feedback and design principles at the core of every decision.",
+        },
+        {
+          type: "role-tags",
+          tags: [
+            "End-to-end UX Design",
+            "User Research",
+            "Information Architecture",
+            "Wireframing",
+            "Hi-Fi Design",
+            "Usability Testing",
+          ],
+        },
+      ],
+    },
+
+    // ── 02 · Problem ─────────────────────────────────────────────────────────
+    {
+      id: "problem",
+      number: "02",
+      title: "Problem Statement",
+      shortTitle: "Problem",
+      group: "Introduction",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "Youth India Foundation lacked a **centralized, user-friendly login portal**, leading to inconsistent branding, poor usability, and high cognitive load. Members struggled with **navigation and task completion**, reducing engagement and satisfaction. The foundation needed a **simple, visually appealing portal** aligned with their brand to enhance **accessibility and user experience.**",
+        },
+        {
+          type: "callout",
+          text: "How might we design a login portal that is simple enough for volunteers to use daily, yet powerful enough for HR managers to handle access and administration?",
+        },
+      ],
+    },
+
+    // ── 03 · Goal ────────────────────────────────────────────────────────────
+    {
+      id: "goal",
+      number: "03",
+      title: "Goal",
+      shortTitle: "Goal",
+      group: "Introduction",
+      blocks: [
+        {
+          type: "design-decisions",
+          items: [
+            {
+              bold: "Develop a login portal",
+              body: "that aligns with the existing visual and branding guidelines of the Youth India Foundation.",
+            },
+            {
+              bold: "Enhance user satisfaction",
+              body: "by making the design simple, intuitive, and easy to use for both volunteers and HR staff.",
+            },
+            {
+              bold: "Incorporate UX and UI laws",
+              body: "to optimise usability and reduce cognitive load across all portal interactions.",
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 04 · Timeline ────────────────────────────────────────────────────────
+    {
+      id: "timeline",
+      number: "04",
+      title: "Project Timeline",
+      shortTitle: "Timeline",
+      group: "Process",
+      blocks: [
+        {
+          type: "gantt-timeline",
+          totalWeeks: 12,
+          uxPhases: [
+            {
+              label: "Understand",
+              subItems: ["User Research", "Interviews", "Competitive Analysis"],
+              startWeek: 0,
+              endWeek: 4,
+            },
+            {
+              label: "Define",
+              subItems: ["Personas", "Insight Synthesis"],
+              startWeek: 3,
+              endWeek: 6,
+            },
+            {
+              label: "Ideate",
+              subItems: ["User Flow", "Information Architecture"],
+              startWeek: 5,
+              endWeek: 8,
+            },
+          ],
+          uiPhases: [
+            {
+              label: "Design",
+              subItems: ["Wireframes", "Hi-Fi Design", "Prototype"],
+              startWeek: 7,
+              endWeek: 10,
+            },
+            {
+              label: "Test",
+              subItems: ["Feedback Sessions", "A/B Testing", "Refinement"],
+              startWeek: 9,
+              endWeek: 12,
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 05 · Design Process ──────────────────────────────────────────────────
+    {
+      id: "design-process",
+      number: "05",
+      title: "Design Process",
+      shortTitle: "Process",
+      group: "Process",
+      blocks: [
+        {
+          type: "process-phase-cards",
+          items: [
+            {
+              iconType: "users",
+              title: "Empathize",
+              bullets: [
+                "Interviewed 10 members",
+                "Identified key needs",
+                "Applied user feedback",
+                "Improved satisfaction by 70%",
+              ],
+            },
+            {
+              iconType: "target",
+              title: "Define",
+              bullets: [
+                "Analysed website theme",
+                "Aligned on brand guidelines",
+                "Created consistent design system",
+              ],
+            },
+            {
+              iconType: "lightbulb",
+              title: "Ideate",
+              bullets: [
+                "Researched similar websites",
+                "Developed Information Architecture",
+              ],
+            },
+            {
+              iconType: "layers",
+              title: "Prototype",
+              bullets: [
+                "Designed low-fi wireframes",
+                "Applied Hick's, Fitts' & Miller's Laws",
+              ],
+            },
+            {
+              iconType: "check",
+              title: "Test",
+              bullets: [
+                "Created hi-fi designs",
+                "Improved through A/B testing",
+              ],
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 06 · User Research ───────────────────────────────────────────────────
+    {
+      id: "user-research",
+      number: "06",
+      title: "User Research",
+      shortTitle: "Research",
+      group: "Process",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "To understand the needs of the portal's users, 10 members of Youth India Foundation were interviewed. The research focused on frustrations with the existing system, priorities when logging in, and what would make their experience more seamless. Three key themes emerged from the sessions:",
+        },
+        {
+          type: "donut-stats",
+          items: [
+            {
+              percentage: 50,
+              label: "Engaging Portal",
+              description:
+                "5 members expressed the need for an engaging, easy-to-use portal to stay motivated and connected.",
+            },
+            {
+              percentage: 30,
+              label: "Separate HR Login",
+              description:
+                "3 HR participants preferred a separate login system for managing member access and operations.",
+            },
+            {
+              percentage: 20,
+              label: "Clear Info Display",
+              description:
+                "2 participants emphasised the importance of displaying all essential information clearly on the dashboard.",
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 07 · User Personas ───────────────────────────────────────────────────
+    {
+      id: "personas",
+      number: "07",
+      title: "User Personas",
+      shortTitle: "Personas",
+      group: "Define",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "Creating user personas ensures the design meets the specific needs of both volunteers and administrators. Two personas emerged from the research — each with distinct goals, frustrations, and workflows that shaped every major design decision.",
+        },
+        {
+          type: "yif-persona-pair",
+          personas: [
+            {
+              type: "yif-persona",
+              name: "Ayesha Sharma",
+              age: 24,
+              education: "MBA",
+              status: "Single",
+              occupation: "Volunteer Member",
+              location: "India",
+              avatarPhoto: "https://randomuser.me/api/portraits/women/79.jpg",
+              story:
+                "Ayesha joined Youth India Foundation to contribute to social causes. She relies on the portal to track her volunteer hours, access event schedules, and stay connected with the team. Complex interfaces frustrate her — she prefers simple, clean designs that let her find what she needs fast.",
+              goals: [
+                "Quickly log in to access event schedules, tasks, and announcements.",
+                "View personal contributions and track volunteer hours.",
+                "Stay updated with foundation activities without technical hassle.",
+              ],
+              painPoints: [
+                "Frustrated by complex login processes with too many steps.",
+                "Struggles with remembering multiple passwords across different systems.",
+                "Dislikes cluttered interfaces that obscure key information.",
+              ],
+              needs: "A simple, fast login experience with a clear dashboard showing relevant information at a glance.",
+            },
+            {
+              type: "yif-persona",
+              name: "Rohit Malhotra",
+              age: 35,
+              education: "Master in IT",
+              status: "Single",
+              occupation: "HR Manager",
+              location: "India",
+              avatarPhoto: "https://randomuser.me/api/portraits/men/75.jpg",
+              story:
+                "Rohit manages volunteer recruitment and engagement at Youth India Foundation. With many members logging in daily, he often handles access issues. Busy with administrative tasks, he needs a streamlined portal to simplify workflows, resolve issues quickly, and keep members connected.",
+              goals: [
+                "Manage member access and permissions efficiently.",
+                "Monitor member engagement and task completion.",
+                "Quickly resolve login or portal issues raised by members.",
+              ],
+              painPoints: [
+                "Difficulty troubleshooting login issues for members.",
+                "Needs to juggle multiple administrative tasks without delays.",
+                "Prefers streamlined dashboards for better management overview.",
+              ],
+              needs: "A centralized platform to manage member access, monitor engagement, and troubleshoot login issues efficiently.",
+              motivations: [
+                "Smooth onboarding and engagement of volunteers.",
+                "Operational efficiency through easy access to data and reports.",
+              ],
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 08 · Information Architecture ───────────────────────────────────────
+    {
+      id: "ideate",
+      number: "08",
+      title: "Information Architecture",
+      shortTitle: "IA",
+      group: "Define",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "With user needs clearly defined, the information architecture maps out every node the portal would need — from the root login branches to individual member profile sub-sections. The sitemap below shows the full navigation structure, covering six main modules.",
+        },
+        { type: "ia-tree" },
+      ],
+    },
+
+    // ── 09 · Prototype / Design Laws ────────────────────────────────────────
+    {
+      id: "prototype",
+      number: "09",
+      title: "Application of Design Laws",
+      shortTitle: "Design Laws",
+      group: "Design",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "Four core UX laws shaped the design decisions across the portal. Each principle guided specific choices in layout, hierarchy, and interaction design — grounding every decision in measurable usability improvement.",
+        },
+        {
+          type: "design-laws",
+          items: [
+            {
+              name: "Hick's Law",
+              concept: "Simplify choices to reduce decision-making time.",
+              implementation:
+                "On the portal's homepage, only three clear login options were provided (HR Admin, Super Admin, Member), reducing clutter and helping users log in quickly without confusion.",
+            },
+            {
+              name: "Law of Proximity",
+              concept: "Group related elements together to improve comprehension.",
+              implementation:
+                "Information like tasks, events, and announcements was placed close to each other, helping users intuitively navigate relevant sections without cognitive jumping.",
+            },
+            {
+              name: "Miller's Law",
+              concept: "Limit information to 5–7 items to avoid cognitive overload.",
+              implementation:
+                "Key details were summarised on the dashboard to prevent users from feeling overwhelmed, ensuring a smooth and accessible experience for all members.",
+            },
+            {
+              name: "Fitts' Law",
+              concept: "Larger and closer buttons make interaction faster.",
+              implementation:
+                "Big, easy-to-click CTAs (like 'Login' and 'View Tasks') were strategically placed to reduce effort and improve usability for all users.",
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 10 · Before & After ──────────────────────────────────────────────────
+    {
+      id: "before-after",
+      number: "10",
+      title: "Before & After",
+      shortTitle: "Before/After",
+      group: "Design",
+      blocks: [
+        {
+          type: "before-after",
+          beforeTitle: "Before",
+          afterTitle: "After",
+          beforeDescription: "Old YIF Members page — static, unstructured, role-agnostic",
+          afterDescription: "Redesigned portal — role-based, searchable, status-aware",
+          beforeImage: yifBefore,
+          afterImage: yifAfter,
+          beforeItems: [
+            "Photo card grid of team members with no role differentiation",
+            "Basic pagination (1 2 3 ... 10) — no search or filter capability",
+            "No persistent navigation structure or sidebar",
+            "Generic footer with foundation links and social icons",
+            "No role-based login or member management features",
+          ],
+          afterItems: [
+            "Persistent left sidebar: Profile, Raise Issue, View Members, Hall of Fame, Open Positions, Logout",
+            "Search bar at top of member list for instant filtering",
+            "Clean data table: Name/View link, Email, Contact, Department, Status",
+            "Color-coded status badges: Offline (red), Remote (blue), Hybrid (purple)",
+            "Role-based login: HR Admin, Super Admin, and Member — each with tailored access",
+          ],
+        },
+      ],
+    },
+
+    // ── 11 · Final Outcome ───────────────────────────────────────────────────
+    {
+      id: "outcome",
+      number: "11",
+      title: "Final Outcome",
+      shortTitle: "Outcome",
+      group: "Outcome",
+      blocks: [
+        {
+          type: "conclusion-statements",
+          items: [
+            "The **final designs were user-centric** and visually engaging, ensuring ease of use and satisfaction across all member types.",
+            "The **user satisfaction rate increased by 70%**, validating the end-to-end design process from research to high-fidelity prototype.",
+            "The **project strengthened** interpersonal collaboration skills through continuous iteration with Foundation members and stakeholders.",
+          ],
+        },
+        {
+          type: "heading",
+          text: "Key Takeaways",
+        },
+        {
+          type: "learnings-grid",
+          items: [
+            {
+              number: "01",
+              label: "User-Centric Design",
+              body: "Early interviews aligned the design direction with real user needs, preventing costly rework later in the process.",
+            },
+            {
+              number: "02",
+              label: "Testing & Iteration",
+              body: "A/B testing identified the strongest visual treatment and interaction patterns before finalising the hi-fi designs.",
+            },
+            {
+              number: "03",
+              label: "Design Principles",
+              body: "Applying Hick's, Miller's, and Fitts' Laws improved usability in measurable, concrete ways rather than just aesthetically.",
+            },
+            {
+              number: "04",
+              label: "Continuous Improvement",
+              body: "Iterative feedback loops with Foundation members enhanced both visual appeal and functional clarity across all screens.",
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 12 · Typography & Colours ────────────────────────────────────────────
+    {
+      id: "typography",
+      number: "12",
+      title: "Typography & Colours",
+      shortTitle: "Typography",
+      group: "Outcome",
+      blocks: [
+        {
+          type: "type-scale",
+          items: [
+            {
+              name: "Display",
+              font: "Poppins",
+              size: "36px+",
+              weight: "900",
+              usage: "Hero headings, section titles, large callouts",
+            },
+            {
+              name: "Heading",
+              font: "Poppins",
+              size: "24–32px",
+              weight: "700",
+              usage: "Section headings, card titles, sub-labels",
+            },
+            {
+              name: "Body",
+              font: "Poppins",
+              size: "14–16px",
+              weight: "400",
+              usage: "Body copy, descriptions, table content, labels",
+            },
+          ],
+        },
+        {
+          type: "color-system",
+          items: [
+            {
+              name: "Primary Orange",
+              hex: "#FB7800",
+              role: "Accent",
+              usage: "CTAs, headings, icon fills, active states",
+            },
+            {
+              name: "Dark Grey",
+              hex: "#111111",
+              role: "Text Primary",
+              usage: "Primary text, high-contrast headings",
+            },
+            {
+              name: "Mid Grey",
+              hex: "#404040",
+              role: "Text Secondary",
+              usage: "Body text, secondary content",
+            },
+            {
+              name: "Primary Green",
+              hex: "#7FBB83",
+              role: "Accent Green",
+              usage: "Process cards, success states, badges",
+            },
+            {
+              name: "Light Green",
+              hex: "#B2F9A7",
+              role: "Green Light",
+              usage: "Subtle green tints, hover states",
+            },
+            {
+              name: "Orange Light",
+              hex: "#FFC9A2",
+              role: "Orange Tint",
+              usage: "Warm backgrounds, highlight areas",
+            },
+            {
+              name: "Button Green",
+              hex: "#2CA735",
+              role: "CTA Button",
+              usage: "Login button, primary call-to-action",
+            },
+            {
+              name: "Link Blue",
+              hex: "#4B4DED",
+              role: "Text Link",
+              usage: "Hyperlinks, interactive text elements",
+            },
+            {
+              name: "Stroke Light",
+              hex: "#EEEEEE",
+              role: "Border",
+              usage: "Card borders, dividers, subtle separators",
+            },
+          ],
+        },
+      ],
+    },
+
+    // ── 13 · Visual Design ───────────────────────────────────────────────────
+    {
+      id: "visual-design",
+      number: "13",
+      title: "Visual Design",
+      shortTitle: "Visual Design",
+      group: "Outcome",
+      blocks: [
+        {
+          type: "paragraph",
+          text: "The final hi-fidelity screens cover two login variants and three dashboard views. The design uses warm white and green tones with orange as the primary accent — creating a welcoming, accessible aesthetic aligned with the Foundation's community-driven ethos.",
+        },
+        {
+          type: "placeholder-image",
+          label: "Login Screen — Light Variant",
+          src: yifScreenLoginLight,
+          caption:
+            '"Choose Account Type" with three role icons (HR Admin, Super Admin, Member), email/password fields, and a green Login button.',
+        },
+        {
+          type: "placeholder-image",
+          label: "Login Screen — Split Variant",
+          src: yifScreenLoginSplit,
+          caption:
+            "White left panel for the form, green right panel with flat illustration — same three-role login flow in a split-screen layout.",
+        },
+        {
+          type: "placeholder-image",
+          label: "Member Details Dashboard (v1)",
+          src: yifScreenMembersV1,
+          caption:
+            "Left sidebar navigation, search bar, and member data table with Name, Email, Contact, Department, and color-coded Status badges.",
+        },
+        {
+          type: "placeholder-image",
+          label: "Member Details Dashboard (v2)",
+          src: yifScreenMembersV2,
+          caption:
+            "Dashboard with full member table showing Offline/Remote/Hybrid status distribution across the dataset.",
+        },
+        {
+          type: "placeholder-image",
+          label: "Member Details Dashboard (v3)",
+          src: yifScreenMembersV3,
+          caption:
+            "Alternate status badge styling showing the updated visual treatment after A/B testing feedback sessions.",
+        },
+      ],
+    },
+  ],
+};
+
 // ─── Export ──────────────────────────────────────────────────────────────────
 
-export const caseStudies: CaseStudyData[] = [xarissCaseStudy, paceyourselfCaseStudy];
+export const caseStudies: CaseStudyData[] = [xarissCaseStudy, paceyourselfCaseStudy, yifCaseStudy];
 
 export function getCaseStudyBySlug(slug: string): CaseStudyData | undefined {
   return caseStudies.find((cs) => cs.slug === slug);

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ExternalLink, Image as ImageIcon, Play, Volume2, VolumeX, Maximize2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Image as ImageIcon, Play, Volume2, VolumeX, Maximize2, Users, Target, Lightbulb, Layers, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GridBackground } from "@/components/portfolio/grid-background";
 import { StarField } from "@/components/portfolio/star-field";
@@ -34,29 +34,37 @@ function PlaceholderImage({
   label,
   caption,
   accentColor,
+  src,
 }: {
   label: string;
   caption?: string;
   accentColor: string;
+  src?: string;
 }) {
   return (
     <div className="w-full space-y-2">
-      <div
-        className="w-full aspect-video rounded-xl flex flex-col items-center justify-center gap-3 border border-white/5"
-        style={{
-          background: `linear-gradient(135deg, ${accentColor}22 0%, ${accentColor}08 100%)`,
-        }}
-      >
-        <ImageIcon className="w-7 h-7 opacity-20" style={{ color: accentColor }} />
-        <div className="text-center space-y-1">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-30" style={{ color: accentColor }}>
-            {label}
-          </p>
-          <p className="font-mono text-[9px] opacity-20" style={{ color: accentColor }}>
-            Screenshot Coming Soon
-          </p>
+      {src ? (
+        <div className="w-full rounded-xl overflow-hidden border border-white/5">
+          <img src={src} alt={label} className="w-full h-auto block" />
         </div>
-      </div>
+      ) : (
+        <div
+          className="w-full aspect-video rounded-xl flex flex-col items-center justify-center gap-3 border border-white/5"
+          style={{
+            background: `linear-gradient(135deg, ${accentColor}22 0%, ${accentColor}08 100%)`,
+          }}
+        >
+          <ImageIcon className="w-7 h-7 opacity-20" style={{ color: accentColor }} />
+          <div className="text-center space-y-1">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-30" style={{ color: accentColor }}>
+              {label}
+            </p>
+            <p className="font-mono text-[9px] opacity-20" style={{ color: accentColor }}>
+              Screenshot Coming Soon
+            </p>
+          </div>
+        </div>
+      )}
       {caption && (
         <p className="font-mono text-[10px] opacity-40 text-center">{caption}</p>
       )}
@@ -286,7 +294,7 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
 
 type RichPersonaData = Extract<ContentBlock, { type: "rich-persona" }>;
 
-function RichPersonaCard({ persona, isDark, index }: { persona: RichPersonaData; isDark: boolean; index: number }) {
+function RichPersonaCard({ persona, isDark, index, accentColor }: { persona: RichPersonaData; isDark: boolean; index: number; accentColor: string }) {
   const lightStyle = index === 0
     ? { background: "radial-gradient(circle at 20% 10%, rgba(55,132,255,0.12), transparent 50%), linear-gradient(135deg,#eaf5ff,#d1e5ff)", borderColor: "rgba(55,132,255,0.2)" }
     : { background: "radial-gradient(circle at 80% 10%, rgba(14,116,144,0.10), transparent 50%), linear-gradient(135deg,#f0fdff,#ccfbf1)", borderColor: "rgba(14,116,144,0.18)" };
@@ -315,10 +323,10 @@ function RichPersonaCard({ persona, isDark, index }: { persona: RichPersonaData;
           <p className={cn("font-['Caveat'] text-2xl leading-tight", isDark ? "text-white/92" : "text-slate-900")}>
             {persona.name}
           </p>
-          <p className={cn("font-mono text-[10px] uppercase tracking-[0.15em]", isDark ? "text-white/40" : "text-slate-500")}>
+          <p className={cn("font-mono text-[10px] uppercase tracking-[0.15em]", isDark ? "text-white/65" : "text-slate-500")}>
             {persona.role} · {persona.company}
           </p>
-          <p className={cn("font-mono text-[9px]", isDark ? "text-white/30" : "text-slate-400")}>
+          <p className={cn("font-mono text-[9px]", isDark ? "text-white/55" : "text-slate-400")}>
             {persona.location}
           </p>
         </div>
@@ -337,26 +345,26 @@ function RichPersonaCard({ persona, isDark, index }: { persona: RichPersonaData;
       {/* Goals + Pain Points */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/30" : "text-slate-400")}>
+          <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/60" : "text-slate-400")}>
             Goals
           </p>
           <ul className="space-y-2">
             {persona.goals.map((g, i) => (
-              <li key={i} className={cn("flex items-start gap-2 text-[0.8rem] leading-[1.55]", isDark ? "text-white/60" : "text-slate-700")}>
-                <span className="mt-[6px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: persona.avatarColor }} />
+              <li key={i} className={cn("flex items-start gap-2 text-[0.8rem] leading-[1.55]", isDark ? "text-white/82" : "text-slate-700")}>
+                <span className="mt-[6px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: isDark ? getLightAccent(accentColor) : accentColor }} />
                 {g}
               </li>
             ))}
           </ul>
         </div>
         <div>
-          <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/30" : "text-slate-400")}>
+          <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/60" : "text-slate-400")}>
             Pain Points
           </p>
           <ul className="space-y-2">
             {persona.painPoints.map((p, i) => (
-              <li key={i} className={cn("flex items-start gap-2 text-[0.8rem] leading-[1.55]", isDark ? "text-white/60" : "text-slate-700")}>
-                <span className="mt-[6px] h-1 w-1 rounded-full shrink-0 opacity-60" style={{ backgroundColor: "#ef4444" }} />
+              <li key={i} className={cn("flex items-start gap-2 text-[0.8rem] leading-[1.55]", isDark ? "text-white/82" : "text-slate-700")}>
+                <span className="mt-[6px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: "#f87171" }} />
                 {p}
               </li>
             ))}
@@ -366,10 +374,10 @@ function RichPersonaCard({ persona, isDark, index }: { persona: RichPersonaData;
 
       {/* Behaviour */}
       <div className={cn("rounded-lg px-3 py-2.5", isDark ? "bg-white/[0.03]" : "bg-white/40")}>
-        <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/30" : "text-slate-400")}>
+        <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/60" : "text-slate-400")}>
           Behaviour
         </span>
-        <span className={cn("text-[0.8rem] leading-[1.55]", isDark ? "text-white/55" : "text-slate-600")}>
+        <span className={cn("text-[0.8rem] leading-[1.55]", isDark ? "text-white/78" : "text-slate-600")}>
           {persona.behaviour}
         </span>
       </div>
@@ -469,6 +477,37 @@ function renderBold(text: string) {
   );
 }
 
+// Bold rendered in accent color — used for problem-callout where bold = design goal
+function renderBoldAccent(text: string, color: string) {
+  const parts = text.split(/(\*\*.*?\*\*)/g);
+  return parts.map((part, i) =>
+    part.startsWith("**") && part.endsWith("**")
+      ? <strong key={i} style={{ color }}>{part.slice(2, -2)}</strong>
+      : part,
+  );
+}
+
+// Rich inline renderer: **bold** and _italic+accent_ — used for research paragraphs
+function renderRich(text: string, accent: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*|_[^_]+_)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith("_") && part.endsWith("_"))
+      return <em key={i} style={{ color: accent }}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
+// Blend accent with white so small text meets 4.5:1 on dark backgrounds
+function getLightAccent(accent: string): string {
+  if (!/^#[0-9a-f]{6}$/i.test(accent)) return accent;
+  const r = parseInt(accent.slice(1, 3), 16);
+  const g = parseInt(accent.slice(3, 5), 16);
+  const b = parseInt(accent.slice(5, 7), 16);
+  return `rgb(${Math.round(r * 0.55 + 114.75)},${Math.round(g * 0.55 + 114.75)},${Math.round(b * 0.55 + 114.75)})`;
+}
+
 // ─── Content Block Renderer ───────────────────────────────────────────────────
 
 function BlockRenderer({
@@ -482,11 +521,14 @@ function BlockRenderer({
   accentColor: string;
   sectionIndex: number;
 }) {
+  // Lighten the accent for small text in dark mode so every study meets 4.5:1
+  const textAccent = isDark ? getLightAccent(accentColor) : accentColor;
+
   switch (block.type) {
     case "paragraph":
       return (
         <p className={cn("text-[0.925rem] leading-[1.85] max-w-[68ch]", isDark ? "text-white/70" : "text-slate-700")}>
-          {block.text}
+          {renderBold(block.text)}
         </p>
       );
 
@@ -517,6 +559,7 @@ function BlockRenderer({
           label={block.label}
           caption={block.caption}
           accentColor={isDark ? "#3B6FD4" : accentColor}
+          src={block.src}
         />
       );
 
@@ -567,13 +610,13 @@ function BlockRenderer({
       );
 
     case "rich-persona":
-      return <RichPersonaCard persona={block} isDark={isDark} index={sectionIndex % 2} />;
+      return <RichPersonaCard persona={block} isDark={isDark} index={sectionIndex % 2} accentColor={accentColor} />;
 
     case "persona-pair":
       return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
           {block.personas.map((persona, i) => (
-            <RichPersonaCard key={persona.name} persona={persona} isDark={isDark} index={i} />
+            <RichPersonaCard key={persona.name} persona={persona} isDark={isDark} index={i} accentColor={accentColor} />
           ))}
         </div>
       );
@@ -617,7 +660,7 @@ function BlockRenderer({
                 ? i % 2 === 0 ? "border-white/6 bg-[#1e2040] hover:bg-[#252850]" : "border-white/6 bg-[#21244a] hover:bg-[#272b55]"
                 : "border-slate-100 hover:bg-blue-50/30",
             )}>
-              <span className="font-mono text-[10px] font-medium pt-0.5" style={{ color: isDark ? "#3B6FD4" : accentColor }}>
+              <span className="font-mono text-[10px] font-medium pt-0.5" style={{ color: textAccent }}>
                 {item.range}
               </span>
               <span className={cn("text-[0.825rem] font-medium", isDark ? "text-white/80" : "text-slate-800")}>
@@ -701,7 +744,7 @@ function BlockRenderer({
         <div className={cn("rounded-2xl overflow-hidden border", isDark ? "border-white/8 bg-white/[0.03]" : "border-slate-200 bg-white/50")}>
           <div className={cn("flex flex-wrap items-center gap-3 px-5 py-4 border-b", isDark ? "border-white/8" : "border-slate-200 bg-blue-50/40")}>
             <span className="font-mono text-[10px] font-medium rounded px-2 py-1"
-              style={{ backgroundColor: isDark ? "#3B6FD41a" : "#dbeafe", color: isDark ? "#3B6FD4" : "#1d4ed8" }}>
+              style={{ backgroundColor: isDark ? `${accentColor}1a` : "#dbeafe", color: isDark ? textAccent : "#1d4ed8" }}>
               Screen {block.number}
             </span>
             <h4 className={cn("text-[0.95rem] font-semibold", isDark ? "text-white/90" : "text-slate-900")}>{block.title}</h4>
@@ -718,17 +761,30 @@ function BlockRenderer({
               <PlaceholderImage label={`${block.title} Screenshot`} accentColor={isDark ? "#3B6FD4" : accentColor} />
             ) : null}
             <div>
-              <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-2.5", isDark ? "text-white/30" : "text-slate-400")}>
-                Key Decisions
+              <p
+                className="font-mono text-[10px] uppercase tracking-[0.32em] mb-2.5"
+                style={{ color: block.decisionsHeading ? textAccent : (isDark ? "rgba(255,255,255,0.55)" : "#94a3b8") }}
+              >
+                {block.decisionsHeading ?? "Key Decisions"}
               </p>
-              <ul className="space-y-2.5">
-                {block.decisions.map((decision, i) => (
-                  <li key={i} className={cn("flex items-start gap-3 text-[0.825rem] leading-[1.65]", isDark ? "text-white/60" : "text-slate-700")}>
-                    <span className="mt-[7px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: isDark ? "#3B6FD4" : accentColor }} />
-                    {decision}
-                  </li>
-                ))}
-              </ul>
+              {block.decisionsHeading ? (
+                <div className="space-y-3.5">
+                  {block.decisions.map((para, i) => (
+                    <p key={i} className={cn("text-[0.875rem] leading-[1.75]", isDark ? "text-white/72" : "text-slate-700")}>
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <ul className="space-y-2.5">
+                  {block.decisions.map((decision, i) => (
+                    <li key={i} className={cn("flex items-start gap-3 text-[0.825rem] leading-[1.65]", isDark ? "text-white/60" : "text-slate-700")}>
+                      <span className="mt-[7px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: isDark ? "#3B6FD4" : accentColor }} />
+                      {decision}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         </div>
@@ -749,7 +805,7 @@ function BlockRenderer({
           <div className="flex items-center gap-3">
             <span className="font-mono text-[10px] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0"
               style={isDark
-                ? { backgroundColor: "#3B6FD41a", color: "#3B6FD4" }
+                ? { backgroundColor: `${accentColor}1a`, color: textAccent }
                 : { backgroundColor: dc.light, color: dc.text }}>
               {block.number}
             </span>
@@ -774,7 +830,7 @@ function BlockRenderer({
                 <p className="font-['Caveat'] text-3xl font-medium" style={{ color: isDark ? "#3B6FD4" : accentColor }}>
                   {stat.value}
                 </p>
-                <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/40" : "text-slate-600")}>
+                <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/65" : "text-slate-600")}>
                   {stat.label}
                 </p>
               </div>
@@ -813,7 +869,7 @@ function BlockRenderer({
                     className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-mono text-[11px] font-bold"
                     style={{
                       backgroundColor: isDark ? `${accentColor}33` : `${accentColor}18`,
-                      color: accentColor,
+                      color: isDark ? textAccent : accentColor,
                       boxShadow: `0 0 0 2px ${accentColor}40`,
                     }}
                   >
@@ -861,7 +917,7 @@ function BlockRenderer({
                 >
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 font-mono text-[10px] font-bold mt-0.5"
-                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                    style={{ backgroundColor: `${accentColor}20`, color: isDark ? textAccent : accentColor }}
                   >
                     {i + 1}
                   </div>
@@ -1011,7 +1067,7 @@ function BlockRenderer({
                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
                       <span
                         className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest shrink-0"
-                        style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                        style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                       >
                         {item.range}
                       </span>
@@ -1050,7 +1106,7 @@ function BlockRenderer({
                 >
                   <div className="mb-3">
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="font-mono text-[8px] uppercase tracking-widest" style={{ color: accentColor }}>
+                      <span className="font-mono text-[8px] uppercase tracking-widest" style={{ color: textAccent }}>
                         {item.range}
                       </span>
                       <span className="font-mono text-[8px]" style={{ color: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)" }}>
@@ -1099,6 +1155,7 @@ function BlockRenderer({
                 style={!isDark ? { background: lc.bg, borderColor: lc.border } : undefined}
               >
                 <div
+                  aria-hidden="true"
                   className="absolute -right-1 -top-4 font-['Caveat'] text-[80px] leading-none font-bold select-none pointer-events-none"
                   style={{ color: isDark ? `${accentColor}10` : `${accentColor}09` }}
                 >
@@ -1107,7 +1164,7 @@ function BlockRenderer({
                 <div className="relative z-10">
                   <span
                     className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest"
-                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                    style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                   >
                     {item.range}
                   </span>
@@ -1162,7 +1219,7 @@ function BlockRenderer({
             <div className="grid grid-cols-2 gap-3">
               {dItems.map((item, i) => (
                 <div key={i} className={cn("rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200 bg-white/60")}>
-                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: accentColor }}>{item.range}</div>
+                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: textAccent }}>{item.range}</div>
                   <p className={cn("text-[0.8rem] font-semibold mb-1", isDark ? "text-white/85" : "text-slate-800")}>{item.stage}</p>
                   <p className={cn("text-[0.75rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>{item.deliverable}</p>
                 </div>
@@ -1190,7 +1247,7 @@ function BlockRenderer({
                     >
                       {i + 1}
                     </div>
-                    <p className="font-mono text-[8px] uppercase tracking-widest text-center px-1" style={{ color: accentColor }}>
+                    <p className="font-mono text-[8px] uppercase tracking-widest text-center px-1" style={{ color: textAccent }}>
                       {item.stage}
                     </p>
                     <p className={cn("text-[0.68rem] leading-[1.5] text-center px-1", isDark ? "text-white/35" : "text-slate-500")}>
@@ -1213,7 +1270,7 @@ function BlockRenderer({
             <div className="grid grid-cols-2 gap-3">
               {dItems.map((item, i) => (
                 <div key={i} className={cn("rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200")}>
-                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: accentColor }}>{item.range}</div>
+                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: textAccent }}>{item.range}</div>
                   <p className={cn("text-[0.8rem] font-semibold mb-1", isDark ? "text-white/85" : "text-slate-800")}>{item.stage}</p>
                   <p className={cn("text-[0.75rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>{item.deliverable}</p>
                 </div>
@@ -1242,7 +1299,7 @@ function BlockRenderer({
                 <div className="font-['Caveat'] text-3xl leading-none" style={{ color: accentColor }}>
                   {directions[i]}
                 </div>
-                <div className="font-mono text-[7px] uppercase tracking-widest mt-0.5" style={{ color: `${accentColor}bb` }}>
+                <div className="font-mono text-[7px] uppercase tracking-widest mt-0.5" style={{ color: isDark ? "rgba(255,255,255,0.45)" : `${accentColor}bb` }}>
                   {dirLabels[i]}
                 </div>
               </div>
@@ -1251,7 +1308,7 @@ function BlockRenderer({
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <span
                     className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest"
-                    style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                    style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                   >
                     {item.range}
                   </span>
@@ -1292,6 +1349,7 @@ function BlockRenderer({
               )}
             >
               <div
+                aria-hidden="true"
                 className="absolute -right-2 -top-5 font-['Caveat'] text-[72px] leading-none font-bold select-none pointer-events-none"
                 style={{ color: isDark ? `${accentColor}12` : `${accentColor}10` }}
               >
@@ -1299,7 +1357,7 @@ function BlockRenderer({
               </div>
               <span
                 className="inline-block font-mono text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest"
-                style={{ backgroundColor: `${accentColor}18`, color: accentColor }}
+                style={{ backgroundColor: `${accentColor}18`, color: textAccent }}
               >
                 {card.label}
               </span>
@@ -1385,7 +1443,7 @@ function BlockRenderer({
                   isDark ? "text-white/85" : "text-slate-800",
                 )}
               >
-                {text}
+                {renderBold(text)}
               </p>
             </motion.div>
           ))}
@@ -1408,6 +1466,7 @@ function BlockRenderer({
               )}
             >
               <div
+                aria-hidden="true"
                 className="absolute -right-2 -top-5 font-['Caveat'] text-[72px] leading-none font-bold select-none pointer-events-none"
                 style={{ color: isDark ? `${accentColor}10` : `${accentColor}0c` }}
               >
@@ -1416,7 +1475,7 @@ function BlockRenderer({
               <div className="relative z-10">
                 <span
                   className="mb-2 inline-block font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${accentColor}20`, color: accentColor }}
+                  style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                 >
                   {item.number}
                 </span>
@@ -1472,7 +1531,7 @@ function BlockRenderer({
                 <div className="flex items-baseline gap-3">
                   <span
                     className="font-mono text-[0.75rem] font-semibold tracking-widest shrink-0"
-                    style={{ color: accentColor }}
+                    style={{ color: textAccent }}
                   >
                     {item.number}
                   </span>
@@ -1492,7 +1551,7 @@ function BlockRenderer({
                   style={{ borderLeft: `2px solid ${accentColor}55` }}
                 >
                   <p className={cn("text-[0.8rem] leading-[1.7] italic", isDark ? "text-white/42" : "text-slate-500")}>
-                    <span className="not-italic font-medium" style={{ color: accentColor }}>Why it's not in the case study: </span>
+                    <span className="not-italic font-medium" style={{ color: textAccent }}>Why it's not in the case study: </span>
                     {item.why}
                   </p>
                 </div>
@@ -1500,6 +1559,1009 @@ function BlockRenderer({
             ))}
           </div>
         </div>
+      );
+
+    // ── Gantt Timeline ──────────────────────────────────────────────────────
+    case "gantt-timeline": {
+      const uxColor = "#7FBB83";
+      const uiColor = accentColor;
+
+      const PhaseRow = ({
+        phase,
+        color,
+      }: {
+        phase: { label: string; subItems: string[]; startWeek: number; endWeek: number };
+        color: string;
+      }) => (
+        <div className="grid gap-3 items-center" style={{ gridTemplateColumns: "140px 1fr" }}>
+          <div className="min-w-0">
+            <p className={cn("text-[0.8rem] font-semibold leading-tight", isDark ? "text-white/85" : "text-slate-800")}>
+              {phase.label}
+            </p>
+            <p className={cn("text-[0.7rem] leading-tight mt-0.5", isDark ? "text-white/35" : "text-slate-400")}>
+              {phase.subItems.join(" · ")}
+            </p>
+          </div>
+          <div className={cn("relative h-7 rounded-md overflow-hidden", isDark ? "bg-white/6" : "bg-slate-100")}>
+            <motion.div
+              className="absolute top-0 h-full rounded-md"
+              style={{
+                left: `${(phase.startWeek / block.totalWeeks) * 100}%`,
+                backgroundColor: color,
+              }}
+              initial={{ width: 0 }}
+              whileInView={{ width: `${((phase.endWeek - phase.startWeek) / block.totalWeeks) * 100}%` }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+            />
+          </div>
+        </div>
+      );
+
+      return (
+        <div className={cn("rounded-xl p-5 border space-y-3", isDark ? "bg-white/[0.03] border-white/6" : "bg-white/60 border-slate-200")}>
+          {/* Week header */}
+          <div className="grid gap-3 items-start" style={{ gridTemplateColumns: "140px 1fr" }}>
+            <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] pt-0.5" style={{ color: isDark ? "rgba(255,255,255,0.72)" : "#475569" }}>
+              Phase
+            </p>
+            <div className="flex flex-col gap-1">
+              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: isDark ? "rgba(255,255,255,0.72)" : "#475569" }}>
+                Week →
+              </p>
+              <div className="flex">
+                {Array.from({ length: block.totalWeeks }).map((_, i) => (
+                  <div key={i} className="flex-1 text-center font-mono font-semibold text-[9px]" style={{ color: isDark ? "rgba(255,255,255,0.60)" : "#64748B" }}>
+                    {i + 1}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* UX phases */}
+          <div className="space-y-1">
+            <p className="font-mono text-[8px] uppercase tracking-[0.22em] mb-2" style={{ color: uxColor }}>
+              UX Design
+            </p>
+            {block.uxPhases.map((phase, i) => (
+              <PhaseRow key={i} phase={phase} color={uxColor} />
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div className={cn("h-px w-full", isDark ? "bg-white/8" : "bg-slate-200")} />
+
+          {/* UI phases */}
+          <div className="space-y-1">
+            <p className="font-mono text-[8px] uppercase tracking-[0.22em] mb-2" style={{ color: uiColor }}>
+              UI Design
+            </p>
+            {block.uiPhases.map((phase, i) => (
+              <PhaseRow key={i} phase={phase} color={uiColor} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // ── Process Phase Cards ─────────────────────────────────────────────────
+    case "process-phase-cards": {
+      const iconMap: Record<string, React.ReactNode> = {
+        users: <Users className="w-6 h-6 text-slate-700" />,
+        target: <Target className="w-6 h-6 text-slate-700" />,
+        lightbulb: <Lightbulb className="w-6 h-6 text-slate-700" />,
+        layers: <Layers className="w-6 h-6 text-slate-700" />,
+        check: <CheckCircle className="w-6 h-6 text-slate-700" />,
+      };
+      return (
+        <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+          {block.items.map((card, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.45, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -3, transition: { duration: 0.2 } }}
+              className="rounded-2xl p-5 flex flex-col gap-3 flex-1 min-w-[175px]"
+              style={{ backgroundColor: "#7FBB83" }}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/10 shrink-0">
+                {iconMap[card.iconType]}
+              </div>
+              <p className="font-bold text-[0.9rem] text-slate-900 leading-tight">{card.title}</p>
+              <ul className="space-y-2 flex-1">
+                {card.bullets.map((b, j) => (
+                  <li key={j} className="flex items-start gap-2 text-[0.75rem] text-slate-700 leading-[1.5]">
+                    <span className="mt-[5px] h-1.5 w-1.5 rounded-full shrink-0 bg-slate-600" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── IA Tree ─────────────────────────────────────────────────────────────
+    case "ia-tree": {
+      const orange = "#FB7800";
+      // Brighter lines so branches are clearly visible
+      const lineColor = isDark ? "rgba(255,255,255,0.50)" : "#94A3B8";
+      const subTextFill = isDark ? "rgba(255,255,255,0.72)" : "#374151";
+      const bgFill = isDark ? "rgba(255,255,255,0.02)" : "#FFFFFF";
+      const sw = "2"; // stroke width
+
+      return (
+        <div className={cn("rounded-xl border overflow-hidden", isDark ? "border-white/8" : "border-slate-200")}>
+          <div className="overflow-x-auto">
+            <svg
+              viewBox="0 0 1040 400"
+              style={{ minWidth: "860px", width: "100%", height: "auto", display: "block" }}
+            >
+              <rect width="1040" height="400" fill={bgFill} />
+
+              {/* ─ Root Node ─ */}
+              <rect x="450" y="16" width="140" height="34" rx="9" fill={orange} />
+              <text x="520" y="38" textAnchor="middle" fill="white" fontSize="13" fontWeight="700" fontFamily="system-ui,sans-serif">Login Portal</text>
+
+              {/* Root → Level 1 (H-bar) */}
+              <line x1="520" y1="50" x2="520" y2="84" stroke={lineColor} strokeWidth={sw} />
+              <line x1="355" y1="84" x2="685" y2="84" stroke={lineColor} strokeWidth={sw} />
+              <line x1="355" y1="84" x2="355" y2="100" stroke={lineColor} strokeWidth={sw} />
+              <line x1="685" y1="84" x2="685" y2="100" stroke={lineColor} strokeWidth={sw} />
+
+              {/* ─ Level 1 Nodes ─ */}
+              <rect x="315" y="100" width="80" height="32" rx="9" fill={orange} />
+              <text x="355" y="121" textAnchor="middle" fill="white" fontSize="13" fontWeight="700" fontFamily="system-ui,sans-serif">Login</text>
+
+              <rect x="638" y="100" width="94" height="32" rx="9" fill={orange} />
+              <text x="685" y="121" textAnchor="middle" fill="white" fontSize="13" fontWeight="700" fontFamily="system-ui,sans-serif">Signout</text>
+
+              {/* Login → Level 2 (fan) */}
+              <line x1="355" y1="132" x2="355" y2="168" stroke={lineColor} strokeWidth={sw} />
+              {/* Horizontal bus spanning all 6 child centers */}
+              <line x1="62" y1="168" x2="940" y2="168" stroke={lineColor} strokeWidth={sw} />
+              {/* Vertical stubs to each L2 node */}
+              {[62, 210, 373, 545, 728, 940].map((cx) => (
+                <line key={cx} x1={cx} y1="168" x2={cx} y2="188" stroke={lineColor} strokeWidth={sw} />
+              ))}
+
+              {/* ─ Level 2 Nodes ─ */}
+              {/* Profile — center 62 */}
+              <rect x="28" y="188" width="68" height="32" rx="8" fill={orange} />
+              <text x="62" y="209" textAnchor="middle" fill="white" fontSize="12" fontWeight="700" fontFamily="system-ui,sans-serif">Profile</text>
+
+              {/* Raise an Issue — center 210 */}
+              <rect x="158" y="188" width="104" height="32" rx="8" fill={orange} />
+              <text x="210" y="209" textAnchor="middle" fill="white" fontSize="11" fontWeight="700" fontFamily="system-ui,sans-serif">Raise an Issue</text>
+
+              {/* Calendar — center 373 */}
+              <rect x="333" y="188" width="80" height="32" rx="8" fill={orange} />
+              <text x="373" y="209" textAnchor="middle" fill="white" fontSize="12" fontWeight="700" fontFamily="system-ui,sans-serif">Calendar</text>
+
+              {/* View Dept. Members — center 545, two lines */}
+              <rect x="488" y="186" width="114" height="36" rx="8" fill={orange} />
+              <text x="545" y="202" textAnchor="middle" fill="white" fontSize="11" fontWeight="700" fontFamily="system-ui,sans-serif">View Dept.</text>
+              <text x="545" y="217" textAnchor="middle" fill="white" fontSize="11" fontWeight="700" fontFamily="system-ui,sans-serif">Members</text>
+
+              {/* Hall of Fame — center 728 */}
+              <rect x="682" y="188" width="92" height="32" rx="8" fill={orange} />
+              <text x="728" y="209" textAnchor="middle" fill="white" fontSize="11" fontWeight="700" fontFamily="system-ui,sans-serif">Hall of Fame</text>
+
+              {/* Open Positions — center 940 */}
+              <rect x="892" y="188" width="104" height="32" rx="8" fill={orange} />
+              <text x="944" y="209" textAnchor="middle" fill="white" fontSize="11" fontWeight="700" fontFamily="system-ui,sans-serif">Open Positions</text>
+
+              {/* Level 2 → sub-item connectors */}
+              {[62, 210, 373, 545, 944].map((cx) => (
+                <line key={`sub-${cx}`} x1={cx} y1="220" x2={cx} y2="238" stroke={lineColor} strokeWidth="1.5" />
+              ))}
+
+              {/* ─ Sub-items (fontSize 11, spacing 18px) ─ */}
+              {/* Profile */}
+              {["Name / Age / DOB", "Documents", "Status", "Department", "Achievements", "Salary Details", "Update Profile"].map((t, i) => (
+                <text key={i} x="62" y={252 + i * 18} textAnchor="middle" fill={subTextFill} fontSize="11" fontFamily="system-ui,sans-serif">{t}</text>
+              ))}
+              {/* Raise Issue */}
+              <text x="210" y="252" textAnchor="middle" fill={subTextFill} fontSize="11" fontFamily="system-ui,sans-serif">Fill Survey</text>
+              {/* Calendar */}
+              {["Upcoming Events", "Holidays", "Available Leaves", "Apply for Leave"].map((t, i) => (
+                <text key={i} x="373" y={252 + i * 18} textAnchor="middle" fill={subTextFill} fontSize="11" fontFamily="system-ui,sans-serif">{t}</text>
+              ))}
+              {/* View Members */}
+              <text x="545" y="252" textAnchor="middle" fill={subTextFill} fontSize="11" fontFamily="system-ui,sans-serif">Name / Age / DOB / CD</text>
+              {/* Open Positions */}
+              <text x="944" y="252" textAnchor="middle" fill={subTextFill} fontSize="11" fontFamily="system-ui,sans-serif">Send Applications</text>
+            </svg>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Design Laws ─────────────────────────────────────────────────────────
+    case "design-laws": {
+      return (
+        <div className="relative space-y-0 pl-10">
+          {/* Dashed vertical line */}
+          <div
+            className="absolute left-[18px] top-5 bottom-5 border-l-2 border-dashed"
+            style={{ borderColor: isDark ? `${accentColor}30` : `${accentColor}40` }}
+          />
+
+          {block.items.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -14 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.5, delay: i * 0.12, ease: [0.22, 1, 0.36, 1] }}
+              className="relative pb-8 last:pb-0"
+            >
+              {/* Number circle */}
+              <div
+                className="absolute -left-10 top-0 w-9 h-9 rounded-full flex items-center justify-center font-mono text-[13px] font-bold shrink-0 z-10 shadow-sm"
+                style={{
+                  backgroundColor: accentColor,
+                  color: "rgba(0,0,0,0.82)",
+                  boxShadow: isDark ? `0 0 0 4px rgba(0,0,0,0.4), 0 0 12px ${accentColor}40` : `0 0 0 4px white`,
+                }}
+              >
+                {i + 1}
+              </div>
+
+              {/* Content */}
+              <div className={cn("rounded-xl p-5 border ml-1", isDark ? "bg-white/[0.04] border-white/6" : "bg-white/70 border-slate-200")}>
+                <p className="text-[0.95rem] font-semibold mb-3" style={{ color: accentColor }}>
+                  {item.name}
+                </p>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] shrink-0 mt-[2px]", isDark ? "text-white/30" : "text-slate-400")}>
+                      Concept
+                    </span>
+                    <p className={cn("text-[0.825rem] leading-[1.65]", isDark ? "text-white/65" : "text-slate-700")}>
+                      {item.concept}
+                    </p>
+                  </div>
+                  <div className={cn("h-px", isDark ? "bg-white/6" : "bg-slate-100")} />
+                  <div className="flex gap-2">
+                    <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] shrink-0 mt-[2px]", isDark ? "text-white/30" : "text-slate-400")}>
+                      Applied
+                    </span>
+                    <p className={cn("text-[0.825rem] leading-[1.65]", isDark ? "text-white/55" : "text-slate-600")}>
+                      {item.implementation}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      );
+    }
+
+    // ── Before & After ──────────────────────────────────────────────────────
+    case "before-after": {
+      // Reusable image display — matches PlaceholderImage style when no src
+      const ScreenImage = ({ src, label, clr }: { src?: string; label: string; clr: string }) =>
+        src ? (
+          <div
+            className="w-full rounded-xl overflow-hidden border border-white/5"
+            style={{ background: `linear-gradient(135deg, ${clr}22 0%, ${clr}08 100%)` }}
+          >
+            <img src={src} alt={label} className="w-full h-auto block" />
+          </div>
+        ) : (
+          <div
+            className="w-full aspect-video rounded-xl flex flex-col items-center justify-center gap-3 border border-white/5"
+            style={{ background: `linear-gradient(135deg, ${clr}22 0%, ${clr}08 100%)` }}
+          >
+            <ImageIcon className="w-7 h-7 opacity-20" style={{ color: clr }} />
+            <div className="text-center space-y-1">
+              <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-30" style={{ color: clr }}>{label}</p>
+              <p className="font-mono text-[9px] opacity-20" style={{ color: clr }}>Screenshot Coming Soon</p>
+            </div>
+          </div>
+        );
+
+      const beforeClr = isDark ? "#f87171" : "#ef4444";
+
+      return (
+        <div className="flex flex-col gap-6">
+          {/* ── BEFORE ── */}
+          <div className="flex flex-col gap-4">
+            {/* Header */}
+            <div>
+              <p className={cn("text-[0.8rem] font-bold uppercase tracking-wider", isDark ? "text-red-400/80" : "text-red-500")}>
+                {block.beforeTitle}
+              </p>
+              <p className={cn("text-[0.72rem] mt-0.5", isDark ? "text-white/35" : "text-slate-500")}>
+                {block.beforeDescription}
+              </p>
+            </div>
+            {/* Bullets */}
+            <ul className="space-y-2.5">
+              {block.beforeItems.map((item, i) => (
+                <li key={i} className={cn("flex items-start gap-2.5 text-[0.85rem] leading-[1.6]", isDark ? "text-white/55" : "text-slate-600")}>
+                  <span className="mt-[7px] h-1.5 w-1.5 rounded-full shrink-0 bg-red-400/60" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            {/* Full-width image */}
+            <ScreenImage src={block.beforeImage} label="Before Screenshot" clr={beforeClr} />
+          </div>
+
+          {/* ── ARROW divider ── */}
+          <div className="flex items-center justify-center gap-3 py-2">
+            <div className={cn("h-px flex-1 opacity-20", isDark ? "bg-white" : "bg-slate-400")} />
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <path
+                d="M18 4 L18 28 M10 20 L18 28 L26 20"
+                stroke={accentColor}
+                strokeWidth="2.5"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeDasharray="4 3"
+              />
+            </svg>
+            <div className={cn("h-px flex-1 opacity-20", isDark ? "bg-white" : "bg-slate-400")} />
+          </div>
+
+          {/* ── AFTER ── */}
+          <div className="flex flex-col gap-4">
+            {/* Header */}
+            <div>
+              <p className="text-[0.8rem] font-bold uppercase tracking-wider" style={{ color: accentColor }}>
+                {block.afterTitle}
+              </p>
+              <p className={cn("text-[0.72rem] mt-0.5", isDark ? "text-white/35" : "text-slate-500")}>
+                {block.afterDescription}
+              </p>
+            </div>
+            {/* Full-width image first */}
+            <ScreenImage src={block.afterImage} label="After Screenshot" clr={accentColor} />
+            {/* Bullets below */}
+            <ul className="space-y-2.5">
+              {block.afterItems.map((item, i) => (
+                <li key={i} className={cn("flex items-start gap-2.5 text-[0.85rem] leading-[1.6]", isDark ? "text-white/65" : "text-slate-700")}>
+                  <span className="mt-[7px] h-1.5 w-1.5 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // ── YIF Persona (single — not used directly, only via pair) ─────────────
+    case "yif-persona":
+      return null;
+
+    // ── YIF Persona Pair ────────────────────────────────────────────────────
+    case "yif-persona-pair": {
+      return (
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+          {block.personas.map((persona, idx) => {
+            const nameColor = accentColor;
+            const bgStyle = isDark
+              ? { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }
+              : idx === 0
+              ? { background: "radial-gradient(circle at 20% 10%, rgba(251,120,0,0.08), transparent 50%), linear-gradient(135deg,#fff7f0,#fde8dc)", borderColor: "rgba(251,120,0,0.2)" }
+              : { background: "radial-gradient(circle at 80% 10%, rgba(127,187,131,0.10), transparent 50%), linear-gradient(135deg,#f0fbf1,#e4f5e5)", borderColor: "rgba(127,187,131,0.25)" };
+
+            return (
+              <div
+                key={persona.name}
+                className="rounded-2xl border flex flex-col gap-0 overflow-hidden"
+                style={bgStyle}
+              >
+                {/* Header */}
+                <div className={cn("flex items-center gap-4 p-5 pb-4", isDark ? "border-b border-white/6" : "border-b border-black/5")}>
+                  {/* Avatar */}
+                  <div
+                    className="w-16 h-16 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-xl font-bold ring-2 ring-white/20"
+                    style={{
+                      backgroundColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+                      color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)",
+                    }}
+                  >
+                    {persona.avatarPhoto
+                      ? <img src={persona.avatarPhoto} alt={persona.name} className="w-full h-full object-cover" />
+                      : persona.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-[1.05rem] leading-tight" style={{ color: nameColor }}>
+                      {persona.name}
+                    </p>
+                    <p className={cn("text-[0.75rem] mt-0.5", isDark ? "text-white/45" : "text-slate-500")}>
+                      {persona.occupation} · Age {persona.age}
+                    </p>
+                    <p className={cn("text-[0.7rem]", isDark ? "text-white/30" : "text-slate-400")}>
+                      {persona.education} · {persona.location}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Story */}
+                <div className="px-5 py-4">
+                  <p className={cn("text-[0.8rem] leading-[1.7] italic", isDark ? "text-white/55" : "text-slate-600")}>
+                    "{persona.story}"
+                  </p>
+                </div>
+
+                {/* Goals + Pain Points */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
+                  <div className={cn("px-5 pb-4", isDark ? "border-r-0 sm:border-r border-white/6" : "border-r-0 sm:border-r border-black/5")}>
+                    <p className={cn("font-mono text-[8px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+                      Goals
+                    </p>
+                    <ul className="space-y-1.5">
+                      {persona.goals.map((g, i) => (
+                        <li key={i} className={cn("flex items-start gap-2 text-[0.775rem] leading-[1.55]", isDark ? "text-white/60" : "text-slate-700")}>
+                          <span className="mt-[5px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: nameColor }} />
+                          {g}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="px-5 pb-4">
+                    <p className={cn("font-mono text-[8px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+                      Pain Points
+                    </p>
+                    <ul className="space-y-1.5">
+                      {persona.painPoints.map((p, i) => (
+                        <li key={i} className={cn("flex items-start gap-2 text-[0.775rem] leading-[1.55]", isDark ? "text-white/60" : "text-slate-700")}>
+                          <span className="mt-[5px] h-1 w-1 rounded-full shrink-0 bg-red-400/60" />
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Needs */}
+                <div
+                  className={cn("mx-4 mb-4 rounded-lg px-4 py-3 border-l-[3px]")}
+                  style={{
+                    borderLeftColor: nameColor,
+                    background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.5)",
+                  }}
+                >
+                  <span className={cn("font-mono text-[8px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/25" : "text-slate-400")}>
+                    Needs
+                  </span>
+                  <span className={cn("text-[0.775rem] leading-[1.6]", isDark ? "text-white/58" : "text-slate-600")}>
+                    {persona.needs}
+                  </span>
+                </div>
+
+                {/* Motivations (optional) */}
+                {persona.motivations && persona.motivations.length > 0 && (
+                  <div className="px-5 pb-5">
+                    <p className={cn("font-mono text-[8px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+                      Motivations
+                    </p>
+                    <ul className="space-y-1">
+                      {persona.motivations.map((m, i) => (
+                        <li key={i} className={cn("flex items-start gap-2 text-[0.775rem] leading-[1.55]", isDark ? "text-white/50" : "text-slate-600")}>
+                          <span className="mt-[5px] h-1 w-1 rounded-full shrink-0" style={{ backgroundColor: "#7FBB83" }} />
+                          {m}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // ── Executive Summary ──────────────────────────────────────────────────
+    case "exec-summary":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-7"
+        >
+          <div className="space-y-5 max-w-[680px]">
+            {block.paragraphs.map((para, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.55, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className={cn("text-[1.02rem] leading-[1.72]", isDark ? "text-white/72" : "text-slate-700")}
+              >
+                {para}
+              </motion.p>
+            ))}
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn("flex flex-wrap items-start gap-x-10 gap-y-5 pt-6 border-t", isDark ? "border-white/10" : "border-slate-200")}
+          >
+            {block.metrics.map((m, i) => (
+              <div key={i} className="flex flex-col gap-1">
+                <span
+                  className="font-['Caveat'] text-[2.1rem] leading-none font-semibold"
+                  style={{ color: accentColor }}
+                >
+                  {m.value}
+                </span>
+                <span className={cn("font-mono text-[10px] uppercase tracking-[0.22em]", isDark ? "text-white/50" : "text-slate-500")}>
+                  {m.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+        </motion.div>
+      );
+
+    // ── Foundation Statement ───────────────────────────────────────────────
+    case "foundation-statement":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="pt-16 space-y-4 max-w-[680px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            {block.overline}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn("text-[1.55rem] sm:text-[1.7rem] leading-[1.3] font-normal", isDark ? "text-white/92" : "text-slate-900")}
+          >
+            {block.statement}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn("text-[1.0rem] leading-[1.72]", isDark ? "text-white/62" : "text-slate-600")}
+          >
+            {renderBold(block.body)}
+          </motion.p>
+        </motion.div>
+      );
+
+    // ── Research Block ─────────────────────────────────────────────────────
+    case "research-block": {
+      const voiceBorder = isDark
+        ? [`${accentColor}70`, "rgba(255,255,255,0.14)"]
+        : [`${accentColor}55`, "rgba(0,0,0,0.10)"];
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-8 max-w-[680px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            {block.overline}
+          </motion.p>
+          <div className="flex flex-wrap items-start gap-x-10 gap-y-4">
+            {block.stats.map((stat, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
+                className="flex flex-col gap-1"
+              >
+                <span className={cn("font-mono text-[1.55rem] font-medium leading-none tabular-nums", isDark ? "text-white/90" : "text-slate-800")}>
+                  {stat.value}
+                </span>
+                <span className={cn("font-mono text-[10px] uppercase tracking-[0.18em]", isDark ? "text-white/45" : "text-slate-500")}>
+                  {stat.label}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+          <div className="space-y-5">
+            {block.paragraphs.map((para, i) => (
+              <motion.p
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.5, delay: i * 0.12 }}
+                className={cn("text-[1.0rem] leading-[1.78] pl-4", isDark ? "text-white/70" : "text-slate-700")}
+                style={{ borderLeft: `2px solid ${voiceBorder[i % 2]}` }}
+              >
+                {renderRich(para.text, textAccent)}
+              </motion.p>
+            ))}
+          </div>
+        </motion.div>
+      );
+    }
+
+    // ── Problem Callout ────────────────────────────────────────────────────
+    case "problem-callout":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="pt-16 max-w-[680px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em] mb-5"
+            style={{ color: textAccent }}
+          >
+            {block.overline}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="rounded-r-xl px-8 py-9"
+            style={{
+              borderLeft: `3px solid ${accentColor}`,
+              background: isDark ? `${accentColor}10` : `${accentColor}08`,
+            }}
+          >
+            <p className={cn("text-[1.18rem] sm:text-[1.3rem] leading-[1.68] font-normal", isDark ? "text-white/88" : "text-slate-800")}>
+              {renderBoldAccent(block.text, textAccent)}
+            </p>
+          </motion.div>
+        </motion.div>
+      );
+
+    // ── Research Goals ─────────────────────────────────────────────────────
+    case "research-goals":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-5 max-w-[820px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            RESEARCH GOALS
+          </motion.p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {block.goals.map((goal, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.45, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className="rounded-xl p-6 flex flex-col gap-2"
+                style={{
+                  background: isDark
+                    ? "rgba(180,210,80,0.07)"
+                    : "rgba(130,180,50,0.09)",
+                }}
+              >
+                <span className={cn("font-semibold text-[0.875rem]", isDark ? "text-white/88" : "text-slate-800")}>
+                  {goal.id}
+                </span>
+                <span className={cn("text-[0.875rem] leading-[1.65]", isDark ? "text-white/68" : "text-slate-700")}>
+                  {goal.text}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      );
+
+    // ── Research Questions ─────────────────────────────────────────────────
+    case "research-questions":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-5 pt-16 max-w-[820px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            RESEARCH QUESTIONS
+          </motion.p>
+          <div className={cn("rounded-xl border overflow-hidden", isDark ? "border-white/8" : "border-slate-200")}>
+            <div className="overflow-x-auto">
+            <div style={{ minWidth: "540px" }}>
+            <div className={cn(
+              "grid gap-x-5 px-5 py-3",
+              "grid-cols-[100px_1fr_110px]",
+              isDark ? "border-b border-white/8" : "border-b border-slate-200 bg-slate-50/60",
+            )}>
+              {["TYPE", "RESEARCH QUESTION", "ROLE"].map((h) => (
+                <span key={h} className={cn("font-mono text-[9px] uppercase tracking-[0.18em]", isDark ? "text-white/35" : "text-slate-400")}>
+                  {h}
+                </span>
+              ))}
+            </div>
+            {block.rows.map((row, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -6 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.4, delay: i * 0.06 }}
+                className={cn(
+                  "grid gap-x-5 items-start px-5 py-4",
+                  "grid-cols-[100px_1fr_110px]",
+                  i < block.rows.length - 1 ? (isDark ? "border-b border-white/[0.07]" : "border-b border-slate-100") : "",
+                )}
+              >
+                <div className="pt-0.5">
+                  <span
+                    className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-[3px] rounded"
+                    style={
+                      row.questionType === "GENERATIVE"
+                        ? {
+                            background: isDark ? "rgba(210,150,50,0.15)" : "rgba(200,140,40,0.11)",
+                            color: isDark ? "rgba(230,185,100,0.92)" : "#92650a",
+                          }
+                        : {
+                            background: isDark ? "rgba(80,120,210,0.18)" : "rgba(60,100,210,0.10)",
+                            color: isDark ? "rgba(150,185,255,0.92)" : "#1d4ed8",
+                          }
+                    }
+                  >
+                    {row.questionType}
+                  </span>
+                </div>
+                <p className={cn("text-[0.875rem] leading-[1.65]", isDark ? "text-white/72" : "text-slate-700")}>
+                  {row.question}
+                </p>
+                <span className={cn("text-[0.825rem] leading-[1.65]", isDark ? "text-white/42" : "text-slate-500")}>
+                  {row.role}
+                </span>
+              </motion.div>
+            ))}
+            </div>
+            </div>
+          </div>
+        </motion.div>
+      );
+
+    // ── Success Metrics ────────────────────────────────────────────────────
+    case "success-metrics":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-5 pt-16 max-w-[820px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            SUCCESS METRICS
+          </motion.p>
+          <div className={cn("rounded-xl border overflow-hidden", isDark ? "border-white/8" : "border-slate-200")}>
+            <div className="overflow-x-auto">
+            <div style={{ minWidth: "460px" }}>
+            <div className={cn(
+              "grid grid-cols-4 gap-x-4 px-5 py-3",
+              isDark ? "border-b border-white/8" : "border-b border-slate-200 bg-slate-50/60",
+            )}>
+              {["METRIC", "BASELINE", "TARGET", "OUTCOME"].map((h) => (
+                <span key={h} className={cn("font-mono text-[9px] uppercase tracking-[0.18em]", isDark ? "text-white/35" : "text-slate-400")}>
+                  {h}
+                </span>
+              ))}
+            </div>
+            {block.rows.map((row, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -6 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.4, delay: i * 0.09 }}
+                className={cn(
+                  "grid grid-cols-4 gap-x-4 items-center px-5 py-5",
+                  i < block.rows.length - 1 ? (isDark ? "border-b border-white/[0.07]" : "border-b border-slate-100") : "",
+                )}
+              >
+                <span className={cn("text-[0.875rem] font-semibold", isDark ? "text-white/85" : "text-slate-800")}>
+                  {row.metric}
+                </span>
+                <span className={cn("text-[0.875rem]", isDark ? "text-white/40" : "text-slate-500")}>
+                  {row.baseline}
+                </span>
+                <span className="text-[0.875rem]" style={{ color: textAccent }}>
+                  {row.target}
+                </span>
+                <span
+                  className="text-[0.875rem] font-semibold"
+                  style={{ color: isDark ? "#4ade80" : "#16a34a" }}
+                >
+                  {row.outcome}
+                </span>
+              </motion.div>
+            ))}
+            </div>
+            </div>
+          </div>
+        </motion.div>
+      );
+
+    // ── What I Found ───────────────────────────────────────────────────────
+    case "what-i-found":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-4 pt-16 max-w-[680px]"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            WHAT I FOUND
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn("text-[1.05rem] leading-[1.82]", isDark ? "text-white/75" : "text-slate-700")}
+          >
+            {renderBold(block.text)}
+          </motion.p>
+        </motion.div>
+      );
+
+    // ── Ideation Cards ─────────────────────────────────────────────────────
+    case "ideation-cards":
+      return (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="space-y-7 pt-16"
+        >
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.4 }}
+            className="font-mono text-[10px] uppercase tracking-[0.32em]"
+            style={{ color: textAccent }}
+          >
+            IDEATION
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, delay: 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn("text-[1.0rem] leading-[1.75] max-w-[680px]", isDark ? "text-white/72" : "text-slate-700")}
+          >
+            {renderBold(block.openingLine)}
+          </motion.p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-[900px]">
+            {block.cards.map((card, i) => {
+              const isSelected = card.status === "selected";
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 18 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.5, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="rounded-xl p-7 flex flex-col gap-3"
+                  style={{
+                    background: isSelected
+                      ? isDark ? `${accentColor}14` : `${accentColor}0d`
+                      : isDark ? "rgba(239,68,68,0.06)" : "rgba(220,38,38,0.04)",
+                  }}
+                >
+                  <div>
+                    <span
+                      className="font-mono text-[9px] uppercase tracking-[0.12em] px-2.5 py-[3px] rounded"
+                      style={{
+                        background: isSelected
+                          ? isDark ? "rgba(74,222,128,0.14)" : "rgba(22,163,74,0.10)"
+                          : isDark ? "rgba(248,113,113,0.14)" : "rgba(220,38,38,0.09)",
+                        color: isSelected
+                          ? isDark ? "#4ade80" : "#16a34a"
+                          : isDark ? "rgba(252,165,165,0.92)" : "#dc2626",
+                      }}
+                    >
+                      {isSelected ? "✓  Selected" : "✗  Rejected"}
+                    </span>
+                  </div>
+                  <p
+                    className={cn("text-[0.95rem] font-semibold leading-snug", !isSelected && (isDark ? "text-white/82" : "text-slate-800"))}
+                    style={isSelected ? { color: textAccent } : undefined}
+                  >
+                    {card.title}
+                  </p>
+                  <p className={cn("text-[0.85rem] leading-[1.65]", isDark ? "text-white/60" : "text-slate-600")}>
+                    {card.description}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.55, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={cn("text-[1.0rem] leading-[1.75] max-w-[680px] pt-2", isDark ? "text-white/72" : "text-slate-700")}
+          >
+            {renderBold(block.closingLine)}
+          </motion.p>
+        </motion.div>
       );
 
     default:
@@ -1537,7 +2599,7 @@ function SectionContent({
         <div className={cn("h-px w-full mb-10", isDark ? "bg-white/10" : "bg-slate-200")} />
         {/* Appendix overline label */}
         <p className="font-mono text-[9px] uppercase tracking-[0.32em] mb-3"
-          style={{ color: accentColor }}>
+          style={{ color: isDark ? getLightAccent(accentColor) : accentColor }}>
           A note on scope
         </p>
         <h2 className={cn("font-['Caveat'] text-3xl sm:text-4xl leading-tight mb-6", isDark ? "text-white/88" : "text-slate-800")}>
@@ -1564,7 +2626,7 @@ function SectionContent({
     >
       <div className="flex items-baseline gap-4">
         <span className="font-mono text-[10px] uppercase tracking-[0.25em] shrink-0 mt-0.5"
-          style={{ color: isDark ? "#3B6FD4" : accentColor }}>
+          style={{ color: isDark ? getLightAccent(accentColor) : accentColor }}>
           {section.number}
         </span>
         <h2 className={cn("font-['Caveat'] text-3xl sm:text-4xl leading-tight", isDark ? "text-white/92" : "text-slate-900")}>
@@ -1626,12 +2688,12 @@ function SidebarTOC({
           "w-full text-left py-1.5 rounded-lg text-[0.8rem] transition-all duration-200 flex items-center gap-2.5",
           indented ? "pl-5 pr-3" : "px-3",
           isActive
-            ? isDark ? "text-white/90" : "text-slate-900"
-            : isDark ? "text-white/35 hover:text-white/65" : "text-slate-400 hover:text-slate-700",
+            ? isDark ? "text-white/95" : "text-slate-900"
+            : isDark ? "text-white/72 hover:text-white/90" : "text-slate-600 hover:text-slate-900",
         )}>
         <span className={cn("h-1 w-1 rounded-full shrink-0 transition-all duration-200", isActive ? "scale-125" : "scale-75 opacity-50")}
           style={{ backgroundColor: isActive ? (isDark ? "#3B6FD4" : accentColor) : "currentColor" }} />
-        <span className="font-mono text-[9px] opacity-50 shrink-0">{section.number}</span>
+        <span className={cn("font-mono text-[9px] shrink-0", isDark ? "text-white/60" : "text-slate-500")}>{section.number}</span>
         <span className={isActive ? "font-medium" : ""}>{section.shortTitle}</span>
       </button>
     );
@@ -1639,7 +2701,7 @@ function SidebarTOC({
 
   return (
     <aside className="sticky top-20 h-fit w-52 shrink-0 py-2 hidden lg:flex flex-col gap-0.5 overflow-y-auto max-h-[calc(100vh-6rem)]">
-      <p className={cn("font-mono text-[9px] uppercase tracking-[0.25em] px-3 mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+      <p className={cn("font-mono text-[9px] uppercase tracking-[0.25em] px-3 mb-2", isDark ? "text-white/65" : "text-slate-600")}>
         Contents
       </p>
 
@@ -1654,8 +2716,8 @@ function SidebarTOC({
                 <p className={cn(
                   "px-3 pt-3 pb-1 font-mono text-[8.5px] uppercase tracking-[0.28em] transition-colors duration-200 select-none",
                   isActiveGroup
-                    ? isDark ? "text-white/70" : "text-slate-700"
-                    : isDark ? "text-white/22" : "text-slate-400/70",
+                    ? isDark ? "text-white/85" : "text-slate-800"
+                    : isDark ? "text-white/65" : "text-slate-600",
                 )}>
                   {label}
                 </p>
@@ -1686,7 +2748,7 @@ function SidebarTOC({
       <div className={cn("h-px w-full my-3", isDark ? "bg-white/8" : "bg-slate-200")} />
       <a href={behanceUrl} target="_blank" rel="noopener noreferrer"
         className={cn("flex items-center gap-2 px-3 py-2 rounded-lg text-[0.75rem] transition-all duration-200",
-          isDark ? "text-white/35 hover:text-white/60" : "text-slate-400 hover:text-slate-700")}>
+          isDark ? "text-white/72 hover:text-white/90" : "text-slate-600 hover:text-slate-900")}>
         <ExternalLink className="w-3 h-3 shrink-0" />
         <span>View on Behance</span>
       </a>
@@ -1714,7 +2776,7 @@ function MobileSectionPills({
           return (
             <button key={section.id} type="button" onClick={() => onSectionClick(section.id)}
               className={cn("px-3 py-1.5 rounded-full text-[11px] transition-all duration-200 whitespace-nowrap",
-                isActive ? "text-white font-medium" : isDark ? "text-white/40 hover:text-white/70" : "text-slate-500 hover:text-slate-800")}
+                isActive ? "text-white font-medium" : isDark ? "text-white/65 hover:text-white/85" : "text-slate-500 hover:text-slate-800")}
               style={isActive ? { backgroundColor: isDark ? "#3B6FD4" : accentColor } : undefined}>
               {section.shortTitle}
             </button>
@@ -1796,13 +2858,13 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
       )}>
         <button type="button" onClick={onClose}
           className={cn("flex items-center gap-2 text-[0.8rem] transition-all duration-200 group",
-            isDark ? "text-white/50 hover:text-white/90" : "text-slate-400 hover:text-slate-900")}>
+            isDark ? "text-white/72 hover:text-white/95" : "text-slate-600 hover:text-slate-900")}>
           <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Back to Work</span>
         </button>
 
         <div className="flex items-center gap-2">
-          <span className={cn("font-mono text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/30" : "text-slate-400")}>
+          <span className={cn("font-mono text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/60" : "text-slate-500")}>
             Case Study
           </span>
           <span className={cn("h-3 w-px", isDark ? "bg-white/15" : "bg-blue-200")} />
@@ -1887,7 +2949,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className={cn("grid gap-3", study.stats.length === 3 ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-4")}>
                 {study.stats.map((stat, i) => {
                   const lc = LIGHT_SECTION_COLORS[i % LIGHT_SECTION_COLORS.length];
                   return (
@@ -1897,7 +2959,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
                       <p className="font-['Caveat'] text-3xl font-medium" style={{ color: accentColor }}>
                         {stat.value}
                       </p>
-                      <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/35" : "text-slate-500")}>
+                      <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/65" : "text-slate-600")}>
                         {stat.label}
                       </p>
                     </div>
@@ -1933,13 +2995,13 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
                 isDark ? "border-white/8" : "border-blue-100")}>
               <button type="button" onClick={onClose}
                 className={cn("flex items-center gap-2 text-[0.825rem] transition-all duration-200 group",
-                  isDark ? "text-white/40 hover:text-white/80" : "text-slate-400 hover:text-slate-800")}>
+                  isDark ? "text-white/72 hover:text-white/95" : "text-slate-600 hover:text-slate-900")}>
                 <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
                 Back to Work
               </button>
               <a href={study.behanceUrl} target="_blank" rel="noopener noreferrer"
                 className={cn("flex items-center gap-2 text-[0.825rem] transition-all duration-200 group",
-                  isDark ? "text-white/40 hover:text-white/80" : "text-slate-400 hover:text-blue-700")}>
+                  isDark ? "text-white/72 hover:text-white/95" : "text-slate-600 hover:text-blue-700")}>
                 View full project on Behance
                 <ExternalLink className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
