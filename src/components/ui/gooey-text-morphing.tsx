@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface GooeyTextProps {
@@ -14,8 +15,8 @@ interface GooeyTextProps {
 
 export function GooeyText({
   texts,
-  morphTime = 1,
-  cooldownTime = 0.25,
+  morphTime: morphTimeProp = 1,
+  cooldownTime: cooldownTimeProp = 0.25,
   className,
   textClassName,
   onIndexChange,
@@ -24,8 +25,11 @@ export function GooeyText({
   const text2Ref = React.useRef<HTMLSpanElement>(null);
   const onIndexChangeRef = React.useRef(onIndexChange);
   onIndexChangeRef.current = onIndexChange;
+  const reduceMotion = useReducedMotion();
 
   React.useEffect(() => {
+    const morphTime = reduceMotion ? 0.001 : morphTimeProp;
+    const cooldownTime = reduceMotion ? Math.max(cooldownTimeProp, 4) : cooldownTimeProp;
     let textIndex = texts.length - 1;
     let time = new Date();
     let morph = 0;
@@ -100,7 +104,7 @@ export function GooeyText({
     return () => {
       cancelAnimationFrame(animId);
     };
-  }, [texts, morphTime, cooldownTime]);
+  }, [texts, morphTimeProp, cooldownTimeProp, reduceMotion]);
 
   return (
     <div className={cn("relative", className)}>

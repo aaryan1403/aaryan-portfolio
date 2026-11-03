@@ -1,4 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const ENABLED_QUERY = "(pointer: fine) and (min-width: 768px) and (prefers-reduced-motion: no-preference)";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const TRAIL_MS    = 520;
@@ -45,6 +47,20 @@ function smoothStroke(
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function CursorTrail() {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(ENABLED_QUERY);
+    const sync = () => setEnabled(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  return enabled ? <CursorTrailCanvas /> : null;
+}
+
+function CursorTrailCanvas() {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const points     = useRef<Point[]>([]);
   const sparkles   = useRef<Sparkle[]>([]);
@@ -173,7 +189,7 @@ export function CursorTrail() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none fixed inset-0 z-[100] hidden md:block"
+      className="pointer-events-none fixed inset-0 z-[100]"
     />
   );
 }

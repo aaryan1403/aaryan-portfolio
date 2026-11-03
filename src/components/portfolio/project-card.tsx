@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, useAnimate } from "framer-motion";
 import { Pin, Sparkles, Radar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LiquidGlassCard } from "@/components/ui/liquid-weather-glass";
@@ -10,6 +10,9 @@ export type ProjectCardData = {
   rotation: number;
   delay: number;
   description: string;
+  // Shorter copy used by the mobile stack, where the full description is too long for a card.
+  summary?: string;
+  outcomes?: string[];
   previewImages: string[];
   link: string;
   year?: string;
@@ -24,6 +27,7 @@ type ProjectCardProps = ProjectCardData & {
   mode: "spread" | "grid";
   position?: Record<string, string>;
   featuredVariant?: 0 | 1 | 2;
+  layoutTransitionDelay?: number;
   onHoverChange: (isHovering: boolean) => void;
   onOpenCaseStudy?: () => void;
 };
@@ -41,7 +45,6 @@ function FeaturedTreatment({
           <Pin className="h-3 w-3" />
           <span>Flagship Casestudy</span>
         </div>
-        <div className="pointer-events-none absolute right-4 top-4 h-10 w-10 rounded-full border border-white/16 bg-white/8 backdrop-blur-md" />
         <div className="pointer-events-none absolute bottom-4 left-4 h-px w-24 bg-gradient-to-r from-[#ff8a4c]/90 via-white/40 to-transparent" />
       </>
     );
@@ -56,7 +59,7 @@ function FeaturedTreatment({
             <Sparkles className="h-3.5 w-3.5 text-[#8db8ff]" />
             <span className="font-mono text-[10px] uppercase tracking-[0.18em]">Featured Build</span>
           </div>
-          <span className="rounded-full border border-white/14 bg-white/8 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.18em] text-white/60">
+          <span className="rounded-full border border-white/14 bg-white/8 px-2.5 py-1 font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] text-white/60">
             XARISS
           </span>
         </div>
@@ -81,7 +84,7 @@ function FeaturedTreatment({
       <div className="pointer-events-none absolute inset-4 rounded-[12px] border border-white/10" />
       <div className="pointer-events-none absolute inset-7 rounded-[10px] border border-white/6" />
       <div className="pointer-events-none absolute bottom-4 right-4 h-12 w-12 rounded-full border border-[#ff9e57]/30 bg-[#ff9e57]/8 blur-[1px]" />
-      <div className="pointer-events-none absolute bottom-4 left-4 font-mono text-[9px] uppercase tracking-[0.2em] text-white/55">
+      <div className="pointer-events-none absolute bottom-4 left-4 font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em] text-white/55">
         Priority Story
       </div>
     </>
@@ -102,6 +105,7 @@ export function ProjectCard({
   year,
   hasCaseStudy,
   featuredVariant,
+  layoutTransitionDelay = 0,
   onHoverChange,
   onOpenCaseStudy,
 }: ProjectCardProps) {
@@ -109,20 +113,65 @@ export function ProjectCard({
   const showOverlay = isHovered || isActive;
   const isFeatured = typeof featuredVariant === "number";
 
+  // ── Squash & stretch (Principles 1, 2, 5, 10) ────────────────────────────
+  // A separate inner motion.div carries the squash/stretch so it never fights
+  // the layout spring's own scaleX/scaleY correction on the article.
+  const [squashRef, animateSquash] = useAnimate<HTMLDivElement>();
+  const prevMode = useRef<typeof mode | null>(null);
+
+  useEffect(() => {
+    // Skip the very first render — no transition yet
+    if (prevMode.current === null) { prevMode.current = mode; return; }
+    if (prevMode.current === mode) return;
+    prevMode.current = mode;
+
+    const toSpread = mode === "spread";
+
+    // Keyframe sequence (5 stops):
+    //  [neutral → anticipation → peak squash/stretch → overshoot-settle → neutral]
+    // Going to spread: horizontal squash builds up, then vertical stretch as card "launches"
+    // Going to grid : vertical squash as card "lands", then horizontal pop + micro-bounce
+    void animateSquash(
+      squashRef.current,
+      toSpread
+        ? { scaleX: [1, 1.02, 0.97, 1.01, 1], scaleY: [1, 0.98, 1.03, 0.99, 1] }
+        : { scaleX: [1, 0.97, 1.02, 0.98, 1], scaleY: [1, 1.02, 0.97, 1.01, 1] },
+      {
+        duration: 0.55,
+        times:    [0, 0.15, 0.45, 0.72, 1],
+        ease:     [0.22, 0.9, 0.36, 1],
+        delay:    layoutTransitionDelay,
+      },
+    );
+  }, [mode, layoutTransitionDelay, animateSquash]);
+
   return (
     <motion.article
+      layout
       className={cn(
         "cursor-pointer outline-none lg:block",
         mode === "spread"
-          ? "absolute hidden h-[min(16.15rem,calc(((100vh-220px)/2-12px)*0.95))] w-[min(21.89rem,calc((50vw-3rem)*0.8755))]"
-          : "relative hidden h-[min(17.1rem,calc(((100vh-200px)/2-12px)*0.95))] w-full",
+          ? "absolute hidden h-[min(16.47rem,calc(((100vh-220px)/2-12px)*0.969))] w-[min(21.45rem,calc((50vw-3rem)*0.858))]"
+          : "relative hidden h-[min(17.79rem,calc(((100vh-200px)/2-12px)*0.988))] w-full",
       )}
       initial={{ opacity: 0, rotate: rotation, scale: 0.8 }}
       animate={{ opacity: 1, rotate: 0, scale: 1 }}
       transition={{
         opacity: { type: "spring", bounce: 0.2, duration: 1, delay },
-        rotate: { type: "spring", bounce: 0.2, duration: 1, delay },
-        scale: { type: "spring", bounce: 0.2, duration: 1, delay },
+        rotate:  { type: "spring", bounce: 0.2, duration: 1, delay },
+        scale:   { type: "spring", bounce: 0.2, duration: 1, delay },
+        // ── Layout spring (Principles 3, 6, 7, 9) ────────────────────────
+        // Lower stiffness = more gradual acceleration (slow-in), heavier mass =
+        // more momentum (timing/weight), lower damping = visible overshoot
+        // (follow-through). Starts 80ms AFTER squash begins so the card
+        // visually "winds up" before it moves — that's the anticipation beat.
+        layout: {
+          type:      "spring",
+          stiffness: 175,
+          damping:   24,
+          mass:      1.3,
+          delay:     layoutTransitionDelay + 0.08,
+        },
       }}
       whileHover={{
         scale: 1.05,
@@ -150,6 +199,8 @@ export function ProjectCard({
       tabIndex={0}
       style={mode === "spread" ? { ...position, zIndex: isFeatured ? 99 : index } : undefined}
     >
+      {/* Inner squash/stretch wrapper — independent transform layer */}
+      <div ref={squashRef} className="h-full w-full" style={{ transformOrigin: "center" }}>
       <LiquidGlassCard
         draggable={false}
         blurIntensity="xl"
@@ -169,7 +220,7 @@ export function ProjectCard({
             isDark ? "bg-black/8" : "bg-white/30",
           )}
         >
-          <img src={image} alt={title} className="h-full w-full object-cover" />
+          <img src={image} alt={title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
           {isFeatured ? (
             <FeaturedTreatment variant={featuredVariant} />
           ) : null}
@@ -191,11 +242,12 @@ export function ProjectCard({
               {year}
             </span>
           )}
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">
             Click to view case study
           </span>
         </motion.div>
       </LiquidGlassCard>
+      </div>{/* end squash/stretch wrapper */}
     </motion.article>
   );
 }

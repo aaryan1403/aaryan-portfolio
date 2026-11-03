@@ -50,7 +50,7 @@ function LinkActionButton({ icon, label, href, isDark }: LinkActionButtonProps) 
     <div className="group relative flex items-center justify-center">
       <div
         className={cn(
-          "pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1.5 text-[10px] font-extralight tracking-[0.04em] text-white opacity-0 shadow-lg transition-all duration-200 group-hover:-translate-y-1 group-hover:opacity-100",
+          "pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1.5 text-[10px] font-extralight tracking-[0.04em] text-slate-950 opacity-0 shadow-lg transition-all duration-200 group-hover:-translate-y-1 group-hover:opacity-100",
           "bg-[#ff6a3d]",
         )}
       >
@@ -61,7 +61,7 @@ function LinkActionButton({ icon, label, href, isDark }: LinkActionButtonProps) 
         target="_blank"
         rel="noopener noreferrer"
         className={cn(
-          "inline-flex h-10 w-10 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2",
+          "inline-flex h-11 w-11 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2",
           isDark
             ? "text-white/78 hover:bg-white/14 focus-visible:ring-white/35"
             : "text-slate-700 hover:bg-slate-900/8 focus-visible:ring-slate-900/18",
@@ -84,7 +84,7 @@ function ActionButton({
     <div className="group relative flex items-center justify-center">
       <div
         className={cn(
-          "pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1.5 text-[10px] font-extralight tracking-[0.04em] text-white opacity-0 shadow-lg transition-all duration-200 group-hover:-translate-y-1 group-hover:opacity-100",
+          "pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1.5 text-[10px] font-extralight tracking-[0.04em] text-slate-950 opacity-0 shadow-lg transition-all duration-200 group-hover:-translate-y-1 group-hover:opacity-100",
           "bg-[#ff6a3d]",
         )}
       >
@@ -94,7 +94,7 @@ function ActionButton({
         type="button"
         onClick={onClick}
         className={cn(
-          "inline-flex h-10 w-10 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2",
+          "inline-flex h-11 w-11 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2",
           isDark
             ? "text-white/78 hover:bg-white/14 focus-visible:ring-white/35"
             : "text-slate-700 hover:bg-slate-900/8 focus-visible:ring-slate-900/18",

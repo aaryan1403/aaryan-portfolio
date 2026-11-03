@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { Pause, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import cosmicMusic from "@/assets/audio/cosmic-music.mp3";
-import cpiCover from "@/assets/projects/cpi-cover.jpg";
-import stormaCoverA from "@/assets/projects/storma-cover-a.jpg";
-import stormaCoverB from "@/assets/projects/storma-cover-b.jpg";
-import xarissDashboard from "@/assets/projects/xariss-dashboard.jpg";
+import cpiCover from "@/assets/projects/Shots CPI.png";
+import stormaCoverA from "@/assets/projects/Shots UTS.jpeg";
+import stormaCoverB from "@/assets/projects/Shots Member Login.jpeg";
+import xarissDashboard from "@/assets/projects/Shots XARISS.jpeg";
 import cpiKeyChallenges from "@/assets/projects/cpi-key-challenges.png";
 import cpiWireframes from "@/assets/projects/cpi-wireframes.png";
 import cpiFinalScreens from "@/assets/projects/cpi-final-screens.png";
@@ -23,6 +23,7 @@ import { AboutView } from "@/components/portfolio/about-view";
 import { CaseStudyView } from "@/components/portfolio/case-study-view";
 import { CursorTrail } from "@/components/portfolio/cursor-trail";
 import { GridBackground } from "@/components/portfolio/grid-background";
+import { MobileProjectCard } from "@/components/portfolio/mobile-project-card";
 import { NavigationBar } from "@/components/portfolio/navigation-bar";
 import {
   ProjectCard,
@@ -45,6 +46,8 @@ const projects: ProjectCardData[] = [
     year: "2026",
     description:
       "A B2B CRM platform for luxury brands to manage listings, track bookings, and act on performance data, designed end-to-end for two distinct user roles. **48 brands** onboarded, with store managers going from raw data to actionable decisions in **under 10 minutes**.",
+    summary: "B2B CRM for luxury brands, designed for two user roles.",
+    outcomes: ["48 brands onboarded", "Under 10 min to decide"],
     previewImages: [xarissDashboardPreview, xarissExperiences, xarissInbox],
   },
   {
@@ -58,6 +61,8 @@ const projects: ProjectCardData[] = [
     year: "2024",
     description:
       "A mobile app helping people with chronic pain manage their daily lives — designed through **30+** academic papers, focus groups, thematic analysis, and a **27-person** workshop to ground every decision in real user need. Now live and used by **1,000+** people.",
+    summary: "A mobile app helping people with chronic pain manage daily life.",
+    outcomes: ["1,000+ users", "27-person workshop"],
     previewImages: [cpiKeyChallenges, cpiWireframes, cpiFinalScreens],
   },
   {
@@ -69,6 +74,8 @@ const projects: ProjectCardData[] = [
     year: "2022",
     description:
       "A redesign of Mumbai's official local train ticketing app, used daily by millions of commuters — focused on simplifying a fragmented booking flow into something fast, intuitive, and stress-free for one of the world's busiest transit systems.",
+    summary: "Redesign of Mumbai's local train ticketing app.",
+    outcomes: ["Millions of daily commuters", "Simplified booking flow"],
     previewImages: [utsDesignProcess, utsResearch, utsIdeation],
   },
   {
@@ -76,10 +83,14 @@ const projects: ProjectCardData[] = [
     image: stormaCoverB,
     rotation: 10,
     delay: 0.15,
+    hasCaseStudy: true,
+    caseStudySlug: "yifloginportal",
     link: "https://www.behance.net/gallery/202145727/Login-Portal",
-    year: "2021",
+    year: "2022",
     description:
       "A member login portal, designed through secondary research, information architecture, and iterative wireframing to create a seamless onboarding experience. Delivered as a high-fidelity prototype aligned with stakeholder requirements.",
+    summary: "Member login portal with a seamless onboarding flow.",
+    outcomes: ["Hi-fi prototype", "IA + wireframes"],
     previewImages: [yif1, yif2, yif3],
   },
 ];
@@ -93,22 +104,8 @@ const scatterLayouts: Record<string, string>[][] = [
   [
     { top: "0%",    left: "38%",  transform: "translateX(-50%)" },
     { top: "13%",   right: "1%"  },
-    { top: "42%",   left: "13%" },
+    { top: "42%",   left: "27%" },
     { bottom: "6%", right: "9%"  },
-  ],
-  // 1 · Corners — four cards claiming opposite quadrants, leaving centre open
-  [
-    { top: "3%",    left: "4%"   },
-    { top: "6%",    right: "2%"  },
-    { bottom: "8%", left: "6%"  },
-    { bottom: "5%", right: "3%"  },
-  ],
-  // 2 · Cascade — top-right to bottom-left diagonal, cards overlap naturally
-  [
-    { top: "1%",    right: "3%"  },
-    { top: "20%",   left: "38%",  transform: "translateX(-50%)" },
-    { top: "45%",   left: "8%"  },
-    { bottom: "4%", left: "28%", transform: "translateX(-50%)" },
   ],
 ];
 
@@ -137,10 +134,20 @@ const lightThemeProjectGradients: Record<string, string> = {
     "radial-gradient(circle at 82% 14%, rgba(55, 132, 255, 0.28), transparent 36%), linear-gradient(180deg, #eaf5ff 0%, #d1e5ff 48%, #e6eeff 100%)",
 };
 
+// "r,g,b" accents for the mobile focus glow and dark-mode ambient tint.
+const mobileProjectHues: Record<string, string> = {
+  "XARISS Partner Dashboard": "55,132,255",
+  "Chronic Pain Ireland": "154,126,214",
+  "UTS App Redesign": "255,118,72",
+  "Member Login Portal": "255,170,120",
+};
+const defaultMobileHue = "120,140,255";
+
 const timeFormatter = new Intl.DateTimeFormat("en-US", {
   hour: "numeric",
   minute: "2-digit",
   hour12: true,
+  timeZone: "Europe/Dublin",
 });
 
 const istFormatter = new Intl.DateTimeFormat("en-US", {
@@ -157,6 +164,8 @@ export function ElishaPortfolio() {
   const [currentTime, setCurrentTime] = useState(formatTime);
   const [istTime, setIstTime]         = useState(formatIST);
   const [activeProjectTitle, setActiveProjectTitle] = useState<string | null>(null);
+  // Kept apart from activeProjectTitle so scrolling the mobile stack never rewrites the hero copy.
+  const [mobileFocusTitle, setMobileFocusTitle] = useState<string | null>(null);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("grid");
   const [scatterVariant, setScatterVariant] = useState(0);
   const [isDark, setIsDark] = useState(true);
@@ -200,8 +209,9 @@ export function ElishaPortfolio() {
       })),
     [layoutMode, scatterVariant],
   );
-  const lightThemeBackground = activeProject
-    ? lightThemeProjectGradients[activeProject.title] ?? defaultLightGradient
+  const backgroundProjectTitle = activeProject?.title ?? (viewMode === "home" ? mobileFocusTitle : null);
+  const lightThemeBackground = backgroundProjectTitle
+    ? lightThemeProjectGradients[backgroundProjectTitle] ?? defaultLightGradient
     : defaultLightGradient;
   const xarissFeaturedVariant: 0 = 0;
 
@@ -312,13 +322,36 @@ export function ElishaPortfolio() {
       <GridBackground isDark={isDark} />
       <StarField isDark={isDark} />
 
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-0",
-          isDark
-            ? "bg-gradient-to-b from-transparent via-transparent to-[#1a1a2e]/50"
-            : "bg-gradient-to-b from-white/0 via-white/0 to-white/25",
+      {/* Mobile ambient tint: the focused card colours the night sky the way hover does on desktop. */}
+      <AnimatePresence>
+        {isDark && viewMode === "home" && mobileFocusTitle && (
+          <motion.div
+            key={mobileFocusTitle}
+            aria-hidden="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
+            className="pointer-events-none fixed inset-0 lg:hidden"
+            style={{
+              background: `radial-gradient(120% 60% at 50% 55%, rgba(${mobileProjectHues[mobileFocusTitle] ?? defaultMobileHue},0.16), transparent 70%)`,
+            }}
+          />
         )}
+      </AnimatePresence>
+
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={isDark ? {
+          background: `linear-gradient(to bottom,
+            transparent 0%,
+            transparent 91%,
+            rgba(14, 130, 118, 0.28) 96%,
+            rgba(16, 148, 132, 0.45) 100%
+          )`
+        } : {
+          background: `linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 100%)`
+        }}
       />
 
       <motion.div
@@ -326,7 +359,7 @@ export function ElishaPortfolio() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.4 }}
         className={cn(
-          "fixed top-6 right-6 z-10 text-right font-mono text-[9px] sm:text-[10px]",
+          "fixed top-6 right-6 z-10 hidden text-right font-mono text-[10px] sm:block",
           isDark ? "text-gray-400" : "text-slate-500",
         )}
       >
@@ -347,7 +380,21 @@ export function ElishaPortfolio() {
       </motion.div>
 
       <div className={cn("relative z-10 flex min-h-screen flex-col lg:flex-row", (viewMode === "about" || viewMode === "casestudy") && "invisible lg:visible")}>
-        <section className="w-full px-6 pt-6 pb-2 sm:px-10 lg:w-[30%] lg:pl-12 lg:pr-6 lg:pt-6 lg:pb-10">
+        <section className="w-full px-6 pt-8 pb-12 sm:px-10 sm:pt-6 sm:pb-2 lg:w-[30%] lg:pl-12 lg:pr-6 lg:pt-6 lg:pb-10">
+          {/* Mobile status line: the clocks and kaomoji that sit in the corners on desktop. */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className={cn(
+              "mb-14 flex items-center justify-between font-mono text-[11px] sm:hidden",
+              isDark ? "text-white/55" : "text-slate-500",
+            )}
+          >
+            <span>{currentTime} Dublin · {istTime} Mumbai</span>
+            <span aria-hidden="true">(⁰▿⁰)◜✧</span>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -362,8 +409,8 @@ export function ElishaPortfolio() {
                 <h1 className={cn("font-['Caveat'] text-[10px] uppercase tracking-[0.28em]", isDark ? "text-white/45" : "text-slate-500")}>{activeProject.title}</h1>
               </div>
             ) : (
-              <h1 className={cn("max-w-none whitespace-nowrap font-['Caveat'] text-[1.45rem] sm:text-[1.72rem] leading-[0.92] lg:relative lg:-top-[2px]", isDark ? "text-white/92" : "text-slate-900/92")}>
-                Hey, it's Aaryan Shrivastava
+              <h1 className={cn("max-w-none font-['Caveat'] text-[2.75rem] leading-[0.95] sm:whitespace-nowrap sm:text-[1.72rem] sm:leading-[0.92] lg:relative lg:-top-[2px]", isDark ? "text-white/92" : "text-slate-900/92")}>
+                Hey, it's <br className="sm:hidden" />Aaryan Shrivastava
               </h1>
             )}
           </motion.div>
@@ -372,9 +419,9 @@ export function ElishaPortfolio() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className={cn("mt-1", activeProject && viewMode === "home" && "pt-1.5")}
+            className={cn("mt-5 sm:mt-2", activeProject && viewMode === "home" && "pt-1.5")}
           >
-            <p className={cn("max-w-full lg:max-w-[20.5rem] text-[0.75rem] leading-[1.45]", activeProject && viewMode === "home" && "max-w-full lg:max-w-[23rem] text-[0.765rem] leading-[1.44]", isDark ? "text-white/80" : "text-slate-700")}>
+            <p className={cn("max-w-full lg:max-w-[20.5rem] text-[0.97rem] leading-[1.55] sm:text-[0.75rem] sm:leading-[1.45]", activeProject && viewMode === "home" && "max-w-full lg:max-w-[23rem] text-[0.765rem] leading-[1.44]", isDark ? "text-white/80" : "text-slate-700")}>
               {viewMode === "about"
                 ? "A dedicated about page is now wired into the app. We can build the full story, timeline, and contact details there next."
                 : activeProject
@@ -387,15 +434,46 @@ export function ElishaPortfolio() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            className={cn("pt-1.5", activeProject && viewMode === "home" && "pt-2")}
+            className={cn("pt-3 sm:pt-1.5", activeProject && viewMode === "home" && "pt-2")}
           >
-            <p className={cn("max-w-[20.5rem] font-mono text-[0.63rem] leading-[1.32]", activeProject && viewMode === "home" && "max-w-[23rem] text-[0.655rem] leading-[1.34]", isDark ? "text-white/50" : "text-slate-500")}>
+            <p className={cn("max-w-[20.5rem] font-mono text-[0.72rem] leading-[1.45] sm:text-[0.63rem] sm:leading-[1.32]", activeProject && viewMode === "home" && "max-w-[23rem] text-[0.655rem] leading-[1.34]", isDark ? "text-white/50" : "text-slate-500")}>
               {viewMode === "about"
                 ? "Use the home icon to return to the portfolio."
                 : activeProject
                   ? "Hover the stack to preview more visual directions."
                   : "Prev worked for: Chronic Pain Ireland (CPI) and Cozmotec"}
             </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65, duration: 0.8 }}
+            className="mt-7 flex items-center gap-3 sm:hidden"
+          >
+            <button
+              type="button"
+              onClick={togglePlayback}
+              aria-label={isPlaying ? "Pause Cosmic Music" : "Play Cosmic Music"}
+              className={cn(
+                "flex min-h-11 items-center gap-2.5 rounded-full border px-4 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2",
+                isDark
+                  ? "border-white/12 bg-black/30 text-white/70 focus-visible:ring-white/35"
+                  : "border-slate-900/10 bg-white/55 text-slate-600 focus-visible:ring-slate-900/18",
+              )}
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-blue-200 to-blue-300">
+                {isPlaying ? (
+                  <Pause className="h-3 w-3 text-orange-500" />
+                ) : (
+                  <Play className="ml-[1px] h-3 w-3 fill-orange-500 text-orange-500" />
+                )}
+              </span>
+              <span className="text-[12px] font-medium">Cosmic Music</span>
+            </button>
+            <span className={cn("font-mono text-[11px]", isDark ? "text-white/45" : "text-slate-500")}>
+              updated 04.03.26
+            </span>
           </motion.div>
 
           <motion.div
@@ -519,6 +597,7 @@ export function ElishaPortfolio() {
                         <img
                           src={previewImage}
                           alt={`${activeProject.title} preview ${index + 1}`}
+                          decoding="async"
                           className="h-full w-full object-cover object-top"
                         />
                       </div>
@@ -556,176 +635,67 @@ export function ElishaPortfolio() {
 
         <section
           className={cn(
-            "relative flex flex-1 items-center justify-center px-6 pb-24 lg:px-0 lg:pb-0",
+            "relative flex flex-1 items-start justify-center px-5 pb-32 sm:px-10 lg:items-center lg:px-0 lg:pb-0",
             layoutMode === "grid" && "pt-0",
           )}
         >
-          <div className="grid w-full max-w-2xl grid-cols-1 sm:grid-cols-2 gap-3 px-4 sm:px-8 lg:hidden">
-            {mobileCards.map((project) => (
-              project.hasCaseStudy ? (
-              <button key={project.title} type="button" onClick={() => openCaseStudy(project.caseStudySlug ?? "xariss")} className="text-left w-full">
-              <motion.article
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: project.delay + 0.2 }}
-                className={cn(
-                  "overflow-hidden rounded-2xl shadow-2xl backdrop-blur-sm",
-                  isDark
-                    ? "border border-white/10 bg-white/5"
-                    : "border border-slate-900/10 bg-white/55",
-                )}
-              >
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="h-48 sm:h-64 w-full object-cover"
-                />
-                <div className="flex items-center justify-between gap-4 p-5">
-                  <div>
-                    <p
-                      className={cn(
-                        "text-lg font-medium",
-                        isDark ? "text-white" : "text-slate-900",
-                      )}
-                    >
-                      {project.title}
-                    </p>
-                    <p
-                      className={cn(
-                        "mt-1 text-sm",
-                        isDark ? "text-white/55" : "text-slate-600",
-                      )}
-                    >
-                      {renderBold(project.description)}
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      "font-mono text-xs",
-                      isDark ? "text-white/45" : "text-slate-500",
-                    )}
-                  >
-                    OPEN
-                  </span>
-                </div>
-              </motion.article>
-              </button>
-              ) : (
-              <a key={project.title} href={project.link} target="_blank" rel="noopener noreferrer">
-              <motion.article
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: project.delay + 0.2 }}
-                className={cn(
-                  "overflow-hidden rounded-2xl shadow-2xl backdrop-blur-sm",
-                  isDark
-                    ? "border border-white/10 bg-white/5"
-                    : "border border-slate-900/10 bg-white/55",
-                )}
-              >
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="h-48 sm:h-64 w-full object-cover"
-                />
-                <div className="flex items-center justify-between gap-4 p-5">
-                  <div>
-                    <p
-                      className={cn(
-                        "text-lg font-medium",
-                        isDark ? "text-white" : "text-slate-900",
-                      )}
-                    >
-                      {project.title}
-                    </p>
-                    <p
-                      className={cn(
-                        "mt-1 text-sm",
-                        isDark ? "text-white/55" : "text-slate-600",
-                      )}
-                    >
-                      {renderBold(project.description)}
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      "font-mono text-xs",
-                      isDark ? "text-white/45" : "text-slate-500",
-                    )}
-                  >
-                    OPEN
-                  </span>
-                </div>
-              </motion.article>
-              </a>
-              )
+          <div className="flex w-full max-w-xl flex-col gap-16 lg:hidden">
+            {mobileCards.map((project, cardIndex) => (
+              <MobileProjectCard
+                key={project.title}
+                project={project}
+                index={cardIndex}
+                hue={mobileProjectHues[project.title] ?? defaultMobileHue}
+                isDark={isDark}
+                isFocused={mobileFocusTitle === project.title}
+                onOpen={() => {
+                  if (project.hasCaseStudy) {
+                    openCaseStudy(project.caseStudySlug ?? "xariss");
+                  } else {
+                    window.open(project.link, "_blank", "noopener,noreferrer");
+                  }
+                }}
+                onFocusChange={(focused) =>
+                  setMobileFocusTitle((current) =>
+                    focused ? project.title : current === project.title ? null : current,
+                  )
+                }
+              />
             ))}
           </div>
 
           {viewMode === "home" ? (
-            <AnimatePresence mode="wait" initial={false}>
-              {layoutMode === "spread" ? (
-                <motion.div
-                  key="spread-layout"
-                  initial={{ opacity: 0, y: 22, scale: 0.985, filter: "blur(8px)" }}
-                  animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -14, scale: 1.01, filter: "blur(8px)" }}
-                  transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                  className="relative hidden h-[min(760px,calc(100vh-200px))] w-full lg:block"
-                >
-                  {positionedProjects.map((project, index) => (
-                    <ProjectCard
-                      key={project.title}
-                      {...project}
-                      mode="spread"
-                      index={index}
-                      isActive={activeProjectTitle === project.title}
-                      isDark={isDark}
-                      featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
-                      onHoverChange={(isHovering) => {
-                        if (isHovering) {
-                          if (hoverDismissTimer.current) clearTimeout(hoverDismissTimer.current);
-                          setActiveProjectTitle(project.title);
-                        } else {
-                          hoverDismissTimer.current = setTimeout(() => setActiveProjectTitle(null), 3000);
-                        }
-                      }}
-                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
-                    />
-                  ))}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="grid-layout"
-                  initial={{ opacity: 0, y: 22, scale: 0.985, filter: "blur(8px)" }}
-                  animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -14, scale: 1.01, filter: "blur(8px)" }}
-                  transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-                  className="hidden w-full max-w-[57.78rem] grid-cols-2 gap-5 px-4 lg:mt-[32px] lg:grid"
-                >
-                  {projects.map((project, index) => (
-                    <ProjectCard
-                      key={project.title}
-                      {...project}
-                      mode="grid"
-                      index={index}
-                      isActive={activeProjectTitle === project.title}
-                      isDark={isDark}
-                      featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
-                      onHoverChange={(isHovering) => {
-                        if (isHovering) {
-                          if (hoverDismissTimer.current) clearTimeout(hoverDismissTimer.current);
-                          setActiveProjectTitle(project.title);
-                        } else {
-                          hoverDismissTimer.current = setTimeout(() => setActiveProjectTitle(null), 3000);
-                        }
-                      }}
-                      onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
-                    />
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <LayoutGroup id="project-cards">
+              <div
+                className={cn(
+                  layoutMode === "grid"
+                    ? "hidden w-full max-w-[56.62rem] gap-5 px-4 lg:mt-[32px] lg:grid lg:grid-cols-2"
+                    : "relative hidden h-[min(760px,calc(100vh-200px))] w-full lg:block",
+                )}
+              >
+                {positionedProjects.map((project, index) => (
+                  <ProjectCard
+                    key={project.title}
+                    {...project}
+                    mode={layoutMode}
+                    index={index}
+                    isActive={activeProjectTitle === project.title}
+                    isDark={isDark}
+                    featuredVariant={project.caseStudySlug === "xariss" ? xarissFeaturedVariant : undefined}
+                    layoutTransitionDelay={index * 0.055}
+                    onHoverChange={(isHovering) => {
+                      if (isHovering) {
+                        if (hoverDismissTimer.current) clearTimeout(hoverDismissTimer.current);
+                        setActiveProjectTitle(project.title);
+                      } else {
+                        hoverDismissTimer.current = setTimeout(() => setActiveProjectTitle(null), 3000);
+                      }
+                    }}
+                    onOpenCaseStudy={project.hasCaseStudy ? () => openCaseStudy(project.caseStudySlug ?? "xariss") : undefined}
+                  />
+                ))}
+              </div>
+            </LayoutGroup>
           ) : (
             <div className="hidden w-full max-w-[66rem] items-center justify-center lg:flex">
               <motion.div
@@ -821,9 +791,7 @@ export function ElishaPortfolio() {
           if (layoutMode === "spread") {
             setLayoutMode("grid");
           } else {
-            // Pick a random scatter variant that's different from the current one
-            const next = (scatterVariant + 1 + Math.floor(Math.random() * (scatterLayouts.length - 1))) % scatterLayouts.length;
-            setScatterVariant(next);
+            setScatterVariant(0);
             setLayoutMode("spread");
           }
         }}

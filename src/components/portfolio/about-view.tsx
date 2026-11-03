@@ -187,6 +187,9 @@ const colC2Variants = {
   visible: { opacity: 1, scale: 1,    x: 0,  y: 0,  transition: { ...SPRING, delay: 0.42 } },
 };
 
+// Mobile stacks the cards, so each one reveals as it scrolls in rather than all at mount.
+const REVEAL_VIEWPORT = { once: true, amount: 0.15 };
+
 // Experience timeline stagger
 const expContainerVariants = {
   hidden:  {},
@@ -268,18 +271,18 @@ function ExpEntry({
           isDark ? "border-white/25 bg-[#252541]" : "border-slate-300 bg-white",
         )} />
       )}
-      <p className={cn("font-['Caveat'] text-[1.1rem] sm:text-[1.4rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
+      <p className={cn("font-['Caveat'] text-[1.4rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
         {role}
       </p>
-      <p className={cn("mt-0.5 font-mono text-[11px]", isDark ? "text-white/55" : "text-slate-500")}>
+      <p className={cn("mt-0.5 font-mono text-[12px] sm:text-[11px]", isDark ? "text-white/55" : "text-slate-500")}>
         {company}
       </p>
       <div className="mt-0.5 flex items-center gap-2">
-        <p className={cn("font-mono text-[10px]", isDark ? "text-white/35" : "text-slate-400")}>
+        <p className={cn("font-mono text-[11px] sm:text-[10px]", isDark ? "text-white/55" : "text-slate-500")}>
           {location} · {period}
         </p>
         <span className={cn(
-          "rounded-full px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.1em]",
+          "rounded-full px-1.5 py-0.5 font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.1em]",
           type === "Education"
             ? isDark ? "bg-purple-400/15 text-purple-300" : "bg-purple-50 text-purple-500"
             : isDark ? "bg-blue-400/15 text-blue-300"   : "bg-blue-50 text-blue-500",
@@ -325,7 +328,7 @@ function CurrentlyCard({
         {/* Card body */}
         <div
           className={cn(
-            "flex h-full flex-col gap-1.5 rounded-[10px] p-3",
+            "flex h-full flex-col gap-1.5 rounded-[10px] p-4 sm:p-3",
             isDark ? "border border-white/10" : "border border-white/75",
           )}
           style={isDark ? { backgroundColor: item.bgDark } : { backgroundImage: item.bg }}
@@ -340,17 +343,21 @@ function CurrentlyCard({
             >
               <Icon className="h-4 w-4" style={{ color: item.accent }} />
             </div>
-            <span className={cn("font-mono text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/45" : "text-slate-500")}>
+            <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/55" : "text-slate-500")}>
               {item.category}
             </span>
           </div>
-          <p className={cn("font-['Caveat'] text-[1.25rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
+          <p className={cn("font-['Caveat'] text-[1.5rem] leading-tight sm:text-[1.25rem]", isDark ? "text-white/90" : "text-slate-900")}>
             {item.value.split("\n").map((line, i, arr) => (
               <span key={i}>
                 {line}
                 {i < arr.length - 1 && <br />}
               </span>
             ))}
+          </p>
+          {/* No hover on touch, so the overlay line is shown in place. */}
+          <p className={cn("text-[0.85rem] leading-[1.45] sm:hidden", isDark ? "text-white/65" : "text-slate-600")}>
+            {item.hover}
           </p>
         </div>
 
@@ -360,7 +367,7 @@ function CurrentlyCard({
           animate={{ opacity: hovered ? 1 : 0 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            "pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-[10px] px-3 backdrop-blur-sm",
+            "pointer-events-none absolute inset-0 hidden flex-col items-center justify-center gap-1.5 rounded-[10px] px-3 backdrop-blur-sm sm:flex",
             isDark ? "bg-black/50" : "bg-slate-900/35",
           )}
         >
@@ -370,7 +377,7 @@ function CurrentlyCard({
           >
             {item.hover}
           </span>
-          <span className="font-mono text-[8px] uppercase tracking-[0.18em] text-white/55">
+          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/55">
             {item.category}
           </span>
         </motion.div>
@@ -405,7 +412,7 @@ function BlinkingKaomoji({ isDark }: { isDark: boolean }) {
   };
 
   return (
-    <span className={cn("font-['Caveat'] text-[1.1rem]", isDark ? "text-white/50" : "text-slate-500/80")}>
+    <span className={cn("font-['Caveat'] text-[1.35rem] sm:text-[1.1rem]", isDark ? "text-white/50" : "text-slate-500/80")}>
       {"(That's me "}
       <motion.span style={eyeStyle} animate={{ scaleY: blink ? 0.08 : 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}>◕</motion.span>
       ‿
@@ -422,12 +429,12 @@ export function AboutView({ isDark }: AboutViewProps) {
   const [whoIAmIndex, setWhoIAmIndex] = useState(1);
 
   const label = cn(
-    "block font-mono text-[9px] uppercase tracking-[0.28em] mb-2",
+    "block font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.28em] mb-2",
     isDark ? "text-white/80" : "text-slate-500",
   );
 
   const pill = cn(
-    "inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[10px] leading-none",
+    "inline-flex items-center rounded-full border px-3 py-1.5 font-mono text-[12px] leading-none sm:px-2.5 sm:py-1 sm:text-[10px]",
     isDark
       ? "border-white/12 bg-white/[0.07] text-white/68"
       : "border-slate-900/12 bg-white/72 text-slate-600",
@@ -470,7 +477,9 @@ export function AboutView({ isDark }: AboutViewProps) {
 
       {/* ── Background ── */}
       <div className={cn(
-        "pointer-events-none absolute inset-0 z-0",
+        // Fixed, not absolute: on the scrolling mobile layout an absolute layer is only one
+        // screen tall, so the teal horizon ended up as a band across the middle of the page.
+        "pointer-events-none fixed inset-0 z-0",
         isDark
           ? "bg-gradient-to-b from-[#1a1a2e] via-[#252541] to-[#2d2d4a]"
           : "bg-gradient-to-b from-[#edf4ff] via-[#e4ebff] to-[#f6f1ff]",
@@ -483,39 +492,51 @@ export function AboutView({ isDark }: AboutViewProps) {
             ? "bg-gradient-to-b from-transparent via-transparent to-[#1a1a2e]/50"
             : "bg-gradient-to-b from-white/0 via-white/0 to-white/25",
         )} />
+        {/* Teal bottom gradient — matches home page */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={isDark ? {
+            background: "linear-gradient(to bottom, transparent 0%, transparent 91%, rgba(14, 130, 118, 0.28) 96%, rgba(16, 148, 132, 0.45) 100%)"
+          } : {
+            background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 100%)"
+          }}
+        />
       </div>
 
       {/* ── Layout ── */}
-      <div className="relative z-10 flex flex-col px-6 pb-24 pt-5 sm:px-8 lg:h-full lg:overflow-hidden lg:pb-[82px] lg:pl-12 lg:pr-8 lg:pt-5 [@media(max-height:650px)]:lg:h-auto [@media(max-height:650px)]:lg:min-h-full [@media(max-height:650px)]:lg:overflow-visible">
+      <div className="relative z-10 flex flex-col px-6 pb-36 pt-5 sm:px-8 sm:pb-24 lg:h-full lg:overflow-hidden lg:pb-[82px] lg:pl-12 lg:pr-8 lg:pt-5 [@media(max-height:650px)]:lg:h-auto [@media(max-height:650px)]:lg:min-h-full [@media(max-height:650px)]:lg:overflow-visible">
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-2.5 flex-shrink-0"
+          className="mb-6 mt-6 flex-shrink-0 sm:mb-2.5 sm:mt-0"
         >
-          <p className={cn("mb-0.5 font-mono text-[9px] uppercase tracking-[0.28em]", isDark ? "text-white/38" : "text-slate-500")}>
+          <p className={cn("mb-0.5 hidden font-mono text-[9px] uppercase tracking-[0.28em] sm:block", isDark ? "text-white/55" : "text-slate-500")}>
             About
           </p>
-          <h1 className={cn("font-['Caveat'] text-[1.6rem] sm:text-[2rem] leading-[0.92]", isDark ? "text-white/92" : "text-slate-900")}>
+          <h1 className={cn("font-['Caveat'] text-[2.75rem] leading-[0.95] sm:text-[2rem] sm:leading-[0.92]", isDark ? "text-white/92" : "text-slate-900")}>
             Aaryan Shrivastava{" "}
+            <br className="sm:hidden" />
             <BlinkingKaomoji isDark={isDark} />
           </h1>
         </motion.div>
 
         {/* 3-column × 3-row grid — explicit placement for precise cross-column alignment */}
-        <div className="about-grid grid grid-cols-1 gap-3 lg:flex-1 lg:min-h-0 lg:gap-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.5fr)_minmax(0,1.2fr)] [@media(max-height:650px)]:lg:flex-none">
+        <div className="about-grid grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:gap-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.5fr)_minmax(0,1.2fr)] [@media(max-height:650px)]:lg:flex-none">
 
           {/* ══ Col A · Photo — spans all 3 rows ══ */}
           <motion.div
-            variants={colAVariants} initial="hidden" animate="visible"
-            className="h-[300px] lg:col-start-1 lg:row-start-1 lg:row-span-3 lg:h-auto lg:min-h-0"
+            variants={colAVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
+            className="aspect-[4/5] sm:aspect-auto sm:h-[300px] lg:col-start-1 lg:row-start-1 lg:row-span-3 lg:h-auto lg:min-h-0"
           >
             <GlassCard isDark={isDark} className="h-full" innerClassName="p-2 h-full">
               <div className="relative h-full overflow-hidden rounded-[10px]">
-                <img src={aaryanMobilePhoto} alt="Aaryan Shrivastava" className="h-full w-full object-cover object-center lg:hidden" />
-                <img src={photos[photoIndex]} alt="Aaryan Shrivastava" className="hidden h-full w-full object-cover object-[center_80%] lg:block" />
+                <picture>
+                  <source media="(min-width: 1024px)" srcSet={photos[photoIndex]} />
+                  <img src={aaryanMobilePhoto} alt="Aaryan Shrivastava" className="h-full w-full object-cover object-center lg:object-[center_80%]" />
+                </picture>
                 {photos.length > 1 && (
                   <>
                     <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
@@ -544,7 +565,7 @@ export function AboutView({ isDark }: AboutViewProps) {
 
           {/* ══ Col B Row 1 · Bio ══ */}
           <motion.div
-            variants={colBVariants} initial="hidden" animate="visible"
+            variants={colBVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
             className="lg:col-start-2 lg:row-start-1 lg:min-h-0"
           >
             <GlassCard
@@ -584,25 +605,25 @@ export function AboutView({ isDark }: AboutViewProps) {
                 </div>
                 <div
                   className={cn(
-                    "space-y-2.5 text-[0.74rem] leading-[1.6] [@media(max-height:650px)]:space-y-2 [@media(max-height:650px)]:text-[0.71rem] [@media(max-height:650px)]:leading-[1.5]",
+                    "space-y-3 text-[0.95rem] leading-[1.6] sm:space-y-2.5 sm:text-[0.74rem] [@media(max-height:650px)]:space-y-2 [@media(max-height:650px)]:text-[0.71rem] [@media(max-height:650px)]:leading-[1.5]",
                     isDark ? "text-white/68" : "text-slate-600",
                   )}
                 >
                   <p>
-                    <span className={cn("font-['Caveat'] text-[1.05rem] leading-snug", isDark ? "text-white" : "text-slate-800")}>Hey, it's lovely to have you here.</span>{" "}I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
+                    <span className={cn("font-['Caveat'] text-[1.3rem] leading-snug sm:text-[1.05rem]", isDark ? "text-white" : "text-slate-800")}>Hey, it's lovely to have you here.</span>{" "}I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. <strong>With 2+ years of experience,</strong> I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
                   </p>
                   <p>
                     I bloom in ambiguity where the path isn't obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.
                   </p>
                   <blockquote className={cn("border-l-2 pl-3 italic", isDark ? "border-white/20 text-white/40" : "border-slate-300 text-slate-400")}>
                     <p>Imagination is more important than knowledge.</p>
-                    <p className="mt-0.5 not-italic text-[0.68rem]">— Albert Einstein</p>
+                    <p className="mt-0.5 not-italic text-[0.8rem] sm:text-[0.68rem]">— Albert Einstein</p>
                   </blockquote>
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <p className={cn("text-[0.74rem] leading-[1.6]", isDark ? "text-white/68" : "text-slate-600")}>
-                  <span className={cn("font-['Caveat'] text-[1.05rem] leading-snug", isDark ? "text-white" : "text-slate-800")}>Outside of work,</span>{" "}you will find me Playing an RPG, Going cafe hunting where I can read my book, Watching Football or making sweets from all around the globe.
+                <p className={cn("text-[0.95rem] leading-[1.6] sm:text-[0.74rem]", isDark ? "text-white/68" : "text-slate-600")}>
+                  <span className={cn("font-['Caveat'] text-[1.3rem] leading-snug sm:text-[1.05rem]", isDark ? "text-white" : "text-slate-800")}>Outside of work,</span>{" "}you will find me Playing an RPG, Going cafe hunting where I can read my book, Watching Football or making sweets from all around the globe.
                 </p>
               </div>
             </GlassCard>
@@ -610,24 +631,24 @@ export function AboutView({ isDark }: AboutViewProps) {
 
           {/* ══ Col C Rows 1–2 · Experience ══ */}
           <motion.div
-            variants={colCVariants} initial="hidden" animate="visible"
+            variants={colCVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
             className="flex flex-col lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:min-h-0"
           >
             <GlassCard isDark={isDark} className="flex-1 min-h-0 overflow-hidden" innerClassName="p-5 flex flex-col h-full overflow-y-auto" lightGradient={LIGHT_GRAD.orange}>
               <span className={label}>Experience</span>
-              <motion.div variants={expContainerVariants} initial="hidden" animate="visible" className="flex flex-col gap-4 mb-5">
+              <motion.div variants={expContainerVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT} className="flex flex-col gap-4 mb-5">
                 {workItems.map((item, i) => (
                   <motion.div key={item.company} variants={expEntryVariants} className="flex">
                     <ExpEntry isDark={isDark} {...item} isLast={i === workItems.length - 1} isCurrent={item.period.includes("Present")} />
                   </motion.div>
                 ))}
               </motion.div>
-              <span className={cn("mb-2 block font-mono text-[8px] uppercase tracking-[0.28em]", isDark ? "text-white/25" : "text-slate-400")}>
+              <span className={cn("mb-2 block font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.28em]", isDark ? "text-white/55" : "text-slate-500")}>
                 Education
               </span>
               <motion.div
                 variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.085, delayChildren: 0.85 } } }}
-                initial="hidden" animate="visible"
+                initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
                 className="flex flex-col gap-4"
               >
                 {educationItems.map((item, i) => (
@@ -641,8 +662,8 @@ export function AboutView({ isDark }: AboutViewProps) {
 
           {/* ══ Col B Row 2 · AI / Brain ══ */}
           <motion.div
-            variants={colB2Variants} initial="hidden" animate="visible"
-            className="flex gap-3 lg:col-start-2 lg:row-start-2"
+            variants={colB2Variants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
+            className="flex flex-col gap-4 sm:flex-row sm:gap-3 lg:col-start-2 lg:row-start-2"
           >
             <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.peach}>
               <span className={label}>What I leverage AI for</span>
@@ -660,34 +681,34 @@ export function AboutView({ isDark }: AboutViewProps) {
 
           {/* ══ Col B Row 3 · Tool Stack / Get in Touch ══ */}
           <motion.div
-            variants={colB3Variants} initial="hidden" animate="visible"
-            className="flex flex-col sm:flex-row gap-3 lg:col-start-2 lg:row-start-3 lg:min-h-0"
+            variants={colB3Variants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
+            className="order-last flex flex-col gap-4 sm:flex-row sm:gap-3 lg:order-none lg:col-start-2 lg:row-start-3 lg:min-h-0"
           >
-            <GlassCard isDark={isDark} className="flex-1 min-w-0 min-h-0" innerClassName="overflow-hidden px-4 py-2.5" lightGradient={LIGHT_GRAD.blue}>
+            <GlassCard isDark={isDark} className="flex-1 min-w-0 min-h-0" innerClassName="overflow-hidden px-4 py-4 sm:py-2.5" lightGradient={LIGHT_GRAD.blue}>
               <span className={label}>Tool stack</span>
               <div className="overflow-hidden">
                 <div className="about-marquee-track flex w-max items-end gap-4">
                   {[...tools, ...tools].map((tool, i) => (
                     <div key={i} className="flex flex-shrink-0 flex-col items-center gap-1">
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-md" style={{ backgroundColor: tool.bg }}>
-                        <img src={tool.iconUrl} alt={tool.name} className="h-[18px] w-[18px]" />
+                        <img src={tool.iconUrl} alt={tool.name} loading="lazy" decoding="async" className="h-[18px] w-[18px]" />
                       </div>
-                      <span className={cn("font-mono text-[8px]", isDark ? "text-white/45" : "text-slate-500")}>{tool.name}</span>
+                      <span className={cn("font-mono text-[10px] sm:text-[9px]", isDark ? "text-white/55" : "text-slate-500")}>{tool.name}</span>
                     </div>
                   ))}
                 </div>
               </div>
             </GlassCard>
-            <GlassCard isDark={isDark} className="flex-1 min-h-0" innerClassName="px-4 py-2.5" lightGradient={LIGHT_GRAD.blue}>
+            <GlassCard isDark={isDark} className="flex-1 min-h-0" innerClassName="px-4 py-4 sm:py-2.5" lightGradient={LIGHT_GRAD.blue}>
               <span className={label}>Get in touch</span>
               <div className="grid grid-cols-2 gap-2">
                 {socialLinks.map(({ label: name, href, accent, icon: Icon }) => (
-                  <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-110"
+                  <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="group flex min-h-11 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:min-h-0 sm:gap-2">
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-all sm:h-8 sm:w-8 duration-200 group-hover:scale-110"
                       style={{ backgroundColor: `${accent}22`, border: `1.5px solid ${accent}55` }}>
                       <Icon className="h-[15px] w-[15px]" style={{ color: accent }} />
                     </div>
-                    <span className={cn("text-[0.62rem] font-mono leading-tight", isDark ? "text-white/50" : "text-slate-500")}>{name}</span>
+                    <span className={cn("font-mono text-[0.8rem] leading-tight sm:text-[0.62rem]", isDark ? "text-white/70 sm:text-white/50" : "text-slate-500")}>{name}</span>
                   </a>
                 ))}
               </div>
@@ -696,8 +717,8 @@ export function AboutView({ isDark }: AboutViewProps) {
 
           {/* ══ Col C Row 3 · Currently ══ */}
           <motion.div
-            variants={colC2Variants} initial="hidden" animate="visible"
-            className="flex gap-3 lg:col-start-3 lg:row-start-3 lg:min-h-0"
+            variants={colC2Variants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
+            className="flex flex-col gap-3 sm:flex-row lg:col-start-3 lg:row-start-3 lg:min-h-0"
           >
             {currentlyItems.map((item) => (
               <CurrentlyCard key={item.category} isDark={isDark} item={item} />

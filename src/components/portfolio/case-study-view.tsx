@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ExternalLink, Image as ImageIcon, Play, Volume2, VolumeX, Maximize2, Users, Target, Lightbulb, Layers, CheckCircle } from "lucide-react";
+import { ArrowLeft, ExternalLink, Image as ImageIcon, Play, Volume2, VolumeX, Maximize2, X, Check, Users, Target, Lightbulb, Layers, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GridBackground } from "@/components/portfolio/grid-background";
 import { StarField } from "@/components/portfolio/star-field";
@@ -45,7 +46,7 @@ function PlaceholderImage({
     <div className="w-full space-y-2">
       {src ? (
         <div className="w-full rounded-xl overflow-hidden border border-white/5">
-          <img src={src} alt={label} className="w-full h-auto block" />
+          <img src={src} alt={label} loading="lazy" decoding="async" className="w-full h-auto block" />
         </div>
       ) : (
         <div
@@ -59,7 +60,7 @@ function PlaceholderImage({
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-30" style={{ color: accentColor }}>
               {label}
             </p>
-            <p className="font-mono text-[9px] opacity-20" style={{ color: accentColor }}>
+            <p className="font-mono text-[10px] sm:text-[9px] opacity-20" style={{ color: accentColor }}>
               Screenshot Coming Soon
             </p>
           </div>
@@ -76,7 +77,75 @@ function PlaceholderImage({
 
 const SPEEDS = [0.5, 1, 1.5, 2];
 
-function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
+function ZoomableScreenshot({ src, alt }: { src: string; alt: string }) {
+  const [open, setOpen] = useState(false);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={`Enlarge ${alt}`}
+        className="relative block w-full rounded-xl overflow-hidden cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B6FD4]"
+      >
+        <img src={src} alt={alt} loading="lazy" decoding="async" className="w-full object-cover" />
+        <span className="sm:hidden absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-black/65 px-2.5 py-1 text-[11px] text-white/90 backdrop-blur-sm">
+          <Maximize2 className="h-3 w-3" />
+          Tap to zoom
+        </span>
+      </button>
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              key="lightbox"
+              role="dialog"
+              aria-modal="true"
+              aria-label={alt}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-[100] overflow-auto overscroll-contain bg-black/92"
+              onClick={() => setOpen(false)}
+            >
+              <div className="flex min-h-full min-w-max items-center p-4 sm:min-w-0 sm:justify-center sm:p-10">
+                <img
+                  src={src}
+                  alt={alt}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-[1100px] max-w-none rounded-lg sm:w-auto sm:max-w-full sm:max-h-[88vh]"
+                />
+              </div>
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close enlarged screenshot"
+                className="fixed right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                style={{ top: "max(0.75rem, env(safe-area-inset-top))" }}
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
+    </>
+  );
+}
+
+function CaseStudyVideo({ src, poster, isDark }: { src: string; poster?: string; isDark: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -106,7 +175,10 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
   }
 
   function handleFullscreen() {
-    videoRef.current?.requestFullscreen?.();
+    const v = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    if (!v) return;
+    if (v.requestFullscreen) v.requestFullscreen();
+    else v.webkitEnterFullscreen?.();
   }
 
   function handleTimeUpdate() {
@@ -157,6 +229,8 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
         <video
           ref={videoRef}
           src={src}
+          poster={poster}
+          preload="metadata"
           muted
           playsInline
           onTimeUpdate={handleTimeUpdate}
@@ -215,75 +289,89 @@ function CaseStudyVideo({ src, isDark }: { src: string; isDark: boolean }) {
 
       {/* ── Controls bar ── */}
       <div className={cn(
-        "flex items-center gap-3 px-4 py-2.5 border-t",
+        "flex items-center gap-4 px-4 py-2.5 border-t",
         isDark ? "border-white/8 bg-white/[0.03]" : "border-blue-100/60 bg-white/50",
       )}>
         {/* Play/pause */}
         <button
           type="button"
           onClick={togglePlay}
-          className={cn(
-            "flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150",
-            isDark ? "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-600",
-          )}
+          aria-label={isPlaying ? "Pause" : "Play"}
+          className="group/ctl -m-2 flex h-11 w-11 shrink-0 items-center justify-center"
         >
-          {isPlaying
-            ? <span className="flex gap-[3px]"><span className="w-[3px] h-3 rounded-sm bg-current"/><span className="w-[3px] h-3 rounded-sm bg-current"/></span>
-            : <Play className="w-3 h-3 fill-current translate-x-px" />}
+          <span className={cn(
+            "flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150",
+            isDark ? "bg-white/10 group-hover/ctl:bg-white/20 text-white/70 group-hover/ctl:text-white" : "bg-blue-50 group-hover/ctl:bg-blue-100 text-blue-600",
+          )}>
+            {isPlaying
+              ? <span className="flex gap-[3px]"><span className="w-[3px] h-3 rounded-sm bg-current"/><span className="w-[3px] h-3 rounded-sm bg-current"/></span>
+              : <Play className="w-3 h-3 fill-current translate-x-px" />}
+          </span>
         </button>
 
         {/* Time */}
-        <span className={cn("font-mono text-[10px] shrink-0 tabular-nums", isDark ? "text-white/35" : "text-slate-400")}>
+        <span className={cn("font-mono text-[10px] shrink-0 tabular-nums", isDark ? "text-white/55" : "text-slate-500")}>
           {formatTime(currentTime)} / {formatTime(duration)}
         </span>
 
         {/* Scrubber */}
         <div
-          className={cn("flex-1 h-1 rounded-full cursor-pointer relative overflow-hidden", isDark ? "bg-white/10" : "bg-slate-200")}
+          className="flex-1 -my-3 py-3 cursor-pointer"
           onClick={handleScrub}
         >
-          <div
-            className="absolute left-0 top-0 h-full rounded-full transition-none"
-            style={{ width: `${progress}%`, backgroundColor: "#3B6FD4" }}
-          />
+          <div className={cn("h-1 rounded-full relative overflow-hidden", isDark ? "bg-white/10" : "bg-slate-200")}>
+            <div
+              className="absolute left-0 top-0 h-full rounded-full transition-none"
+              style={{ width: `${progress}%`, backgroundColor: "#3B6FD4" }}
+            />
+          </div>
         </div>
 
         {/* Mute */}
         <button
           type="button"
           onClick={toggleMute}
-          className={cn(
-            "flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150",
-            isDark ? "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-600",
-          )}
+          aria-label={isMuted ? "Unmute" : "Mute"}
+          className="group/ctl -m-2 flex h-11 w-11 shrink-0 items-center justify-center"
         >
-          {isMuted
-            ? <VolumeX className="w-3.5 h-3.5" />
-            : <Volume2 className="w-3.5 h-3.5" />}
+          <span className={cn(
+            "flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150",
+            isDark ? "bg-white/10 group-hover/ctl:bg-white/20 text-white/70 group-hover/ctl:text-white" : "bg-blue-50 group-hover/ctl:bg-blue-100 text-blue-600",
+          )}>
+            {isMuted
+              ? <VolumeX className="w-3.5 h-3.5" />
+              : <Volume2 className="w-3.5 h-3.5" />}
+          </span>
         </button>
 
         {/* Playback speed */}
         <button
           type="button"
           onClick={cycleSpeed}
-          className={cn(
-            "flex items-center justify-center h-7 px-2 rounded-full font-mono text-[10px] font-medium transition-all duration-150 shrink-0",
-            isDark ? "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-600",
-          )}
+          aria-label={`Playback speed ${speed}×`}
+          className="group/ctl -m-2 flex h-11 min-w-11 shrink-0 items-center justify-center px-2"
         >
-          {speed === 1 ? "1×" : `${speed}×`}
+          <span className={cn(
+            "flex items-center justify-center h-7 px-2 rounded-full font-mono text-[10px] font-medium transition-all duration-150",
+            isDark ? "bg-white/10 group-hover/ctl:bg-white/20 text-white/70 group-hover/ctl:text-white" : "bg-blue-50 group-hover/ctl:bg-blue-100 text-blue-600",
+          )}>
+            {speed === 1 ? "1×" : `${speed}×`}
+          </span>
         </button>
 
         {/* Fullscreen */}
         <button
           type="button"
           onClick={handleFullscreen}
-          className={cn(
-            "flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150",
-            isDark ? "bg-white/10 hover:bg-white/20 text-white/70 hover:text-white" : "bg-blue-50 hover:bg-blue-100 text-blue-600",
-          )}
+          aria-label="Fullscreen"
+          className="group/ctl -m-2 flex h-11 w-11 shrink-0 items-center justify-center"
         >
-          <Maximize2 className="w-3 h-3" />
+          <span className={cn(
+            "flex items-center justify-center w-7 h-7 rounded-full transition-all duration-150",
+            isDark ? "bg-white/10 group-hover/ctl:bg-white/20 text-white/70 group-hover/ctl:text-white" : "bg-blue-50 group-hover/ctl:bg-blue-100 text-blue-600",
+          )}>
+            <Maximize2 className="w-3 h-3" />
+          </span>
         </button>
       </div>
     </motion.div>
@@ -316,7 +404,7 @@ function RichPersonaCard({ persona, isDark, index, accentColor }: { persona: Ric
           style={{ backgroundColor: persona.avatarColor, color: persona.avatarTextColor }}
         >
           {persona.avatarPhoto
-            ? <img src={persona.avatarPhoto} alt={persona.name} className="w-full h-full object-cover" />
+            ? <img src={persona.avatarPhoto} alt={persona.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
             : persona.initial}
         </div>
         <div>
@@ -326,7 +414,7 @@ function RichPersonaCard({ persona, isDark, index, accentColor }: { persona: Ric
           <p className={cn("font-mono text-[10px] uppercase tracking-[0.15em]", isDark ? "text-white/65" : "text-slate-500")}>
             {persona.role} · {persona.company}
           </p>
-          <p className={cn("font-mono text-[9px]", isDark ? "text-white/55" : "text-slate-400")}>
+          <p className={cn("font-mono text-[10px] sm:text-[9px]", isDark ? "text-white/55" : "text-slate-500")}>
             {persona.location}
           </p>
         </div>
@@ -345,7 +433,7 @@ function RichPersonaCard({ persona, isDark, index, accentColor }: { persona: Ric
       {/* Goals + Pain Points */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/60" : "text-slate-400")}>
+          <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/60" : "text-slate-500")}>
             Goals
           </p>
           <ul className="space-y-2">
@@ -358,7 +446,7 @@ function RichPersonaCard({ persona, isDark, index, accentColor }: { persona: Ric
           </ul>
         </div>
         <div>
-          <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/60" : "text-slate-400")}>
+          <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] mb-2.5", isDark ? "text-white/60" : "text-slate-500")}>
             Pain Points
           </p>
           <ul className="space-y-2">
@@ -374,7 +462,7 @@ function RichPersonaCard({ persona, isDark, index, accentColor }: { persona: Ric
 
       {/* Behaviour */}
       <div className={cn("rounded-lg px-3 py-2.5", isDark ? "bg-white/[0.03]" : "bg-white/40")}>
-        <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/60" : "text-slate-400")}>
+        <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/60" : "text-slate-500")}>
           Behaviour
         </span>
         <span className={cn("text-[0.8rem] leading-[1.55]", isDark ? "text-white/78" : "text-slate-600")}>
@@ -398,7 +486,7 @@ function SpacingVisual({ block, isDark }: { block: SpacingVisualData; isDark: bo
       <div
         className={cn("rounded-xl p-5 border", isDark ? "bg-white/[0.03] border-white/6" : "bg-white/50 border-slate-200")}
       >
-        <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-4", isDark ? "text-white/30" : "text-slate-400")}>
+        <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em] mb-4", isDark ? "text-white/55" : "text-slate-500")}>
           Spacing Scale — 4px Base Unit
         </p>
         <div className="space-y-3">
@@ -417,7 +505,7 @@ function SpacingVisual({ block, isDark }: { block: SpacingVisualData; isDark: bo
                     opacity: isDark ? 0.75 : 0.65,
                   }}
                 />
-                <span className={cn("font-mono text-[9px] shrink-0", isDark ? "text-white/25" : "text-slate-400")}>
+                <span className={cn("font-mono text-[10px] sm:text-[9px] shrink-0", isDark ? "text-white/55" : "text-slate-500")}>
                   {token.px}px · {token.px / block.baseUnit}u
                 </span>
               </div>
@@ -428,7 +516,7 @@ function SpacingVisual({ block, isDark }: { block: SpacingVisualData; isDark: bo
 
       {/* Grid system */}
       <div className={cn("rounded-xl p-5 border", isDark ? "bg-white/[0.03] border-white/6" : "bg-white/50 border-slate-200")}>
-        <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-4", isDark ? "text-white/30" : "text-slate-400")}>
+        <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em] mb-4", isDark ? "text-white/55" : "text-slate-500")}>
           Layout Grid
         </p>
         <div className="space-y-4">
@@ -454,7 +542,7 @@ function SpacingVisual({ block, isDark }: { block: SpacingVisualData; isDark: bo
                 <p className={cn("text-[0.95rem] font-semibold font-mono", isDark ? "text-white/80" : "text-slate-800")}>
                   {stat.value}
                 </p>
-                <p className={cn("font-mono text-[9px] uppercase tracking-[0.15em] mt-0.5", isDark ? "text-white/30" : "text-slate-400")}>
+                <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.15em] mt-0.5", isDark ? "text-white/55" : "text-slate-500")}>
                   {stat.label}
                 </p>
               </div>
@@ -476,6 +564,21 @@ function renderBold(text: string) {
       : part,
   );
 }
+
+type Tone = { fg: string; bg: string; surface: string };
+const TONES: Record<"positive" | "negative" | "generative" | "evaluative" | "goal", { dark: Tone; light: Tone }> = {
+  positive:   { dark: { fg: "#4ade80", bg: "rgba(74,222,128,0.14)", surface: "rgba(74,222,128,0.06)" },
+                light: { fg: "#16a34a", bg: "rgba(22,163,74,0.10)", surface: "rgba(22,163,74,0.04)" } },
+  negative:   { dark: { fg: "rgba(252,165,165,0.92)", bg: "rgba(248,113,113,0.14)", surface: "rgba(239,68,68,0.06)" },
+                light: { fg: "#dc2626", bg: "rgba(220,38,38,0.09)", surface: "rgba(220,38,38,0.04)" } },
+  generative: { dark: { fg: "rgba(230,185,100,0.92)", bg: "rgba(210,150,50,0.15)", surface: "rgba(210,150,50,0.06)" },
+                light: { fg: "#92650a", bg: "rgba(200,140,40,0.11)", surface: "rgba(200,140,40,0.05)" } },
+  evaluative: { dark: { fg: "rgba(150,185,255,0.92)", bg: "rgba(80,120,210,0.18)", surface: "rgba(80,120,210,0.06)" },
+                light: { fg: "#1d4ed8", bg: "rgba(60,100,210,0.10)", surface: "rgba(60,100,210,0.04)" } },
+  goal:       { dark: { fg: "rgba(200,225,120,0.92)", bg: "rgba(180,210,80,0.14)", surface: "rgba(180,210,80,0.07)" },
+                light: { fg: "#4d7c0f", bg: "rgba(130,180,50,0.14)", surface: "rgba(130,180,50,0.09)" } },
+};
+const tone = (name: keyof typeof TONES, isDark: boolean) => TONES[name][isDark ? "dark" : "light"];
 
 // Bold rendered in accent color — used for problem-callout where bold = design goal
 function renderBoldAccent(text: string, color: string) {
@@ -543,10 +646,10 @@ function BlockRenderer({
       return (
         <div className="w-full space-y-2">
           <div className="w-full rounded-xl overflow-hidden border border-white/8">
-            <img src={block.src} alt={block.alt} className="w-full object-cover" />
+            <img src={block.src} alt={block.alt} loading="lazy" decoding="async" className="w-full object-cover" />
           </div>
           {block.caption && (
-            <p className={cn("font-mono text-[10px] text-center", isDark ? "text-white/35" : "text-slate-500")}>
+            <p className={cn("font-mono text-[10px] text-center", isDark ? "text-white/55" : "text-slate-500")}>
               {block.caption}
             </p>
           )}
@@ -590,7 +693,7 @@ function BlockRenderer({
               <p className={cn("font-['Caveat'] text-[1.5rem] leading-none", isDark ? "text-white/92" : "text-slate-900")}>
                 {block.name}
               </p>
-              <p className={cn("font-mono text-[10px] uppercase tracking-[0.18em] mt-0.5", isDark ? "text-white/40" : "text-slate-500")}>
+              <p className={cn("font-mono text-[10px] uppercase tracking-[0.18em] mt-0.5", isDark ? "text-white/55" : "text-slate-500")}>
                 {block.role} · {block.location}
               </p>
             </div>
@@ -647,7 +750,7 @@ function BlockRenderer({
     case "phases":
       return (
         <div className={cn("rounded-xl overflow-hidden border", isDark ? "border-white/10 bg-[#1e2040]" : "border-slate-200 bg-white")}>
-          <div className={cn("grid grid-cols-[3rem_1fr_2fr] gap-4 px-5 py-3 border-b font-mono text-[9px] uppercase tracking-[0.2em]",
+          <div className={cn("grid grid-cols-[3rem_1fr_2fr] gap-4 px-5 py-3 border-b font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em]",
             isDark ? "bg-[#252850] border-white/10 text-white/40" : "bg-blue-50/80 border-slate-200 text-slate-500")}>
             <span>Phase</span>
             <span>Stage</span>
@@ -707,7 +810,7 @@ function BlockRenderer({
               <div>
                 <div className="flex items-center justify-between gap-2 mb-1">
                   <p className={cn("text-[0.8rem] font-medium", isDark ? "text-white/85" : "text-slate-800")}>{item.name}</p>
-                  <span className={cn("font-mono text-[10px]", isDark ? "text-white/35" : "text-slate-500")}>{item.hex}</span>
+                  <span className={cn("font-mono text-[10px]", isDark ? "text-white/55" : "text-slate-500")}>{item.hex}</span>
                 </div>
                 <p className={cn("text-[0.75rem] leading-[1.5]", isDark ? "text-white/40" : "text-slate-500")}>{item.usage}</p>
               </div>
@@ -728,7 +831,7 @@ function BlockRenderer({
                 {item.name}
               </span>
               <p className={cn("text-[0.825rem] flex-1", isDark ? "text-white/65" : "text-slate-700")}>{item.desc}</p>
-              <span className={cn("font-mono text-[10px] uppercase tracking-wide", isDark ? "text-white/35" : "text-slate-500")}>
+              <span className={cn("font-mono text-[10px] uppercase tracking-wide", isDark ? "text-white/55" : "text-slate-500")}>
                 → {item.action}
               </span>
             </div>
@@ -754,9 +857,7 @@ function BlockRenderer({
               Primary question: "{block.question}"
             </p>
             {typeof block.image === "string" ? (
-              <div className="w-full rounded-xl overflow-hidden">
-                <img src={block.image} alt={`${block.title} screenshot`} className="w-full object-cover" />
-              </div>
+              <ZoomableScreenshot src={block.image} alt={`${block.title} screenshot`} />
             ) : block.image === null ? (
               <PlaceholderImage label={`${block.title} Screenshot`} accentColor={isDark ? "#3B6FD4" : accentColor} />
             ) : null}
@@ -830,7 +931,7 @@ function BlockRenderer({
                 <p className="font-['Caveat'] text-3xl font-medium" style={{ color: isDark ? "#3B6FD4" : accentColor }}>
                   {stat.value}
                 </p>
-                <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/65" : "text-slate-600")}>
+                <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/65" : "text-slate-600")}>
                   {stat.label}
                 </p>
               </div>
@@ -875,7 +976,7 @@ function BlockRenderer({
                   >
                     {i + 1}
                   </div>
-                  <p className={cn("font-mono text-[9px] uppercase tracking-[0.15em] text-center mt-2 leading-tight", isDark ? "text-white/75" : "text-slate-800")}>
+                  <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.15em] text-center mt-2 leading-tight", isDark ? "text-white/75" : "text-slate-800")}>
                     {step.label}
                   </p>
                   {step.description && (
@@ -965,7 +1066,7 @@ function BlockRenderer({
                 }
           }
         >
-          <p className={cn("font-mono text-[9px] uppercase tracking-[0.25em] mb-5", isDark ? "text-white/40" : "text-slate-500")}>
+          <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.25em] mb-5", isDark ? "text-white/55" : "text-slate-500")}>
             Responsibilities
           </p>
           <div className="flex flex-wrap gap-2.5">
@@ -1066,7 +1167,7 @@ function BlockRenderer({
                   <div className={cn("flex-1 rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200 bg-white/70")}>
                     <div className="flex items-center gap-2 flex-wrap mb-1.5">
                       <span
-                        className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest shrink-0"
+                        className="font-mono text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest shrink-0"
                         style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                       >
                         {item.range}
@@ -1106,10 +1207,10 @@ function BlockRenderer({
                 >
                   <div className="mb-3">
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="font-mono text-[8px] uppercase tracking-widest" style={{ color: textAccent }}>
+                      <span className="font-mono text-[9px] uppercase tracking-widest" style={{ color: textAccent }}>
                         {item.range}
                       </span>
-                      <span className="font-mono text-[8px]" style={{ color: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)" }}>
+                      <span className="font-mono text-[9px]" style={{ color: isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)" }}>
                         8-WEEK PROJECT
                       </span>
                     </div>
@@ -1163,7 +1264,7 @@ function BlockRenderer({
                 </div>
                 <div className="relative z-10">
                   <span
-                    className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest"
+                    className="font-mono text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest"
                     style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                   >
                     {item.range}
@@ -1190,8 +1291,8 @@ function BlockRenderer({
         return (
           <div className="space-y-5">
             <div className="flex justify-between px-1 mb-1">
-              <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>Designing the right thing</p>
-              <p className="font-mono text-[8px] uppercase tracking-widest" style={{ color: isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>Designing things right</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>Designing the right thing</p>
+              <p className="font-mono text-[9px] uppercase tracking-widest" style={{ color: isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.3)" }}>Designing things right</p>
             </div>
             <div className={cn("rounded-2xl overflow-hidden border", isDark ? "border-white/6" : "border-slate-200")}>
               <svg viewBox="0 0 400 110" className="w-full" style={{ height: "110px", display: "block" }}>
@@ -1219,7 +1320,7 @@ function BlockRenderer({
             <div className="grid grid-cols-2 gap-3">
               {dItems.map((item, i) => (
                 <div key={i} className={cn("rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200 bg-white/60")}>
-                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: textAccent }}>{item.range}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest mb-1.5" style={{ color: textAccent }}>{item.range}</div>
                   <p className={cn("text-[0.8rem] font-semibold mb-1", isDark ? "text-white/85" : "text-slate-800")}>{item.stage}</p>
                   <p className={cn("text-[0.75rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>{item.deliverable}</p>
                 </div>
@@ -1247,7 +1348,7 @@ function BlockRenderer({
                     >
                       {i + 1}
                     </div>
-                    <p className="font-mono text-[8px] uppercase tracking-widest text-center px-1" style={{ color: textAccent }}>
+                    <p className="font-mono text-[9px] uppercase tracking-widest text-center px-1" style={{ color: textAccent }}>
                       {item.stage}
                     </p>
                     <p className={cn("text-[0.68rem] leading-[1.5] text-center px-1", isDark ? "text-white/35" : "text-slate-500")}>
@@ -1270,7 +1371,7 @@ function BlockRenderer({
             <div className="grid grid-cols-2 gap-3">
               {dItems.map((item, i) => (
                 <div key={i} className={cn("rounded-xl p-4 border", isDark ? "bg-white/[0.04] border-white/6" : "border-slate-200")}>
-                  <div className="font-mono text-[8px] uppercase tracking-widest mb-1.5" style={{ color: textAccent }}>{item.range}</div>
+                  <div className="font-mono text-[9px] uppercase tracking-widest mb-1.5" style={{ color: textAccent }}>{item.range}</div>
                   <p className={cn("text-[0.8rem] font-semibold mb-1", isDark ? "text-white/85" : "text-slate-800")}>{item.stage}</p>
                   <p className={cn("text-[0.75rem] leading-[1.6]", isDark ? "text-white/45" : "text-slate-600")}>{item.deliverable}</p>
                 </div>
@@ -1307,7 +1408,7 @@ function BlockRenderer({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
                   <span
-                    className="font-mono text-[8px] px-2 py-0.5 rounded-full uppercase tracking-widest"
+                    className="font-mono text-[9px] px-2 py-0.5 rounded-full uppercase tracking-widest"
                     style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                   >
                     {item.range}
@@ -1356,7 +1457,7 @@ function BlockRenderer({
                 {String(i + 1).padStart(2, "0")}
               </div>
               <span
-                className="inline-block font-mono text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest"
+                className="inline-block font-mono text-[10px] sm:text-[9px] px-2.5 py-1 rounded-full uppercase tracking-widest"
                 style={{ backgroundColor: `${accentColor}18`, color: textAccent }}
               >
                 {card.label}
@@ -1474,7 +1575,7 @@ function BlockRenderer({
               </div>
               <div className="relative z-10">
                 <span
-                  className="mb-2 inline-block font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full"
+                  className="mb-2 inline-block font-mono text-[10px] sm:text-[9px] uppercase tracking-widest px-2 py-0.5 rounded-full"
                   style={{ backgroundColor: `${accentColor}20`, color: textAccent }}
                 >
                   {item.number}
@@ -1611,7 +1712,7 @@ function BlockRenderer({
               </p>
               <div className="flex">
                 {Array.from({ length: block.totalWeeks }).map((_, i) => (
-                  <div key={i} className="flex-1 text-center font-mono font-semibold text-[9px]" style={{ color: isDark ? "rgba(255,255,255,0.60)" : "#64748B" }}>
+                  <div key={i} className="flex-1 text-center font-mono font-semibold text-[10px] sm:text-[9px]" style={{ color: isDark ? "rgba(255,255,255,0.60)" : "#64748B" }}>
                     {i + 1}
                   </div>
                 ))}
@@ -1621,7 +1722,7 @@ function BlockRenderer({
 
           {/* UX phases */}
           <div className="space-y-1">
-            <p className="font-mono text-[8px] uppercase tracking-[0.22em] mb-2" style={{ color: uxColor }}>
+            <p className="font-mono text-[9px] uppercase tracking-[0.22em] mb-2" style={{ color: uxColor }}>
               UX Design
             </p>
             {block.uxPhases.map((phase, i) => (
@@ -1634,7 +1735,7 @@ function BlockRenderer({
 
           {/* UI phases */}
           <div className="space-y-1">
-            <p className="font-mono text-[8px] uppercase tracking-[0.22em] mb-2" style={{ color: uiColor }}>
+            <p className="font-mono text-[9px] uppercase tracking-[0.22em] mb-2" style={{ color: uiColor }}>
               UI Design
             </p>
             {block.uiPhases.map((phase, i) => (
@@ -1819,7 +1920,7 @@ function BlockRenderer({
                 </p>
                 <div className="space-y-2">
                   <div className="flex gap-2">
-                    <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] shrink-0 mt-[2px]", isDark ? "text-white/30" : "text-slate-400")}>
+                    <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] shrink-0 mt-[2px]", isDark ? "text-white/55" : "text-slate-500")}>
                       Concept
                     </span>
                     <p className={cn("text-[0.825rem] leading-[1.65]", isDark ? "text-white/65" : "text-slate-700")}>
@@ -1828,7 +1929,7 @@ function BlockRenderer({
                   </div>
                   <div className={cn("h-px", isDark ? "bg-white/6" : "bg-slate-100")} />
                   <div className="flex gap-2">
-                    <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] shrink-0 mt-[2px]", isDark ? "text-white/30" : "text-slate-400")}>
+                    <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] shrink-0 mt-[2px]", isDark ? "text-white/55" : "text-slate-500")}>
                       Applied
                     </span>
                     <p className={cn("text-[0.825rem] leading-[1.65]", isDark ? "text-white/55" : "text-slate-600")}>
@@ -1852,7 +1953,7 @@ function BlockRenderer({
             className="w-full rounded-xl overflow-hidden border border-white/5"
             style={{ background: `linear-gradient(135deg, ${clr}22 0%, ${clr}08 100%)` }}
           >
-            <img src={src} alt={label} className="w-full h-auto block" />
+            <img src={src} alt={label} loading="lazy" decoding="async" className="w-full h-auto block" />
           </div>
         ) : (
           <div
@@ -1862,7 +1963,7 @@ function BlockRenderer({
             <ImageIcon className="w-7 h-7 opacity-20" style={{ color: clr }} />
             <div className="text-center space-y-1">
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] opacity-30" style={{ color: clr }}>{label}</p>
-              <p className="font-mono text-[9px] opacity-20" style={{ color: clr }}>Screenshot Coming Soon</p>
+              <p className="font-mono text-[10px] sm:text-[9px] opacity-20" style={{ color: clr }}>Screenshot Coming Soon</p>
             </div>
           </div>
         );
@@ -1972,7 +2073,7 @@ function BlockRenderer({
                     }}
                   >
                     {persona.avatarPhoto
-                      ? <img src={persona.avatarPhoto} alt={persona.name} className="w-full h-full object-cover" />
+                      ? <img src={persona.avatarPhoto} alt={persona.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                       : persona.name.charAt(0)}
                   </div>
                   <div>
@@ -1998,7 +2099,7 @@ function BlockRenderer({
                 {/* Goals + Pain Points */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-0">
                   <div className={cn("px-5 pb-4", isDark ? "border-r-0 sm:border-r border-white/6" : "border-r-0 sm:border-r border-black/5")}>
-                    <p className={cn("font-mono text-[8px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+                    <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/55" : "text-slate-500")}>
                       Goals
                     </p>
                     <ul className="space-y-1.5">
@@ -2011,7 +2112,7 @@ function BlockRenderer({
                     </ul>
                   </div>
                   <div className="px-5 pb-4">
-                    <p className={cn("font-mono text-[8px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+                    <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/55" : "text-slate-500")}>
                       Pain Points
                     </p>
                     <ul className="space-y-1.5">
@@ -2033,7 +2134,7 @@ function BlockRenderer({
                     background: isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.5)",
                   }}
                 >
-                  <span className={cn("font-mono text-[8px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/25" : "text-slate-400")}>
+                  <span className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mr-2", isDark ? "text-white/55" : "text-slate-500")}>
                     Needs
                   </span>
                   <span className={cn("text-[0.775rem] leading-[1.6]", isDark ? "text-white/58" : "text-slate-600")}>
@@ -2044,7 +2145,7 @@ function BlockRenderer({
                 {/* Motivations (optional) */}
                 {persona.motivations && persona.motivations.length > 0 && (
                   <div className="px-5 pb-5">
-                    <p className={cn("font-mono text-[8px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/25" : "text-slate-400")}>
+                    <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-2", isDark ? "text-white/55" : "text-slate-500")}>
                       Motivations
                     </p>
                     <ul className="space-y-1">
@@ -2189,7 +2290,7 @@ function BlockRenderer({
                 <span className={cn("font-mono text-[1.55rem] font-medium leading-none tabular-nums", isDark ? "text-white/90" : "text-slate-800")}>
                   {stat.value}
                 </span>
-                <span className={cn("font-mono text-[10px] uppercase tracking-[0.18em]", isDark ? "text-white/45" : "text-slate-500")}>
+                <span className={cn("font-mono text-[10px] uppercase tracking-[0.18em]", isDark ? "text-white/55" : "text-slate-500")}>
                   {stat.label}
                 </span>
               </motion.div>
@@ -2281,11 +2382,7 @@ function BlockRenderer({
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.45, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="rounded-xl p-6 flex flex-col gap-2"
-                style={{
-                  background: isDark
-                    ? "rgba(180,210,80,0.07)"
-                    : "rgba(130,180,50,0.09)",
-                }}
+                style={{ background: tone("goal", isDark).surface }}
               >
                 <span className={cn("font-semibold text-[0.875rem]", isDark ? "text-white/88" : "text-slate-800")}>
                   {goal.id}
@@ -2320,15 +2417,13 @@ function BlockRenderer({
             RESEARCH QUESTIONS
           </motion.p>
           <div className={cn("rounded-xl border overflow-hidden", isDark ? "border-white/8" : "border-slate-200")}>
-            <div className="overflow-x-auto">
-            <div style={{ minWidth: "540px" }}>
             <div className={cn(
-              "grid gap-x-5 px-5 py-3",
+              "hidden sm:grid gap-x-5 px-5 py-3",
               "grid-cols-[100px_1fr_110px]",
               isDark ? "border-b border-white/8" : "border-b border-slate-200 bg-slate-50/60",
             )}>
               {["TYPE", "RESEARCH QUESTION", "ROLE"].map((h) => (
-                <span key={h} className={cn("font-mono text-[9px] uppercase tracking-[0.18em]", isDark ? "text-white/35" : "text-slate-400")}>
+                <span key={h} className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em]", isDark ? "text-white/55" : "text-slate-500")}>
                   {h}
                 </span>
               ))}
@@ -2341,39 +2436,33 @@ function BlockRenderer({
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
                 className={cn(
-                  "grid gap-x-5 items-start px-5 py-4",
-                  "grid-cols-[100px_1fr_110px]",
+                  "grid gap-y-2.5 sm:gap-x-5 items-start px-5 py-4",
+                  "grid-cols-1 sm:grid-cols-[100px_1fr_110px]",
                   i < block.rows.length - 1 ? (isDark ? "border-b border-white/[0.07]" : "border-b border-slate-100") : "",
                 )}
               >
-                <div className="pt-0.5">
+                <div className="flex items-center gap-3 sm:block sm:pt-0.5">
                   <span
-                    className="font-mono text-[9px] uppercase tracking-[0.1em] px-2 py-[3px] rounded"
-                    style={
-                      row.questionType === "GENERATIVE"
-                        ? {
-                            background: isDark ? "rgba(210,150,50,0.15)" : "rgba(200,140,40,0.11)",
-                            color: isDark ? "rgba(230,185,100,0.92)" : "#92650a",
-                          }
-                        : {
-                            background: isDark ? "rgba(80,120,210,0.18)" : "rgba(60,100,210,0.10)",
-                            color: isDark ? "rgba(150,185,255,0.92)" : "#1d4ed8",
-                          }
-                    }
+                    className="font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.1em] px-2 py-[3px] rounded"
+                    style={(() => {
+                      const t = tone(row.questionType === "GENERATIVE" ? "generative" : "evaluative", isDark);
+                      return { background: t.bg, color: t.fg };
+                    })()}
                   >
                     {row.questionType}
+                  </span>
+                  <span className={cn("sm:hidden text-[0.8rem]", isDark ? "text-white/60" : "text-slate-500")}>
+                    {row.role}
                   </span>
                 </div>
                 <p className={cn("text-[0.875rem] leading-[1.65]", isDark ? "text-white/72" : "text-slate-700")}>
                   {row.question}
                 </p>
-                <span className={cn("text-[0.825rem] leading-[1.65]", isDark ? "text-white/42" : "text-slate-500")}>
+                <span className={cn("hidden sm:block text-[0.825rem] leading-[1.65]", isDark ? "text-white/42" : "text-slate-500")}>
                   {row.role}
                 </span>
               </motion.div>
             ))}
-            </div>
-            </div>
           </div>
         </motion.div>
       );
@@ -2399,14 +2488,12 @@ function BlockRenderer({
             SUCCESS METRICS
           </motion.p>
           <div className={cn("rounded-xl border overflow-hidden", isDark ? "border-white/8" : "border-slate-200")}>
-            <div className="overflow-x-auto">
-            <div style={{ minWidth: "460px" }}>
             <div className={cn(
-              "grid grid-cols-4 gap-x-4 px-5 py-3",
+              "hidden sm:grid grid-cols-4 gap-x-4 px-5 py-3",
               isDark ? "border-b border-white/8" : "border-b border-slate-200 bg-slate-50/60",
             )}>
               {["METRIC", "BASELINE", "TARGET", "OUTCOME"].map((h) => (
-                <span key={h} className={cn("font-mono text-[9px] uppercase tracking-[0.18em]", isDark ? "text-white/35" : "text-slate-400")}>
+                <span key={h} className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em]", isDark ? "text-white/55" : "text-slate-500")}>
                   {h}
                 </span>
               ))}
@@ -2419,29 +2506,29 @@ function BlockRenderer({
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.4, delay: i * 0.09 }}
                 className={cn(
-                  "grid grid-cols-4 gap-x-4 items-center px-5 py-5",
+                  "grid grid-cols-3 sm:grid-cols-4 gap-x-4 gap-y-3 items-start sm:items-center px-5 py-5",
                   i < block.rows.length - 1 ? (isDark ? "border-b border-white/[0.07]" : "border-b border-slate-100") : "",
                 )}
               >
-                <span className={cn("text-[0.875rem] font-semibold", isDark ? "text-white/85" : "text-slate-800")}>
+                <span className={cn("col-span-3 sm:col-span-1 text-[0.875rem] font-semibold", isDark ? "text-white/85" : "text-slate-800")}>
                   {row.metric}
                 </span>
-                <span className={cn("text-[0.875rem]", isDark ? "text-white/40" : "text-slate-500")}>
-                  {row.baseline}
-                </span>
-                <span className="text-[0.875rem]" style={{ color: textAccent }}>
-                  {row.target}
-                </span>
-                <span
-                  className="text-[0.875rem] font-semibold"
-                  style={{ color: isDark ? "#4ade80" : "#16a34a" }}
-                >
-                  {row.outcome}
-                </span>
+                {([
+                  { label: "Baseline", value: row.baseline, className: isDark ? "text-white/40" : "text-slate-500", style: undefined },
+                  { label: "Target", value: row.target, className: "", style: { color: textAccent } },
+                  { label: "Outcome", value: row.outcome, className: "font-semibold", style: { color: tone("positive", isDark).fg } },
+                ]).map((cell) => (
+                  <div key={cell.label} className="min-w-0">
+                    <span className={cn("sm:hidden block font-mono text-[10px] uppercase tracking-[0.14em] mb-1", isDark ? "text-white/50" : "text-slate-500")}>
+                      {cell.label}
+                    </span>
+                    <span className={cn("text-[0.875rem]", cell.className)} style={cell.style}>
+                      {cell.value}
+                    </span>
+                  </div>
+                ))}
               </motion.div>
             ))}
-            </div>
-            </div>
           </div>
         </motion.div>
       );
@@ -2521,22 +2608,21 @@ function BlockRenderer({
                   style={{
                     background: isSelected
                       ? isDark ? `${accentColor}14` : `${accentColor}0d`
-                      : isDark ? "rgba(239,68,68,0.06)" : "rgba(220,38,38,0.04)",
+                      : tone("negative", isDark).surface,
                   }}
                 >
                   <div>
                     <span
-                      className="font-mono text-[9px] uppercase tracking-[0.12em] px-2.5 py-[3px] rounded"
+                      className="inline-flex items-center gap-1.5 font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.12em] px-2.5 py-[3px] rounded"
                       style={{
-                        background: isSelected
-                          ? isDark ? "rgba(74,222,128,0.14)" : "rgba(22,163,74,0.10)"
-                          : isDark ? "rgba(248,113,113,0.14)" : "rgba(220,38,38,0.09)",
-                        color: isSelected
-                          ? isDark ? "#4ade80" : "#16a34a"
-                          : isDark ? "rgba(252,165,165,0.92)" : "#dc2626",
+                        background: tone(isSelected ? "positive" : "negative", isDark).bg,
+                        color: tone(isSelected ? "positive" : "negative", isDark).fg,
                       }}
                     >
-                      {isSelected ? "✓  Selected" : "✗  Rejected"}
+                      {isSelected
+                        ? <Check className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />
+                        : <X className="h-3 w-3" strokeWidth={2.5} aria-hidden="true" />}
+                      {isSelected ? "Selected" : "Rejected"}
                     </span>
                   </div>
                   <p
@@ -2598,7 +2684,7 @@ function SectionContent({
         {/* Full-width hairline separator */}
         <div className={cn("h-px w-full mb-10", isDark ? "bg-white/10" : "bg-slate-200")} />
         {/* Appendix overline label */}
-        <p className="font-mono text-[9px] uppercase tracking-[0.32em] mb-3"
+        <p className="font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.32em] mb-3"
           style={{ color: isDark ? getLightAccent(accentColor) : accentColor }}>
           A note on scope
         </p>
@@ -2693,7 +2779,7 @@ function SidebarTOC({
         )}>
         <span className={cn("h-1 w-1 rounded-full shrink-0 transition-all duration-200", isActive ? "scale-125" : "scale-75 opacity-50")}
           style={{ backgroundColor: isActive ? (isDark ? "#3B6FD4" : accentColor) : "currentColor" }} />
-        <span className={cn("font-mono text-[9px] shrink-0", isDark ? "text-white/60" : "text-slate-500")}>{section.number}</span>
+        <span className={cn("font-mono text-[10px] sm:text-[9px] shrink-0", isDark ? "text-white/60" : "text-slate-500")}>{section.number}</span>
         <span className={isActive ? "font-medium" : ""}>{section.shortTitle}</span>
       </button>
     );
@@ -2701,7 +2787,7 @@ function SidebarTOC({
 
   return (
     <aside className="sticky top-20 h-fit w-52 shrink-0 py-2 hidden lg:flex flex-col gap-0.5 overflow-y-auto max-h-[calc(100vh-6rem)]">
-      <p className={cn("font-mono text-[9px] uppercase tracking-[0.25em] px-3 mb-2", isDark ? "text-white/65" : "text-slate-600")}>
+      <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.25em] px-3 mb-2", isDark ? "text-white/65" : "text-slate-600")}>
         Contents
       </p>
 
@@ -2770,15 +2856,19 @@ function MobileSectionPills({
   return (
     <div className={cn("lg:hidden sticky top-14 z-20 border-b overflow-x-auto",
       isDark ? "bg-[#1a1a2e]/90 border-white/8 backdrop-blur-md" : "bg-white/85 border-blue-100 backdrop-blur-md")}>
-      <div className="flex items-center gap-1 px-4 py-2 min-w-max">
+      <div className="flex items-center gap-0.5 px-3.5 py-0.5 min-w-max">
         {sections.filter(s => !s.isAppendix).map((section) => {
           const isActive = activeSection === section.id;
           return (
             <button key={section.id} type="button" onClick={() => onSectionClick(section.id)}
-              className={cn("px-3 py-1.5 rounded-full text-[11px] transition-all duration-200 whitespace-nowrap",
-                isActive ? "text-white font-medium" : isDark ? "text-white/65 hover:text-white/85" : "text-slate-500 hover:text-slate-800")}
-              style={isActive ? { backgroundColor: isDark ? "#3B6FD4" : accentColor } : undefined}>
-              {section.shortTitle}
+              aria-current={isActive ? "true" : undefined}
+              className="group/pill flex min-h-11 items-center px-0.5">
+              <span
+                className={cn("px-3 py-1.5 rounded-full text-[11px] transition-all duration-200 whitespace-nowrap",
+                  isActive ? "text-white font-medium" : isDark ? "text-white/65 group-hover/pill:text-white/85" : "text-slate-500 group-hover/pill:text-slate-800")}
+                style={isActive ? { backgroundColor: isDark ? "#3B6FD4" : accentColor } : undefined}>
+                {section.shortTitle}
+              </span>
             </button>
           );
         })}
@@ -2857,18 +2947,18 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
         isDark ? "bg-[#1a1a2e]/80 backdrop-blur-md border-white/8" : "bg-white/70 backdrop-blur-md border-blue-100",
       )}>
         <button type="button" onClick={onClose}
-          className={cn("flex items-center gap-2 text-[0.8rem] transition-all duration-200 group",
+          className={cn("-ml-2 flex min-h-11 items-center gap-2 px-2 text-[0.8rem] transition-all duration-200 group",
             isDark ? "text-white/72 hover:text-white/95" : "text-slate-600 hover:text-slate-900")}>
           <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
           <span>Back to Work</span>
         </button>
 
         <div className="flex items-center gap-2">
-          <span className={cn("font-mono text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/60" : "text-slate-500")}>
+          <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/60" : "text-slate-500")}>
             Case Study
           </span>
           <span className={cn("h-3 w-px", isDark ? "bg-white/15" : "bg-blue-200")} />
-          <span className={cn("font-mono text-[9px] uppercase tracking-[0.15em] font-medium", isDark ? "text-white/60" : "text-blue-700")}>
+          <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.15em] font-medium", isDark ? "text-white/60" : "text-blue-700")}>
             {study.slug.toUpperCase()}
           </span>
         </div>
@@ -2925,7 +3015,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
 
               {/* Platform demo video */}
               {study.demoVideo && (
-                <CaseStudyVideo src={study.demoVideo} isDark={isDark} />
+                <CaseStudyVideo src={study.demoVideo} poster={study.demoPoster} isDark={isDark} />
               )}
 
               {/* Metadata grid */}
@@ -2938,7 +3028,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
                   { label: "Deliverable", value: study.deliverable },
                 ].map((meta) => (
                   <div key={meta.label}>
-                    <p className={cn("font-mono text-[9px] uppercase tracking-[0.2em] mb-1", isDark ? "text-white/30" : "text-blue-400")}>
+                    <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em] mb-1", isDark ? "text-white/55" : "text-blue-600")}>
                       {meta.label}
                     </p>
                     <p className={cn("text-[0.8rem] leading-[1.4]", isDark ? "text-white/75" : "text-slate-800")}>
@@ -2959,7 +3049,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
                       <p className="font-['Caveat'] text-3xl font-medium" style={{ color: accentColor }}>
                         {stat.value}
                       </p>
-                      <p className={cn("font-mono text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/65" : "text-slate-600")}>
+                      <p className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.18em] mt-1", isDark ? "text-white/65" : "text-slate-600")}>
                         {stat.label}
                       </p>
                     </div>
@@ -2969,7 +3059,7 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
 
               {/* Cover image */}
               <div className={cn("w-full rounded-2xl overflow-hidden border", isDark ? "border-white/8" : "border-blue-100/80")}>
-                <img src={study.coverImage} alt={`${study.title} cover`} className="w-full object-cover" />
+                <img src={study.coverImage} alt={`${study.title} cover`} fetchPriority="high" decoding="async" className="w-full object-cover" />
               </div>
             </motion.div>
 
@@ -2994,13 +3084,13 @@ export function CaseStudyView({ slug, isDark, onClose }: CaseStudyViewProps) {
               className={cn("flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t",
                 isDark ? "border-white/8" : "border-blue-100")}>
               <button type="button" onClick={onClose}
-                className={cn("flex items-center gap-2 text-[0.825rem] transition-all duration-200 group",
+                className={cn("flex min-h-11 items-center gap-2 px-2 text-[0.825rem] transition-all duration-200 group",
                   isDark ? "text-white/72 hover:text-white/95" : "text-slate-600 hover:text-slate-900")}>
                 <ArrowLeft className="w-3.5 h-3.5 transition-transform duration-200 group-hover:-translate-x-0.5" />
                 Back to Work
               </button>
               <a href={study.behanceUrl} target="_blank" rel="noopener noreferrer"
-                className={cn("flex items-center gap-2 text-[0.825rem] transition-all duration-200 group",
+                className={cn("flex min-h-11 items-center gap-2 px-2 text-[0.825rem] transition-all duration-200 group",
                   isDark ? "text-white/72 hover:text-white/95" : "text-slate-600 hover:text-blue-700")}>
                 View full project on Behance
                 <ExternalLink className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

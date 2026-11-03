@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const ANIM_DURATION = 6.5;   // seconds per star
@@ -98,30 +98,58 @@ function ShootingStarController({ isDark }: { isDark: boolean }) {
 }
 
 // ── Static background stars ───────────────────────────────────────────────────
-// 120 stars in the top half (0–50%), 50 in the bottom half (50–100%)
+// 200 uniform + 80 extra in the top half + 30 extra in top-right grid area
 const bgStars = [
-  ...Array.from({ length: 120 }, (_, i) => ({
+  ...Array.from({ length: 200 }, (_, i) => ({
     id:       i,
     size:     Math.random() * 2 + 1,
     x:        Math.random() * 100,
-    y:        Math.random() * 50,          // top half
+    y:        Math.random() * 100,
     opacity:  Math.random() * 0.7 + 0.3,
     duration: Math.random() * 3 + 2,
   })),
-  ...Array.from({ length: 50 }, (_, i) => ({
-    id:       120 + i,
-    size:     Math.random() * 2 + 1,
+  ...Array.from({ length: 80 }, (_, i) => ({
+    id:       200 + i,
+    size:     Math.random() * 1.5 + 0.5,
     x:        Math.random() * 100,
-    y:        50 + Math.random() * 50,     // bottom half
-    opacity:  Math.random() * 0.7 + 0.3,
+    y:        Math.random() * 50,          // extra density in top half
+    opacity:  Math.random() * 0.5 + 0.2,
+    duration: Math.random() * 3 + 2,
+  })),
+  ...Array.from({ length: 30 }, (_, i) => ({
+    id:       280 + i,
+    size:     Math.random() * 1.8 + 0.6,
+    x:        58 + Math.random() * 42,     // top-right grid area (58–100%)
+    y:        Math.random() * 30,          // top 30% of viewport
+    opacity:  Math.random() * 0.6 + 0.25,
+    duration: Math.random() * 3 + 2,
+  })),
+  // 15 extra — top-left zone (0–35%)
+  ...Array.from({ length: 15 }, (_, i) => ({
+    id:       310 + i,
+    size:     Math.random() * 2 + 0.8,
+    x:        Math.random() * 35,
+    y:        Math.random() * 22,
+    opacity:  Math.random() * 0.55 + 0.35,
+    duration: Math.random() * 3 + 2,
+  })),
+  // 15 extra — top-middle zone (28–68%)
+  ...Array.from({ length: 15 }, (_, i) => ({
+    id:       325 + i,
+    size:     Math.random() * 2 + 0.8,
+    x:        28 + Math.random() * 40,
+    y:        Math.random() * 22,
+    opacity:  Math.random() * 0.55 + 0.35,
     duration: Math.random() * 3 + 2,
   })),
 ];
+
 
 // ── StarField ─────────────────────────────────────────────────────────────────
 type StarFieldProps = { isDark: boolean };
 
 export function StarField({ isDark }: StarFieldProps) {
+  const reduceMotion = useReducedMotion();
   return (
     <div className="absolute inset-0 overflow-hidden">
       {bgStars.map((s) => (
@@ -136,11 +164,11 @@ export function StarField({ isDark }: StarFieldProps) {
             opacity:    s.opacity,
             background: isDark ? "white" : "rgba(51,65,85,0.75)",
           }}
-          animate={{ opacity: [s.opacity, s.opacity * 0.3, s.opacity] }}
+          animate={reduceMotion ? undefined : { opacity: [s.opacity, s.opacity * 0.3, s.opacity] }}
           transition={{ duration: s.duration, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
         />
       ))}
-      <ShootingStarController isDark={isDark} />
+      {!reduceMotion && <ShootingStarController isDark={isDark} />}
     </div>
   );
 }

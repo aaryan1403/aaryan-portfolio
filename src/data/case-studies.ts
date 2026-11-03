@@ -1,5 +1,6 @@
 import xarissDashboard from "@/assets/projects/Shots XARISS.jpeg";
-import cpiRecording from "@/assets/projects/CPI Recording.mov";
+import cpiRecording from "@/assets/video/cpi-recording.mp4";
+import cpiRecordingPoster from "@/assets/video/cpi-recording-poster.jpg";
 import cpiCover from "@/assets/projects/Shots CPI.png";
 import yifCover from "@/assets/projects/Shots Member Login.jpeg";
 import doubleDiamond from "@/assets/projects/Double Diamond Process Nessler 2018.jpg";
@@ -234,6 +235,7 @@ export type CaseStudyData = {
   subtitle: string;
   coverImage: string;
   demoVideo?: string;
+  demoPoster?: string;
   accentColor: string;
   accentColorDark: string;
   role: string;
@@ -253,7 +255,8 @@ const xarissCaseStudy: CaseStudyData = {
   subtitle:
     "Designing an enterprise analytics and operations platform for luxury brand partnerships. From a blank brief to a full 7-screen high-fidelity prototype.",
   coverImage: xarissDashboard,
-  demoVideo: "/xariss-demo.mov",
+  demoVideo: "/xariss-demo.mp4",
+  demoPoster: "/xariss-demo-poster.jpg",
   accentColor: "#1a2744",
   accentColorDark: "#3B6FD4",
   role: "UX Designer (Solo)",
@@ -793,6 +796,7 @@ const paceyourselfCaseStudy: CaseStudyData = {
     "A Mobile App for People Living with Chronic Pain to manage and understand their daily lives better.",
   coverImage: cpiCover,
   demoVideo: cpiRecording,
+  demoPoster: cpiRecordingPoster,
   accentColor: "#5B3A8C",
   accentColorDark: "#9B72CF",
   role: "UX/UI Designer (Solo)",
