@@ -36,6 +36,8 @@ type ActionButtonProps = {
   label: string;
   onClick: () => void;
   isDark: boolean;
+  // Keeps the hover fill on permanently so visitors can tell which page they're on.
+  isCurrent?: boolean;
 };
 
 type LinkActionButtonProps = {
@@ -79,6 +81,7 @@ function ActionButton({
   label,
   onClick,
   isDark,
+  isCurrent = false,
 }: ActionButtonProps) {
   return (
     <div className="group relative flex items-center justify-center">
@@ -98,8 +101,10 @@ function ActionButton({
           isDark
             ? "text-white/78 hover:bg-white/14 focus-visible:ring-white/35"
             : "text-slate-700 hover:bg-slate-900/8 focus-visible:ring-slate-900/18",
+          isCurrent && (isDark ? "bg-white/14 text-white" : "bg-slate-900/8 text-slate-900"),
         )}
         aria-label={label}
+        aria-current={isCurrent ? "page" : undefined}
       >
         <Icon className="h-4.5 w-4.5" />
       </button>
@@ -160,6 +165,7 @@ export function NavigationBar({
             label="Home"
             onClick={onGoHome}
             isDark={isDark}
+            isCurrent={currentView === "home"}
           />
           {currentView !== "about" && currentView !== "casestudy" && (
             <div className="hidden lg:contents">
@@ -177,11 +183,12 @@ export function NavigationBar({
             onClick={onCopyEmail}
             isDark={isDark}
           />
-          <LinkActionButton
-            icon={<LinkedinIcon className="h-4.5 w-4.5" />}
-            label="LinkedIn"
-            href={LINKEDIN_URL}
+          <ActionButton
+            icon={UserRound}
+            label="About me"
+            onClick={onOpenAbout}
             isDark={isDark}
+            isCurrent={currentView === "about"}
           />
           <div
             className={cn(
@@ -190,10 +197,10 @@ export function NavigationBar({
             )}
             aria-hidden="true"
           />
-          <ActionButton
-            icon={UserRound}
-            label={currentView === "about" ? "About page" : currentView === "casestudy" ? "Open about" : "Open about"}
-            onClick={onOpenAbout}
+          <LinkActionButton
+            icon={<LinkedinIcon className="h-4.5 w-4.5" />}
+            label="LinkedIn"
+            href={LINKEDIN_URL}
             isDark={isDark}
           />
         </div>
