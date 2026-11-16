@@ -370,7 +370,7 @@ export function AboutView({ isDark }: AboutViewProps) {
               </p>
               <div className={cn("mt-6 space-y-5 text-[1.05rem] leading-[1.7]", bodyText)}>
                 <p>
-                  I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. <strong className={isDark ? "text-white" : "text-slate-900"}>With 2+ years of experience,</strong> I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
+                  I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. <strong className={isDark ? "text-white" : "text-slate-900"}>With three years of experience,</strong> I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
                 </p>
                 <p>
                   I bloom in ambiguity where the path isn't obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.

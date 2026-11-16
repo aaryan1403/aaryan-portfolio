@@ -110,7 +110,7 @@ const scatterLayouts: Record<string, string>[][] = [
 ];
 
 const introDescription =
-  "Product Designer with **2+ years of experience**, currently at XARISS building a B2C **Luxury Ecommerce** platform and a B2B **CRM Webapp**.";
+  "**Three years of designing products. Now I build them too.** Product designer at XARISS, designing a **luxury concierge platform** and the **intelligence platform** behind it, and shipping the front end myself in code.";
 
 function renderBold(text: string) {
   const parts = text.split(/(\*\*.*?\*\*)/g);
