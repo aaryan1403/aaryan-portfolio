@@ -221,6 +221,7 @@ export function AboutView({ isDark }: AboutViewProps) {
   const [whoIAmIndex, setWhoIAmIndex] = useState(1);
 
   const bodyText = isDark ? "text-white/75" : "text-slate-700";
+  const emphasis = cn("font-semibold", isDark ? "text-white" : "text-slate-900");
   const sectionHeading = cn(
     "mb-8 font-['Caveat'] text-[2.1rem] leading-none",
     isDark ? "text-white/92" : "text-slate-900",
@@ -370,10 +371,10 @@ export function AboutView({ isDark }: AboutViewProps) {
               </p>
               <div className={cn("mt-6 space-y-5 text-[1.05rem] leading-[1.7]", bodyText)}>
                 <p>
-                  I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. <strong className={isDark ? "text-white" : "text-slate-900"}>With three years of experience,</strong> I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
+                  I’m a product designer based in Dublin, with <strong className={emphasis}>three years of experience</strong> across luxury, SaaS and data-heavy platforms. I’ve designed and shipped products end to end, taking ideas from a blank page to working software, from partner dashboards to mobile apps. At XARISS, a luxury concierge platform, I rebuilt a partner dashboard that <strong className={emphasis}>cut decision time from over 30 minutes to under 10</strong>, and I now <strong className={emphasis}>build the front end myself in code</strong>.
                 </p>
                 <p>
-                  I bloom in ambiguity where the path isn't obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.
+                  I do my <strong className={emphasis}>best work in ambiguity</strong>, where the path isn’t obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make and Antigravity to move faster, but the vision stays human, shaped by instinct, creativity and the courage to take risks.
                 </p>
               </div>
 
