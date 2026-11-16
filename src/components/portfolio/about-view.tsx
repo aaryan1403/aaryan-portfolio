@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Palette, Gamepad2, UtensilsCrossed, BookOpen, Database, FileDown, CalendarDays } from "lucide-react";
+import { Palette, Gamepad2, UtensilsCrossed, FileDown, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import aaryanPhoto from "@/assets/aaryan-photo.jpg";
 import aaryanMobilePhoto from "@/assets/projects/Aaryan_mobile_Image.jpeg";
@@ -12,24 +12,10 @@ import { GooeyText } from "@/components/ui/gooey-text-morphing";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type AboutViewProps = { isDark: boolean };
-type ExpType = "Work" | "Education";
 
-// ── Light-mode card gradients ─────────────────────────────────────────────────
-
-const LIGHT_GRAD = {
-  purple:
-    "radial-gradient(circle at 18% 12%, rgba(154,126,214,0.18), transparent 34%), linear-gradient(180deg,#f3efff 0%,#ebe3ff 50%,#f8f4ff 100%)",
-  blue:
-    "radial-gradient(circle at 82% 14%, rgba(55,132,255,0.22), transparent 36%), linear-gradient(180deg,#eaf5ff 0%,#d1e5ff 48%,#e6eeff 100%)",
-  orange:
-    "radial-gradient(circle at 82% 14%, rgba(255,118,72,0.16), transparent 32%), linear-gradient(180deg,#fff2ea 0%,#ffe4d9 48%,#fff6f0 100%)",
-  peach:
-    "radial-gradient(circle at 80% 18%, rgba(255,188,150,0.16), transparent 34%), linear-gradient(180deg,#fff7f1 0%,#f7e7dd 50%,#fff9f5 100%)",
-};
+type TimelineItem = { role: string; company: string; period: string; location: string };
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-
-const photos = [aaryanPhoto];
 
 // Inline SVG data-URIs for icons whose simpleicons CDN slugs are unreliable.
 // The Illustrator icon splits the background rect (fill=none) from the "Ai"
@@ -66,27 +52,16 @@ const tools = [
   { name: "Supabase",    iconUrl: "https://cdn.simpleicons.org/supabase/FFFFFF",  bg: "#3ECF8E" },
 ];
 
-const workItems: { role: string; company: string; period: string; location: string; type: ExpType }[] = [
-  { role: "Product Designer",           company: "XARISS Luxury",          period: "Jan 2025 – Present",   location: "Dublin", type: "Work" },
-  { role: "UI Designer",               company: "Cozmotec",               period: "Aug – Dec 2024",        location: "Dublin", type: "Work" },
-  { role: "UX Designer",               company: "Chronic Pain Ireland",   period: "May – Aug 2024",        location: "Dublin", type: "Work" },
-  { role: "UX/UI Designer",            company: "Youth India Foundation", period: "Mar – Jul 2022",        location: "Mumbai", type: "Work" },
+const workItems: TimelineItem[] = [
+  { role: "Product Designer", company: "XARISS Luxury",          period: "Jan 2025 – Present", location: "Dublin" },
+  { role: "UI Designer",      company: "Cozmotec",               period: "Aug – Dec 2024",     location: "Dublin" },
+  { role: "UX Designer",      company: "Chronic Pain Ireland",   period: "May – Aug 2024",     location: "Dublin" },
+  { role: "UX/UI Designer",   company: "Youth India Foundation", period: "Mar – Jul 2022",     location: "Mumbai" },
 ];
 
-const educationItems: { role: string; company: string; period: string; location: string; type: ExpType }[] = [
-  { role: "MSc Human-Computer Interaction", company: "University College Dublin", period: "Sept 2023 – Aug 2024", location: "Dublin", type: "Education" },
-  { role: "BE Computer Engineering",        company: "Mumbai University",         period: "Aug 2019 – May 2023",  location: "Mumbai", type: "Education" },
-];
-
-const aiItems = [
-  "Design Variants", "Prototyping",
-  "Research Synthesis", "Finding Dessert Recipes",
-];
-
-const brainItems = [
-  "Leveraging AI", "User Empathy",
-  "Creativity", "Problem Solving",
-  "Design Systems", "Making Dessert Recipes",
+const educationItems: TimelineItem[] = [
+  { role: "MSc Human-Computer Interaction", company: "University College Dublin", period: "Sept 2023 – Aug 2024", location: "Dublin" },
+  { role: "BE Computer Engineering",        company: "Mumbai University",         period: "Aug 2019 – May 2023",  location: "Mumbai" },
 ];
 
 // ── Inline SVGs for icons not in this lucide-react version ───────────────────
@@ -128,263 +103,17 @@ const whoIAmIcons = [
   { icon: UtensilsCrossed, color: "#fb923c" },
 ];
 
-const currentlyItems = [
-  {
-    category: "Playing",
-    value: "Crimson Desert",
-    hover: "An open-world action RPG. Just started.",
-    icon: Gamepad2,
-    accent: "#60a5fa",
-    bg: "radial-gradient(circle at 20% 20%, rgba(96,165,250,0.18), transparent 55%), linear-gradient(145deg,#eaf1ff 0%,#dce8ff 100%)",
-    bgDark: "rgba(96,165,250,0.07)",
-  },
-  {
-    category: "Reading",
-    value: "Sophie's World",
-    hover: "A novel that is also a history of philosophy.",
-    icon: BookOpen,
-    accent: "#34d399",
-    bg: "radial-gradient(circle at 20% 20%, rgba(52,211,153,0.16), transparent 55%), linear-gradient(145deg,#eafff6 0%,#d1fae5 100%)",
-    bgDark: "rgba(52,211,153,0.07)",
-  },
-  {
-    category: "Learning",
-    value: "Backend\nMySQL · MongoDB",
-    hover: "Building things end-to-end, finally.",
-    icon: Database,
-    accent: "#f472b6",
-    bg: "radial-gradient(circle at 20% 20%, rgba(244,114,182,0.16), transparent 55%), linear-gradient(145deg,#fff0f9 0%,#fce7f3 100%)",
-    bgDark: "rgba(244,114,182,0.07)",
-  },
-];
+// ── Motion ───────────────────────────────────────────────────────────────────
 
-// ── Entrance animation variants ───────────────────────────────────────────────
+const EASE_OUT: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const SPRING = { type: "spring" as const, stiffness: 260, damping: 28 };
-
-const colAVariants = {
-  hidden:  { opacity: 0, scale: 0.84, x: -28, y: 28 },
-  visible: { opacity: 1, scale: 1,    x: 0,   y: 0, transition: { ...SPRING, delay: 0.12 } },
+// Right-column sections rise in as they scroll into view.
+const sectionReveal = {
+  initial: { opacity: 0, y: 28 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 0.7, ease: EASE_OUT },
 };
-const colBVariants = {
-  hidden:  { opacity: 0, scale: 0.84, y: 36 },
-  visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...SPRING, delay: 0.21 } },
-};
-const colB2Variants = {
-  hidden:  { opacity: 0, scale: 0.88, y: 28 },
-  visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...SPRING, delay: 0.28 } },
-};
-const colB3Variants = {
-  hidden:  { opacity: 0, scale: 0.88, y: 28 },
-  visible: { opacity: 1, scale: 1,    y: 0,  transition: { ...SPRING, delay: 0.35 } },
-};
-const colCVariants = {
-  hidden:  { opacity: 0, scale: 0.84, x: 28, y: 28 },
-  visible: { opacity: 1, scale: 1,    x: 0,  y: 0,  transition: { ...SPRING, delay: 0.30 } },
-};
-const colC2Variants = {
-  hidden:  { opacity: 0, scale: 0.84, x: 28, y: 28 },
-  visible: { opacity: 1, scale: 1,    x: 0,  y: 0,  transition: { ...SPRING, delay: 0.42 } },
-};
-
-// Mobile stacks the cards, so each one reveals as it scrolls in rather than all at mount.
-const REVEAL_VIEWPORT = { once: true, amount: 0.15 };
-
-// Experience timeline stagger
-const expContainerVariants = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.085, delayChildren: 0.55 } },
-};
-const expEntryVariants = {
-  hidden:  { opacity: 0, y: -14 },
-  visible: { opacity: 1, y: 0,   transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } },
-};
-
-// ── GlassCard helper ──────────────────────────────────────────────────────────
-
-function GlassCard({
-  isDark,
-  className,
-  innerClassName,
-  lightGradient,
-  children,
-}: {
-  isDark: boolean;
-  className?: string;
-  innerClassName?: string;
-  lightGradient?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <LiquidGlassCard
-      draggable={false}
-      blurIntensity="xl"
-      shadowIntensity="sm"
-      glowIntensity={isDark ? "sm" : "xs"}
-      borderRadius="14px"
-      className={cn(
-        "overflow-hidden p-[1.5px] shadow-xl transition-colors",
-        isDark ? "bg-white/[0.045]" : "bg-white/55",
-        className,
-      )}
-    >
-      <div
-        className={cn(
-          "rounded-[12px] min-h-full",
-          isDark ? "border border-white/10 bg-black/20" : "border border-white/75",
-          innerClassName ?? "p-5",
-        )}
-        style={!isDark && lightGradient ? { backgroundImage: lightGradient } : undefined}
-      >
-        {children}
-      </div>
-    </LiquidGlassCard>
-  );
-}
-
-// ── Experience entry ──────────────────────────────────────────────────────────
-
-function ExpEntry({
-  isDark, role, company, period, location, type, isLast, isCurrent,
-}: {
-  isDark: boolean; role: string; company: string;
-  period: string; location: string; type: ExpType; isLast: boolean; isCurrent?: boolean;
-}) {
-  return (
-    <div className="relative pl-6">
-      {!isLast && (
-        <div className={cn(
-          "absolute bottom-0 left-[6px] top-[10px] w-px",
-          isDark ? "bg-white/10" : "bg-slate-200",
-        )} />
-      )}
-      {isCurrent ? (
-        <motion.div
-          className="absolute left-0 top-[7px] h-3 w-3 rounded-full"
-          style={{ background: isDark ? "#facc15" : "#f59e0b" }}
-          animate={{ opacity: [1, 0.4, 1], scale: [1, 1.25, 1] }}
-          transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-        />
-      ) : (
-        <div className={cn(
-          "absolute left-0 top-[7px] h-3 w-3 rounded-full border-2",
-          isDark ? "border-white/25 bg-[#252541]" : "border-slate-300 bg-white",
-        )} />
-      )}
-      <p className={cn("font-['Caveat'] text-[1.4rem] leading-tight", isDark ? "text-white/90" : "text-slate-900")}>
-        {role}
-      </p>
-      <p className={cn("mt-0.5 font-mono text-[12px] sm:text-[11px]", isDark ? "text-white/55" : "text-slate-500")}>
-        {company}
-      </p>
-      <div className="mt-0.5 flex items-center gap-2">
-        <p className={cn("font-mono text-[11px] sm:text-[10px]", isDark ? "text-white/55" : "text-slate-500")}>
-          {location} · {period}
-        </p>
-        <span className={cn(
-          "rounded-full px-1.5 py-0.5 font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.1em]",
-          type === "Education"
-            ? isDark ? "bg-purple-400/15 text-purple-300" : "bg-purple-50 text-purple-500"
-            : isDark ? "bg-blue-400/15 text-blue-300"   : "bg-blue-50 text-blue-500",
-        )}>
-          {type}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ── Currently card with project-card-style hover overlay ─────────────────────
-
-function CurrentlyCard({
-  isDark,
-  item,
-}: {
-  isDark: boolean;
-  item: typeof currentlyItems[number];
-}) {
-  const [hovered, setHovered] = useState(false);
-  const Icon = item.icon;
-
-  return (
-    <motion.div
-      className="flex-1 cursor-pointer"
-      whileHover={{ scale: 1.04, zIndex: 10 }}
-      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-    >
-      <LiquidGlassCard
-        draggable={false}
-        blurIntensity="xl"
-        shadowIntensity="sm"
-        glowIntensity={isDark ? "sm" : "xs"}
-        borderRadius="12px"
-        className={cn(
-          "relative h-full overflow-hidden p-[1.5px] shadow-xl transition-colors",
-          isDark ? "bg-white/[0.045]" : "bg-white/55",
-        )}
-      >
-        {/* Card body */}
-        <div
-          className={cn(
-            "flex h-full flex-col gap-1.5 rounded-[10px] p-4 sm:p-3",
-            isDark ? "border border-white/10" : "border border-white/75",
-          )}
-          style={isDark ? { backgroundColor: item.bgDark } : { backgroundImage: item.bg }}
-        >
-          <div className="flex items-center gap-2">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg"
-              style={{
-                backgroundColor: isDark ? `${item.accent}22` : `${item.accent}28`,
-                border: `1.5px solid ${item.accent}44`,
-              }}
-            >
-              <Icon className="h-4 w-4" style={{ color: item.accent }} />
-            </div>
-            <span className={cn("font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.2em]", isDark ? "text-white/55" : "text-slate-500")}>
-              {item.category}
-            </span>
-          </div>
-          <p className={cn("font-['Caveat'] text-[1.5rem] leading-tight sm:text-[1.25rem]", isDark ? "text-white/90" : "text-slate-900")}>
-            {item.value.split("\n").map((line, i, arr) => (
-              <span key={i}>
-                {line}
-                {i < arr.length - 1 && <br />}
-              </span>
-            ))}
-          </p>
-          {/* No hover on touch, so the overlay line is shown in place. */}
-          <p className={cn("text-[0.85rem] leading-[1.45] sm:hidden", isDark ? "text-white/65" : "text-slate-600")}>
-            {item.hover}
-          </p>
-        </div>
-
-        {/* Hover overlay — same pattern as ProjectCard */}
-        <motion.div
-          initial={false}
-          animate={{ opacity: hovered ? 1 : 0 }}
-          transition={{ duration: 0.2 }}
-          className={cn(
-            "pointer-events-none absolute inset-0 hidden flex-col items-center justify-center gap-1.5 rounded-[10px] px-3 backdrop-blur-sm sm:flex",
-            isDark ? "bg-black/50" : "bg-slate-900/35",
-          )}
-        >
-          <span
-            className="text-center font-['Caveat'] text-[1.15rem] leading-tight text-white"
-            style={{ textShadow: "0 1px 8px rgba(0,0,0,0.4)" }}
-          >
-            {item.hover}
-          </span>
-          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/55">
-            {item.category}
-          </span>
-        </motion.div>
-      </LiquidGlassCard>
-    </motion.div>
-  );
-}
 
 // ── Blinking kaomoji ──────────────────────────────────────────────────────────
 
@@ -412,7 +141,7 @@ function BlinkingKaomoji({ isDark }: { isDark: boolean }) {
   };
 
   return (
-    <span className={cn("font-['Caveat'] text-[1.35rem] sm:text-[1.1rem]", isDark ? "text-white/50" : "text-slate-500/80")}>
+    <span className={cn("font-['Caveat'] text-[1.25rem]", isDark ? "text-white/55" : "text-slate-500")}>
       {"(That's me "}
       <motion.span style={eyeStyle} animate={{ scaleY: blink ? 0.08 : 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}>◕</motion.span>
       ‿
@@ -422,28 +151,86 @@ function BlinkingKaomoji({ isDark }: { isDark: boolean }) {
   );
 }
 
+// ── Timeline ─────────────────────────────────────────────────────────────────
+
+function Timeline({ isDark, items }: { isDark: boolean; items: TimelineItem[] }) {
+  return (
+    <ol className="relative">
+      {/* The rail draws downward as the list scrolls in. */}
+      <motion.span
+        aria-hidden="true"
+        className={cn("absolute bottom-3 left-[5px] top-3 w-px origin-top", isDark ? "bg-white/15" : "bg-slate-300")}
+        initial={{ scaleY: 0 }}
+        whileInView={{ scaleY: 1 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.9, ease: EASE_OUT, delay: 0.15 }}
+      />
+      {items.map((item, i) => {
+        const isCurrent = item.period.includes("Present");
+        return (
+          <motion.li
+            key={item.company}
+            className="relative grid grid-cols-1 gap-x-6 pb-8 pl-8 last:pb-0 sm:grid-cols-[minmax(0,1fr)_auto]"
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.5, ease: EASE_OUT, delay: 0.1 + i * 0.07 }}
+          >
+            {isCurrent ? (
+              <motion.span
+                aria-hidden="true"
+                className="absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full"
+                style={{ background: isDark ? "#facc15" : "#f59e0b" }}
+                animate={{ opacity: [1, 0.45, 1], scale: [1, 1.25, 1] }}
+                transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "absolute left-0 top-[9px] h-[11px] w-[11px] rounded-full border-2",
+                  isDark ? "border-white/30 bg-[#252541]" : "border-slate-400 bg-white",
+                )}
+              />
+            )}
+            <div>
+              <p className={cn("font-['Caveat'] text-[1.6rem] leading-tight", isDark ? "text-white/92" : "text-slate-900")}>
+                {item.role}
+              </p>
+              <p className={cn("mt-0.5 text-[0.95rem]", isDark ? "text-white/70" : "text-slate-600")}>
+                {item.company}
+              </p>
+            </div>
+            <p className={cn(
+              "mt-1 font-mono text-[12px] tabular-nums sm:mt-2.5 sm:text-right",
+              isDark ? "text-white/55" : "text-slate-500",
+            )}>
+              {item.period}
+              <span className="block">{item.location}</span>
+            </p>
+          </motion.li>
+        );
+      })}
+    </ol>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function AboutView({ isDark }: AboutViewProps) {
-  const [photoIndex, setPhotoIndex] = useState(0);
   const [whoIAmIndex, setWhoIAmIndex] = useState(1);
 
-  const label = cn(
-    "block font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.28em] mb-2",
-    isDark ? "text-white/80" : "text-slate-500",
+  const bodyText = isDark ? "text-white/75" : "text-slate-700";
+  const sectionHeading = cn(
+    "mb-8 font-['Caveat'] text-[2.1rem] leading-none",
+    isDark ? "text-white/92" : "text-slate-900",
   );
-
-  const pill = cn(
-    "inline-flex items-center rounded-full border px-3 py-1.5 font-mono text-[12px] leading-none sm:px-2.5 sm:py-1 sm:text-[10px]",
-    isDark
-      ? "border-white/12 bg-white/[0.07] text-white/68"
-      : "border-slate-900/12 bg-white/72 text-slate-600",
-  );
+  const leadIn = cn("font-['Caveat'] text-[1.45rem] leading-snug", isDark ? "text-white" : "text-slate-900");
 
   return (
     <motion.div
       className={cn(
-        "fixed inset-0 z-20 flex flex-col overflow-y-auto [@media(max-height:650px)]:lg:overflow-y-auto",
+        "fixed inset-0 z-20 overflow-y-auto",
         isDark
           ? "bg-gradient-to-b from-[#1a1a2e] via-[#252541] to-[#2d2d4a]"
           : "bg-gradient-to-b from-[#edf4ff] via-[#e4ebff] to-[#f6f1ff]",
@@ -453,32 +240,8 @@ export function AboutView({ isDark }: AboutViewProps) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.22 }}
     >
-      {/* ── Marquee CSS ── */}
-      <style>{`
-        @keyframes about-marquee {
-          from { transform: translateX(0); }
-          to   { transform: translateX(-50%); }
-        }
-        .about-marquee-track {
-          animation: about-marquee 22s linear infinite;
-          will-change: transform;
-        }
-        .about-marquee-track:hover { animation-play-state: paused; }
-        @media (min-width: 1024px) {
-          .about-grid { grid-template-rows: minmax(0, 1fr) 158px 110px; }
-        }
-        @media (min-width: 1024px) and (max-height: 800px) {
-          .about-grid { grid-template-rows: minmax(0, 1fr) 130px 95px; }
-        }
-        @media (min-width: 1024px) and (max-height: 650px) {
-          .about-grid { grid-template-rows: auto auto 110px; }
-        }
-      `}</style>
-
-      {/* ── Background ── */}
+      {/* ── Background (fixed so it stays put while the story scrolls) ── */}
       <div className={cn(
-        // Fixed, not absolute: on the scrolling mobile layout an absolute layer is only one
-        // screen tall, so the teal horizon ended up as a band across the middle of the page.
         "pointer-events-none fixed inset-0 z-0",
         isDark
           ? "bg-gradient-to-b from-[#1a1a2e] via-[#252541] to-[#2d2d4a]"
@@ -486,246 +249,174 @@ export function AboutView({ isDark }: AboutViewProps) {
       )}>
         <GridBackground isDark={isDark} />
         <StarField isDark={isDark} />
-        <div className={cn(
-          "absolute inset-0",
-          isDark
-            ? "bg-gradient-to-b from-transparent via-transparent to-[#1a1a2e]/50"
-            : "bg-gradient-to-b from-white/0 via-white/0 to-white/25",
-        )} />
-        {/* Teal bottom gradient — matches home page */}
         <div
-          className="pointer-events-none absolute inset-0"
+          className="absolute inset-0"
           style={isDark ? {
-            background: "linear-gradient(to bottom, transparent 0%, transparent 91%, rgba(14, 130, 118, 0.28) 96%, rgba(16, 148, 132, 0.45) 100%)"
+            background: "linear-gradient(to bottom, transparent 0%, transparent 91%, rgba(14, 130, 118, 0.28) 96%, rgba(16, 148, 132, 0.45) 100%)",
           } : {
-            background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 100%)"
+            background: "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 100%)",
           }}
         />
       </div>
 
-      {/* ── Layout ── */}
-      <div className="relative z-10 flex flex-col px-6 pb-36 pt-5 sm:px-8 sm:pb-24 lg:h-full lg:overflow-hidden lg:pb-[82px] lg:pl-12 lg:pr-8 lg:pt-5 [@media(max-height:650px)]:lg:h-auto [@media(max-height:650px)]:lg:min-h-full [@media(max-height:650px)]:lg:overflow-visible">
+      <div className="relative z-10 mx-auto grid w-full max-w-[84rem] grid-cols-1 lg:grid-cols-[minmax(0,30%)_minmax(0,1fr)]">
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6 mt-6 flex-shrink-0 sm:mb-2.5 sm:mt-0"
+        {/* ══ Profile · sticky on desktop ══ */}
+        <motion.aside
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: EASE_OUT }}
+          className="flex flex-col px-6 pt-10 sm:px-10 lg:sticky lg:top-0 lg:h-dvh lg:self-start lg:pb-24 lg:pl-12 lg:pr-4 lg:pt-6"
         >
-          <p className={cn("mb-0.5 hidden font-mono text-[9px] uppercase tracking-[0.28em] sm:block", isDark ? "text-white/55" : "text-slate-500")}>
-            About
-          </p>
-          <h1 className={cn("font-['Caveat'] text-[2.75rem] leading-[0.95] sm:text-[2rem] sm:leading-[0.92]", isDark ? "text-white/92" : "text-slate-900")}>
-            Aaryan Shrivastava{" "}
-            <br className="sm:hidden" />
-            <BlinkingKaomoji isDark={isDark} />
-          </h1>
-        </motion.div>
-
-        {/* 3-column × 3-row grid — explicit placement for precise cross-column alignment */}
-        <div className="about-grid grid grid-cols-1 gap-4 lg:flex-1 lg:min-h-0 lg:gap-2.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1.5fr)_minmax(0,1.2fr)] [@media(max-height:650px)]:lg:flex-none">
-
-          {/* ══ Col A · Photo — spans all 3 rows ══ */}
-          <motion.div
-            variants={colAVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-            className="aspect-[4/5] sm:aspect-auto sm:h-[300px] lg:col-start-1 lg:row-start-1 lg:row-span-3 lg:h-auto lg:min-h-0"
+          <LiquidGlassCard
+            draggable={false}
+            blurIntensity="xl"
+            shadowIntensity="sm"
+            glowIntensity={isDark ? "sm" : "xs"}
+            borderRadius="16px"
+            className={cn(
+              "aspect-[4/5] overflow-hidden p-[5px] shadow-xl sm:aspect-[4/3] lg:aspect-auto lg:min-h-0 lg:flex-1",
+              isDark ? "bg-white/[0.06]" : "bg-white/55",
+            )}
           >
-            <GlassCard isDark={isDark} className="h-full" innerClassName="p-2 h-full">
-              <div className="relative h-full overflow-hidden rounded-[10px]">
-                <picture>
-                  <source media="(min-width: 1024px)" srcSet={photos[photoIndex]} />
-                  <img src={aaryanMobilePhoto} alt="Aaryan Shrivastava" className="h-full w-full object-cover object-center lg:object-[center_80%]" />
-                </picture>
-                {photos.length > 1 && (
-                  <>
-                    <div className="absolute inset-x-0 bottom-3 flex justify-center gap-2">
-                      {photos.map((_, i) => (
-                        <button key={i} type="button" onClick={() => setPhotoIndex(i)}
-                          aria-label={`Photo ${i + 1}`}
-                          className={cn("h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none",
-                            i === photoIndex ? "w-5 bg-white" : "w-1.5 bg-white/45")} />
-                      ))}
-                    </div>
-                    <button type="button" onClick={() => setPhotoIndex((photoIndex - 1 + photos.length) % photos.length)}
-                      aria-label="Previous photo"
-                      className="absolute left-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/50">
-                      <ChevronLeft className="h-3.5 w-3.5" />
-                    </button>
-                    <button type="button" onClick={() => setPhotoIndex((photoIndex + 1) % photos.length)}
-                      aria-label="Next photo"
-                      className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-black/30 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/50">
-                      <ChevronRight className="h-3.5 w-3.5" />
-                    </button>
-                  </>
-                )}
-              </div>
-            </GlassCard>
-          </motion.div>
-
-          {/* ══ Col B Row 1 · Bio ══ */}
-          <motion.div
-            variants={colBVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-            className="lg:col-start-2 lg:row-start-1 lg:min-h-0"
-          >
-            <GlassCard
-              isDark={isDark}
-              className="h-full lg:overflow-hidden [@media(max-height:650px)]:lg:h-auto [@media(max-height:650px)]:lg:overflow-visible"
-              innerClassName="flex h-full flex-col justify-between gap-3 p-5 pb-7 lg:overflow-y-auto [@media(max-height:650px)]:h-auto [@media(max-height:650px)]:gap-2.5 [@media(max-height:650px)]:overflow-visible [@media(max-height:650px)]:p-4"
-              lightGradient={LIGHT_GRAD.purple}
+            {/* The portrait opens from the bottom up: the one authored entrance on this page. */}
+            <motion.div
+              className="relative h-full overflow-hidden rounded-[12px]"
+              initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
+              animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+              transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.15 }}
             >
-              <div className="flex flex-col">
-                <span className={label}>Who I am</span>
-                <div className="mb-3 flex items-center gap-3 [@media(max-height:650px)]:mb-2.5">
-                  <div className="relative h-10 w-10 flex-shrink-0 sm:h-14 sm:w-14 [@media(max-height:650px)]:h-9 [@media(max-height:650px)]:w-9 [@media(max-height:650px)]:sm:h-12 [@media(max-height:650px)]:sm:w-12">
-                    <AnimatePresence mode="wait">
-                      {whoIAmIcons.map((item, i) =>
-                        i === whoIAmIndex % whoIAmIcons.length ? (
-                          <motion.div key={i}
-                            initial={{ opacity: 0, scale: 0.6, rotate: -12 }}
-                            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                            exit={{ opacity: 0, scale: 0.6, rotate: 12 }}
-                            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="absolute inset-0 flex items-center justify-center rounded-xl"
-                            style={{ backgroundColor: isDark ? `${item.color}22` : `${item.color}28`, border: `1.5px solid ${item.color}44` }}>
-                            <item.icon className="h-7 w-7" style={{ color: item.color }} />
-                          </motion.div>
-                        ) : null
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  <GooeyText
-                    texts={whoIAmTexts} morphTime={1.1} cooldownTime={2.2} onIndexChange={setWhoIAmIndex}
-                    className="h-10 flex-1 sm:h-14 [@media(max-height:650px)]:h-9 [@media(max-height:650px)]:sm:h-12"
-                    textClassName={cn(
-                      "font-['Caveat'] text-[2rem] leading-none sm:text-[2.8rem] [@media(max-height:650px)]:text-[1.8rem] [@media(max-height:650px)]:sm:text-[2.35rem]",
-                      isDark ? "text-white/92" : "text-slate-900",
-                    )}
-                  />
-                </div>
-                <div
-                  className={cn(
-                    "space-y-3 text-[0.95rem] leading-[1.6] sm:space-y-2.5 sm:text-[0.74rem] [@media(max-height:650px)]:space-y-2 [@media(max-height:650px)]:text-[0.71rem] [@media(max-height:650px)]:leading-[1.5]",
-                    isDark ? "text-white/68" : "text-slate-600",
-                  )}
+              <picture>
+                <source media="(min-width: 1024px)" srcSet={aaryanPhoto} />
+                <motion.img
+                  src={aaryanMobilePhoto}
+                  alt="Aaryan Shrivastava"
+                  className="h-full w-full object-cover object-center lg:object-[center_80%]"
+                  initial={{ scale: 1.12 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 1.6, ease: EASE_OUT, delay: 0.15 }}
+                />
+              </picture>
+            </motion.div>
+          </LiquidGlassCard>
+
+          <h1 className={cn("mt-6 font-['Caveat'] text-[2.75rem] leading-[0.95] lg:text-[2.4rem]", isDark ? "text-white/92" : "text-slate-900")}>
+            Aaryan Shrivastava
+          </h1>
+          <BlinkingKaomoji isDark={isDark} />
+
+          <div className="mt-4 flex items-center gap-3">
+            <div className="relative h-11 w-11 flex-shrink-0">
+              <AnimatePresence mode="wait">
+                {whoIAmIcons.map((item, i) =>
+                  i === whoIAmIndex % whoIAmIcons.length ? (
+                    <motion.div key={i}
+                      initial={{ opacity: 0, scale: 0.6, rotate: -12 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.6, rotate: 12 }}
+                      transition={{ duration: 0.4, ease: EASE_OUT }}
+                      className="absolute inset-0 flex items-center justify-center rounded-xl"
+                      style={{ backgroundColor: isDark ? `${item.color}22` : `${item.color}28`, border: `1.5px solid ${item.color}44` }}>
+                      <item.icon className="h-5 w-5" style={{ color: item.color }} />
+                    </motion.div>
+                  ) : null
+                )}
+              </AnimatePresence>
+            </div>
+            <GooeyText
+              texts={whoIAmTexts} morphTime={1.1} cooldownTime={2.2} onIndexChange={setWhoIAmIndex}
+              className="h-11 flex-1"
+              textClassName={cn(
+                // GooeyText centres by default; pin the words next to their icon.
+                "left-0 text-left font-['Caveat'] text-[2rem] leading-none",
+                isDark ? "text-white/92" : "text-slate-900",
+              )}
+            />
+          </div>
+
+          <nav aria-label="Get in touch" className="mt-6 grid grid-cols-2 gap-2">
+            {socialLinks.map(({ label: name, href, accent, icon: Icon }) => (
+              <a
+                key={name}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "group flex min-h-11 items-center gap-2.5 rounded-xl border px-2.5 py-1.5 backdrop-blur-md transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2",
+                  isDark
+                    ? "border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/[0.08] focus-visible:ring-white/40"
+                    : "border-slate-900/10 bg-white/55 hover:border-slate-900/20 hover:bg-white/80 focus-visible:ring-slate-900/25",
+                )}
+              >
+                <span
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110"
+                  style={{ backgroundColor: `${accent}22`, border: `1.5px solid ${accent}55` }}
                 >
-                  <p>
-                    <span className={cn("font-['Caveat'] text-[1.3rem] leading-snug sm:text-[1.05rem]", isDark ? "text-white" : "text-slate-800")}>Hey, it's lovely to have you here.</span>{" "}I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. <strong>With 2+ years of experience,</strong> I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
-                  </p>
-                  <p>
-                    I bloom in ambiguity where the path isn't obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.
-                  </p>
-                  <blockquote className={cn("border-l-2 pl-3 italic", isDark ? "border-white/20 text-white/40" : "border-slate-300 text-slate-400")}>
-                    <p>Imagination is more important than knowledge.</p>
-                    <p className="mt-0.5 not-italic text-[0.8rem] sm:text-[0.68rem]">— Albert Einstein</p>
-                  </blockquote>
-                </div>
-              </div>
-              <div className="flex-shrink-0">
-                <p className={cn("text-[0.95rem] leading-[1.6] sm:text-[0.74rem]", isDark ? "text-white/68" : "text-slate-600")}>
-                  <span className={cn("font-['Caveat'] text-[1.3rem] leading-snug sm:text-[1.05rem]", isDark ? "text-white" : "text-slate-800")}>Outside of work,</span>{" "}you will find me Playing an RPG, Going cafe hunting where I can read my book, Watching Football or making sweets from all around the globe.
+                  <Icon className="h-[15px] w-[15px]" style={{ color: accent }} />
+                </span>
+                <span className={cn("text-[0.85rem]", isDark ? "text-white/80" : "text-slate-700")}>{name}</span>
+              </a>
+            ))}
+          </nav>
+        </motion.aside>
+
+        {/* ══ Story · scrolls ══ */}
+        <main className="px-6 pb-36 pt-16 sm:px-10 lg:pb-40 lg:pl-16 lg:pr-12 lg:pt-24">
+          <div className="max-w-[40rem]">
+
+            <motion.section {...sectionReveal} transition={{ ...sectionReveal.transition, delay: 0.25 }} aria-label="About me">
+              <p className={cn("font-['Caveat'] text-[2.6rem] leading-[1.05] [text-wrap:balance] lg:text-[3.2rem]", isDark ? "text-white/95" : "text-slate-900")}>
+                Hey, it's lovely to have you here.
+              </p>
+              <div className={cn("mt-6 space-y-5 text-[1.05rem] leading-[1.7]", bodyText)}>
+                <p>
+                  I'm a Product Designer based in Dublin, working across eCommerce, SaaS, and data-heavy platforms. <strong className={isDark ? "text-white" : "text-slate-900"}>With 2+ years of experience,</strong> I've designed and shipped products end to end, taking ideas from 0 to 1 and turning them into experiences used across everything from dashboards to mobile.
+                </p>
+                <p>
+                  I bloom in ambiguity where the path isn't obvious and the best ideas come through iteration. I use tools like Claude Code, Figma Make, and Antigravity to move faster, but the fantasy stays human, shaped by instinct, creativity, and the courage to take risks.
                 </p>
               </div>
-            </GlassCard>
-          </motion.div>
 
-          {/* ══ Col C Rows 1–2 · Experience ══ */}
-          <motion.div
-            variants={colCVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-            className="flex flex-col lg:col-start-3 lg:row-start-1 lg:row-span-2 lg:min-h-0"
-          >
-            <GlassCard isDark={isDark} className="flex-1 min-h-0 overflow-hidden" innerClassName="p-5 flex flex-col h-full overflow-y-auto" lightGradient={LIGHT_GRAD.orange}>
-              <span className={label}>Experience</span>
-              <motion.div variants={expContainerVariants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT} className="flex flex-col gap-4 mb-5">
-                {workItems.map((item, i) => (
-                  <motion.div key={item.company} variants={expEntryVariants} className="flex">
-                    <ExpEntry isDark={isDark} {...item} isLast={i === workItems.length - 1} isCurrent={item.period.includes("Present")} />
-                  </motion.div>
+              <figure className="my-12">
+                <blockquote className={cn("font-['Caveat'] text-[2rem] leading-[1.15]", isDark ? "text-white/85" : "text-slate-800")}>
+                  “Imagination is more important than knowledge.”
+                </blockquote>
+                <figcaption className={cn("mt-2 font-mono text-[12px]", isDark ? "text-white/55" : "text-slate-500")}>
+                  Albert Einstein
+                </figcaption>
+              </figure>
+
+              <p className={cn("text-[1.05rem] leading-[1.7]", bodyText)}>
+                <span className={leadIn}>Outside of work,</span>{" "}you will find me Playing an RPG, Going cafe hunting where I can read my book, Watching Football or making sweets from all around the globe.
+              </p>
+            </motion.section>
+
+            <motion.section {...sectionReveal} className="mt-24" aria-labelledby="about-experience">
+              <h2 id="about-experience" className={sectionHeading}>Experience</h2>
+              <Timeline isDark={isDark} items={workItems} />
+            </motion.section>
+
+            <motion.section {...sectionReveal} className="mt-20" aria-labelledby="about-education">
+              <h2 id="about-education" className={sectionHeading}>Education</h2>
+              <Timeline isDark={isDark} items={educationItems} />
+            </motion.section>
+
+            <motion.section {...sectionReveal} className="mt-20" aria-labelledby="about-tools">
+              <h2 id="about-tools" className={sectionHeading}>Tools I work with</h2>
+              <ul className="flex flex-wrap gap-x-5 gap-y-4">
+                {tools.map((tool) => (
+                  <li key={tool.name} className="flex flex-col items-center gap-1.5">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl shadow-md" style={{ backgroundColor: tool.bg }}>
+                      <img src={tool.iconUrl} alt="" loading="lazy" decoding="async" className="h-5 w-5" />
+                    </span>
+                    <span className={cn("font-mono text-[11px]", isDark ? "text-white/60" : "text-slate-500")}>{tool.name}</span>
+                  </li>
                 ))}
-              </motion.div>
-              <span className={cn("mb-2 block font-mono text-[10px] sm:text-[9px] uppercase tracking-[0.28em]", isDark ? "text-white/55" : "text-slate-500")}>
-                Education
-              </span>
-              <motion.div
-                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.085, delayChildren: 0.85 } } }}
-                initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-                className="flex flex-col gap-4"
-              >
-                {educationItems.map((item, i) => (
-                  <motion.div key={item.company} variants={expEntryVariants}>
-                    <ExpEntry isDark={isDark} {...item} isLast={i === educationItems.length - 1} />
-                  </motion.div>
-                ))}
-              </motion.div>
-            </GlassCard>
-          </motion.div>
+              </ul>
+            </motion.section>
 
-          {/* ══ Col B Row 2 · AI / Brain ══ */}
-          <motion.div
-            variants={colB2Variants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-            className="flex flex-col gap-4 sm:flex-row sm:gap-3 lg:col-start-2 lg:row-start-2"
-          >
-            <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.peach}>
-              <span className={label}>What I leverage AI for</span>
-              <div className="flex flex-wrap gap-1.5">
-                {aiItems.map((item) => <span key={item} className={pill}>{item}</span>)}
-              </div>
-            </GlassCard>
-            <GlassCard isDark={isDark} className="flex-1" innerClassName="p-4" lightGradient={LIGHT_GRAD.purple}>
-              <span className={label}>What I use my Brain for</span>
-              <div className="flex flex-wrap gap-1.5">
-                {brainItems.map((item) => <span key={item} className={pill}>{item}</span>)}
-              </div>
-            </GlassCard>
-          </motion.div>
-
-          {/* ══ Col B Row 3 · Tool Stack / Get in Touch ══ */}
-          <motion.div
-            variants={colB3Variants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-            className="order-last flex flex-col gap-4 sm:flex-row sm:gap-3 lg:order-none lg:col-start-2 lg:row-start-3 lg:min-h-0"
-          >
-            <GlassCard isDark={isDark} className="flex-1 min-w-0 min-h-0" innerClassName="overflow-hidden px-4 py-4 sm:py-2.5" lightGradient={LIGHT_GRAD.blue}>
-              <span className={label}>Tool stack</span>
-              <div className="overflow-hidden">
-                <div className="about-marquee-track flex w-max items-end gap-4">
-                  {[...tools, ...tools].map((tool, i) => (
-                    <div key={i} className="flex flex-shrink-0 flex-col items-center gap-1">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-xl shadow-md" style={{ backgroundColor: tool.bg }}>
-                        <img src={tool.iconUrl} alt={tool.name} loading="lazy" decoding="async" className="h-[18px] w-[18px]" />
-                      </div>
-                      <span className={cn("font-mono text-[10px] sm:text-[9px]", isDark ? "text-white/55" : "text-slate-500")}>{tool.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </GlassCard>
-            <GlassCard isDark={isDark} className="flex-1 min-h-0" innerClassName="px-4 py-4 sm:py-2.5" lightGradient={LIGHT_GRAD.blue}>
-              <span className={label}>Get in touch</span>
-              <div className="grid grid-cols-2 gap-2">
-                {socialLinks.map(({ label: name, href, accent, icon: Icon }) => (
-                  <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="group flex min-h-11 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:min-h-0 sm:gap-2">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-all sm:h-8 sm:w-8 duration-200 group-hover:scale-110"
-                      style={{ backgroundColor: `${accent}22`, border: `1.5px solid ${accent}55` }}>
-                      <Icon className="h-[15px] w-[15px]" style={{ color: accent }} />
-                    </div>
-                    <span className={cn("font-mono text-[0.8rem] leading-tight sm:text-[0.62rem]", isDark ? "text-white/70 sm:text-white/50" : "text-slate-500")}>{name}</span>
-                  </a>
-                ))}
-              </div>
-            </GlassCard>
-          </motion.div>
-
-          {/* ══ Col C Row 3 · Currently ══ */}
-          <motion.div
-            variants={colC2Variants} initial="hidden" whileInView="visible" viewport={REVEAL_VIEWPORT}
-            className="flex flex-col gap-3 sm:flex-row lg:col-start-3 lg:row-start-3 lg:min-h-0"
-          >
-            {currentlyItems.map((item) => (
-              <CurrentlyCard key={item.category} isDark={isDark} item={item} />
-            ))}
-          </motion.div>
-
-        </div>
+          </div>
+        </main>
       </div>
     </motion.div>
   );
