@@ -1,13 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import {
-  Grid2x2,
   House,
   Mail,
-  Sparkles,
   UserRound,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/portfolio/theme-toggle";
 
 const LINKEDIN_URL = "https://www.linkedin.com/in/aaryan-shrivastava1403";
 
@@ -21,18 +21,16 @@ function LinkedinIcon({ className }: { className?: string }) {
 
 type NavigationBarProps = {
   isDark: boolean;
-  layoutMode: "spread" | "grid";
   feedback: string | null;
   currentView: "home" | "about" | "casestudy";
   onGoHome: () => void;
-  onToggleTheme: () => void;
-  onToggleLayout: () => void;
+  onToggleTheme: (origin: { x: number; y: number }) => void;
   onCopyEmail: () => void;
   onOpenAbout: () => void;
 };
 
 type ActionButtonProps = {
-  icon: typeof Sparkles;
+  icon: LucideIcon;
   label: string;
   onClick: () => void;
   isDark: boolean;
@@ -114,12 +112,10 @@ function ActionButton({
 
 export function NavigationBar({
   isDark,
-  layoutMode,
   feedback,
   currentView,
   onGoHome,
   onToggleTheme,
-  onToggleLayout,
   onCopyEmail,
   onOpenAbout,
 }: NavigationBarProps) {
@@ -128,7 +124,7 @@ export function NavigationBar({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 lg:left-[68%]"
+      className={cn("fixed bottom-5 left-1/2 z-50 -translate-x-1/2", currentView !== "home" && "lg:left-[68%]")}
       aria-label="Portfolio navigation"
     >
       <div className="relative">
@@ -154,12 +150,7 @@ export function NavigationBar({
           )}
         >
         <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2">
-          <ActionButton
-            icon={Sparkles}
-            label={isDark ? "Light mode" : "Dark mode"}
-            onClick={onToggleTheme}
-            isDark={isDark}
-          />
+          <ThemeToggle isDark={isDark} onToggle={onToggleTheme} />
           <ActionButton
             icon={House}
             label="Home"
@@ -167,16 +158,6 @@ export function NavigationBar({
             isDark={isDark}
             isCurrent={currentView === "home"}
           />
-          {currentView !== "about" && currentView !== "casestudy" && (
-            <div className="hidden lg:contents">
-              <ActionButton
-                icon={Grid2x2}
-                label={layoutMode === "spread" ? "Grid layout" : "Spread layout"}
-                onClick={onToggleLayout}
-                isDark={isDark}
-              />
-            </div>
-          )}
           <ActionButton
             icon={Mail}
             label="Copy email"

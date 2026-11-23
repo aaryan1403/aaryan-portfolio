@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Palette, Gamepad2, UtensilsCrossed, FileDown, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CV_URL } from "@/lib/links";
 import aaryanPhoto from "@/assets/aaryan-photo.jpg";
 import aaryanMobilePhoto from "@/assets/projects/Aaryan_mobile_Image.jpeg";
 import { GridBackground } from "@/components/portfolio/grid-background";
@@ -90,7 +91,7 @@ type SocialLink = {
 
 const socialLinks: SocialLink[] = [
   { label: "LinkedIn",  href: "https://www.linkedin.com/in/aaryan-shrivastava1403", accent: "#0A66C2", icon: LinkedinIcon  },
-  { label: "Resume",    href: "https://drive.google.com/file/d/1PV7l0OW4BCMYg53OSxyESpAf0Z66Tpu2/view?usp=sharing", accent: "#8B5CF6", icon: FileDown     },
+  { label: "Resume",    href: CV_URL, accent: "#8B5CF6", icon: FileDown     },
   { label: "Behance",   href: "https://www.behance.net/aaryanshrivas1", accent: "#1769FF", icon: BehanceIcon  },
   { label: "Calendly",  href: "https://calendly.com/aaryan-shri1403", accent: "#006BFF", icon: CalendarDays },
 ];
@@ -141,7 +142,7 @@ function BlinkingKaomoji({ isDark }: { isDark: boolean }) {
   };
 
   return (
-    <span className={cn("font-['Caveat'] text-[1.25rem]", isDark ? "text-white/55" : "text-slate-500")}>
+    <span className={cn("mt-1 text-[15px]", isDark ? "text-white/55" : "text-slate-500")}>
       {"(That's me "}
       <motion.span style={eyeStyle} animate={{ scaleY: blink ? 0.08 : 1 }} transition={{ duration: 0.25, ease: "easeInOut" }}>◕</motion.span>
       ‿
@@ -194,15 +195,15 @@ function Timeline({ isDark, items }: { isDark: boolean; items: TimelineItem[] })
               />
             )}
             <div>
-              <p className={cn("font-['Caveat'] text-[1.6rem] leading-tight", isDark ? "text-white/92" : "text-slate-900")}>
+              <p className={cn("text-[1.2rem] font-medium leading-snug tracking-[-0.01em]", isDark ? "text-white" : "text-slate-950")}>
                 {item.role}
               </p>
-              <p className={cn("mt-0.5 text-[0.95rem]", isDark ? "text-white/70" : "text-slate-600")}>
+              <p className={cn("mt-1 text-[15px]", isDark ? "text-white/70" : "text-slate-600")}>
                 {item.company}
               </p>
             </div>
             <p className={cn(
-              "mt-1 font-mono text-[12px] tabular-nums sm:mt-2.5 sm:text-right",
+              "mt-1 text-[14px] tabular-nums sm:mt-1 sm:text-right",
               isDark ? "text-white/55" : "text-slate-500",
             )}>
               {item.period}
@@ -223,10 +224,9 @@ export function AboutView({ isDark }: AboutViewProps) {
   const bodyText = isDark ? "text-white/75" : "text-slate-700";
   const emphasis = cn("font-semibold", isDark ? "text-white" : "text-slate-900");
   const sectionHeading = cn(
-    "mb-8 font-['Caveat'] text-[2.1rem] leading-none",
-    isDark ? "text-white/92" : "text-slate-900",
+    "mb-8 text-[clamp(1.6rem,2.4vw,2rem)] font-medium leading-none tracking-[-0.02em]",
+    isDark ? "text-white" : "text-slate-950",
   );
-  const leadIn = cn("font-['Caveat'] text-[1.45rem] leading-snug", isDark ? "text-white" : "text-slate-900");
 
   return (
     <motion.div
@@ -301,7 +301,7 @@ export function AboutView({ isDark }: AboutViewProps) {
             </motion.div>
           </LiquidGlassCard>
 
-          <h1 className={cn("mt-6 font-['Caveat'] text-[2.75rem] leading-[0.95] lg:text-[2.4rem]", isDark ? "text-white/92" : "text-slate-900")}>
+          <h1 className={cn("mt-6 text-[2.25rem] font-medium leading-[1.05] tracking-[-0.03em] lg:text-[2rem]", isDark ? "text-white" : "text-slate-950")}>
             Aaryan Shrivastava
           </h1>
           <BlinkingKaomoji isDark={isDark} />
@@ -366,10 +366,10 @@ export function AboutView({ isDark }: AboutViewProps) {
           <div className="max-w-[40rem]">
 
             <motion.section {...sectionReveal} transition={{ ...sectionReveal.transition, delay: 0.25 }} aria-label="About me">
-              <p className={cn("font-['Caveat'] text-[2.6rem] leading-[1.05] [text-wrap:balance] lg:text-[3.2rem]", isDark ? "text-white/95" : "text-slate-900")}>
-                Hey, it's lovely to have you here.
+              <p className={cn("text-[clamp(2.25rem,4vw,3.5rem)] font-medium leading-[1.05] tracking-[-0.03em] text-balance", isDark ? "text-white" : "text-slate-950")}>
+                Hey, it’s <span className="mr-[0.08em] inline-block font-['Caveat'] text-[1.2em] font-semibold leading-none tracking-normal text-[#ff9a62]">lovely</span> to have you here.
               </p>
-              <div className={cn("mt-6 space-y-5 text-[1.05rem] leading-[1.7]", bodyText)}>
+              <div className={cn("mt-8 space-y-5 text-[17px] leading-[1.65]", bodyText)}>
                 <p>
                   I’m a product designer based in Dublin, with <strong className={emphasis}>three years of experience</strong> across luxury, SaaS and data-heavy platforms. I’ve designed and shipped products end to end, taking ideas from a blank page to working software, from partner dashboards to mobile apps. At XARISS, a luxury concierge platform, I rebuilt a partner dashboard that <strong className={emphasis}>cut decision time from over 30 minutes to under 10</strong>, and I now <strong className={emphasis}>build the front end myself in code</strong>.
                 </p>
@@ -387,8 +387,8 @@ export function AboutView({ isDark }: AboutViewProps) {
                 </figcaption>
               </figure>
 
-              <p className={cn("text-[1.05rem] leading-[1.7]", bodyText)}>
-                <span className={leadIn}>Outside of work,</span>{" "}you will find me Playing an RPG, Going cafe hunting where I can read my book, Watching Football or making sweets from all around the globe.
+              <p className={cn("text-[17px] leading-[1.65]", bodyText)}>
+                <strong className={emphasis}>Outside of work,</strong>{" "}you will find me playing an RPG, going cafe hunting where I can read my book, watching football or making sweets from all around the globe.
               </p>
             </motion.section>
 
@@ -410,7 +410,7 @@ export function AboutView({ isDark }: AboutViewProps) {
                     <span className="flex h-11 w-11 items-center justify-center rounded-xl shadow-md" style={{ backgroundColor: tool.bg }}>
                       <img src={tool.iconUrl} alt="" loading="lazy" decoding="async" className="h-5 w-5" />
                     </span>
-                    <span className={cn("font-mono text-[11px]", isDark ? "text-white/60" : "text-slate-500")}>{tool.name}</span>
+                    <span className={cn("text-[12px]", isDark ? "text-white/60" : "text-slate-500")}>{tool.name}</span>
                   </li>
                 ))}
               </ul>
